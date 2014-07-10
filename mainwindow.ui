@@ -31,15 +31,15 @@
         <item>
          <widget class="QToolBox" name="toolBox">
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>294</width>
-             <height>301</height>
+             <width>293</width>
+             <height>287</height>
             </rect>
            </property>
            <attribute name="label">
@@ -153,7 +153,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>294</width>
+             <width>283</width>
              <height>301</height>
             </rect>
            </property>
@@ -241,6 +241,26 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="wellFormed">
+              <property name="text">
+               <string>Is Well Formed</string>
+              </property>
+              <property name="tristate">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="isValid">
+              <property name="text">
+               <string>Is Valid</string>
+              </property>
+              <property name="tristate">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="page_3">
@@ -248,8 +268,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>294</width>
-             <height>301</height>
+             <width>292</width>
+             <height>287</height>
             </rect>
            </property>
            <attribute name="label">
@@ -302,7 +322,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>315</width>
+         <width>326</width>
          <height>405</height>
         </rect>
        </property>

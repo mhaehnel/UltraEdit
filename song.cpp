@@ -5,7 +5,7 @@
 
 QStringList Song::seenTags;
 
-Song::Song(const QFileInfo& source) : txt(source)
+Song::Song(const QFileInfo& source) : _txt(source)
 {
     if (!source.exists()) {
         qWarning() << "Tried to load non-existing song" << source.filePath() << "! Unable to determine canonical path";
@@ -38,41 +38,47 @@ Song::Song(const QFileInfo& source) : txt(source)
                 continue;
             }
             QString tag = elements.first().toUpper();
-            QString value = elements.last();
+            QString value = elements.last().trimmed();
             if (value.trimmed().isEmpty()) {
                 qWarning() << QString("[%1:%2]: Tag without parameter! Skipping.").arg(source.filePath()).arg(lineNo);
                 wellFormed = false;
                 continue;
             }
             if (!seenTags.contains(tag)) seenTags.append(tag);
-            if (tag == "TITLE") _title = value.trimmed();
-            if (tag == "ARTIST") _artist = value.trimmed();
+            if (tag == "TITLE") _title = value;
+            if (tag == "ARTIST") _artist = value;
             if (tag == "MP3") {
-                mp3.setFile(txt.dir(),value);
-                if (!mp3.isFile()) {
+                _mp3.setFile(_txt.dir(),value);
+                if (!_mp3.exists()) {
                     qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
                 }
             }
             if (tag == "COVER") {
-                cov.setFile(txt.dir(),value);
-                if (!cov.isFile()) {
+                _cov.setFile(_txt.dir(),value);
+                if (!_cov.exists()) {
                     qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
+                } else {
+                    _hasCov = true;
                 }
             }
             if (tag == "BACKGROUND") {
-                bg.setFile(txt.dir(),value);
-                if (!bg.isFile()) {
+                _bg.setFile(_txt.dir(),value);
+                if (!_bg.exists()) {
                     qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
+                } else {
+                    _hasBg = true;
                 }
             }
             if (tag == "VIDEO") {
-                vid.setFile(txt.dir(),value);
-                if (!vid.isFile()) {
+                _vid.setFile(_txt.dir(),value);
+                if (!_vid.exists()) {
                     qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
+                } else {
+                    _hasVid = true;
                 }
             }
             //TODO: qWarning() << "Unknown Tag " << tag;
@@ -106,9 +112,10 @@ Song::Song(const QFileInfo& source) : txt(source)
             }
             if (_players+1 != newPlayer) {
                 qWarning() << QString("[%1:%2]: Found player number %3 without having a number %4!!").
-                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);
+                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);			      
                 wellFormed = false;
             }
+	    _players = newPlayer;
         } else {
             qWarning() << QString("[%1:%2]: Line could not be interpreted!").arg(source.filePath()).arg(lineNo);
             wellFormed = false;
@@ -117,15 +124,15 @@ Song::Song(const QFileInfo& source) : txt(source)
 }
 
 bool Song::hasBG() const {
-    return valid && _bg;
+    return valid && _hasBg;
 }
 
 bool Song::hasVideo() const {
-    return valid && _vid;
+    return valid && _hasVid;
 }
 
 bool Song::hasCover() const {
-    return valid && _cov;
+    return valid && _hasCov;
 }
 
 bool Song::isWellFormed() const {
@@ -136,7 +143,15 @@ bool Song::isValid() const {
     return valid;
 }
 
-QString Song::title() const { return _title; }
+const QFileInfo& Song::mp3() const {
+    return _mp3;
+}
+
+QString Song::title() const
+{
+    if (!valid) return _txt.path();
+    return _title;
+}
 QString Song::artist() const { return _artist; }
 
 //Todo: Whatever needs to be constructed on copy
