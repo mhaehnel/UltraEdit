@@ -1,9 +1,11 @@
 #include "song.h"
 #include <QTextStream>
 #include <QDebug>
+#include <QPixmap>
 #include <QDir>
 
 QStringList Song::seenTags;
+QPixmap* Song::noCover = nullptr;
 
 Song::Song(const QFileInfo& source) : _txt(source)
 {
@@ -27,20 +29,20 @@ Song::Song(const QFileInfo& source) : _txt(source)
         if (line.startsWith('#')) {
             if (endOfTags) {
                 wellFormed = false;
-                qWarning() << QString("[%1:%2]: Tags after end of tag section. Discarding Tag!").arg(source.filePath()).arg(lineNo);
+//                qWarning() << QString("[%1:%2]: Tags after end of tag section. Discarding Tag!").arg(source.filePath()).arg(lineNo);
                 continue;
             }
             line.remove(0,1);
             QStringList elements = line.split(':');
             if (elements.length() != 2) {
                 wellFormed = false;
-                qWarning() << QString("[%1:%2]: Malformed Tag! Skipping.").arg(source.filePath()).arg(lineNo);
+//                qWarning() << QString("[%1:%2]: Malformed Tag! Skipping.").arg(source.filePath()).arg(lineNo);
                 continue;
             }
             QString tag = elements.first().toUpper();
             QString value = elements.last().trimmed();
             if (value.trimmed().isEmpty()) {
-                qWarning() << QString("[%1:%2]: Tag without parameter! Skipping.").arg(source.filePath()).arg(lineNo);
+//                qWarning() << QString("[%1:%2]: Tag without parameter! Skipping.").arg(source.filePath()).arg(lineNo);
                 wellFormed = false;
                 continue;
             }
@@ -50,14 +52,14 @@ Song::Song(const QFileInfo& source) : _txt(source)
             if (tag == "MP3") {
                 _mp3.setFile(_txt.dir(),value);
                 if (!_mp3.exists()) {
-                    qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+//                    qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
                 }
             }
             if (tag == "COVER") {
                 _cov.setFile(_txt.dir(),value);
                 if (!_cov.exists()) {
-                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+//                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
                 } else {
                     _hasCov = true;
@@ -66,7 +68,7 @@ Song::Song(const QFileInfo& source) : _txt(source)
             if (tag == "BACKGROUND") {
                 _bg.setFile(_txt.dir(),value);
                 if (!_bg.exists()) {
-                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+//                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
                 } else {
                     _hasBg = true;
@@ -75,7 +77,7 @@ Song::Song(const QFileInfo& source) : _txt(source)
             if (tag == "VIDEO") {
                 _vid.setFile(_txt.dir(),value);
                 if (!_vid.exists()) {
-                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+//                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
                 } else {
                     _hasVid = true;
@@ -99,7 +101,7 @@ Song::Song(const QFileInfo& source) : _txt(source)
         } else if (line.startsWith('E')) {
             //End of file
             if (!in.atEnd()) {
-                qWarning() << QString("[%1:%2]: Data beyond end of file!").arg(source.filePath()).arg(lineNo);
+//                qWarning() << QString("[%1:%2]: Data beyond end of file!").arg(source.filePath()).arg(lineNo);
                 wellFormed = false;
                 break;
             }
@@ -107,17 +109,17 @@ Song::Song(const QFileInfo& source) : _txt(source)
             bool ok;
             int newPlayer = line.trimmed().remove(0,1).toInt(&ok);
             if (!ok) {
-                qWarning() << QString("[%1:%2]: Malformed playernumber!!").arg(source.filePath()).arg(lineNo);
+//                qWarning() << QString("[%1:%2]: Malformed playernumber!!").arg(source.filePath()).arg(lineNo);
                 wellFormed = false;
             }
             if (_players+1 != newPlayer) {
-                qWarning() << QString("[%1:%2]: Found player number %3 without having a number %4!!").
-                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);			      
+//                qWarning() << QString("[%1:%2]: Found player number %3 without having a number %4!!").
+//                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);
                 wellFormed = false;
             }
 	    _players = newPlayer;
         } else {
-            qWarning() << QString("[%1:%2]: Line could not be interpreted!").arg(source.filePath()).arg(lineNo);
+//            qWarning() << QString("[%1:%2]: Line could not be interpreted!").arg(source.filePath()).arg(lineNo);
             wellFormed = false;
         }
     }
@@ -147,11 +149,22 @@ const QFileInfo& Song::mp3() const {
     return _mp3;
 }
 
-QString Song::title() const
+const QString Song::title() const
 {
     if (!valid) return _txt.path();
     return _title;
 }
-QString Song::artist() const { return _artist; }
+const QString &Song::artist() const { return _artist; }
+
+QPixmap Song::cover() {
+    if (_hasCov) {
+        if (_covPM.isNull())
+            _covPM = QPixmap(_cov.canonicalFilePath()).scaled(128,128,Qt::KeepAspectRatio);
+        return _covPM;
+    }
+    if (noCover == nullptr)
+        noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(128,128,Qt::KeepAspectRatio));
+    return *noCover; //TODO: Dummy image!
+}
 
 //Todo: Whatever needs to be constructed on copy

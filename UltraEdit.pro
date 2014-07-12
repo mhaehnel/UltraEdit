@@ -4,9 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui concurrent
 
 CONFIG += c++11
+
+QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_LFLAGS_DEBUG += -pg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,3 +36,6 @@ FORMS    += mainwindow.ui \
     songinfo.ui \
     selectsongdirs.ui \
     songwidget.ui
+
+RESOURCES += \
+    ultraedit.qrc

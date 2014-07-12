@@ -11,9 +11,10 @@ class SongWidget;
 class SongWidget : public QWidget
 {
     Q_OBJECT
-
+    Song* _song;
 public:
-    explicit SongWidget(const Song &song, QWidget *parent = 0);
+    explicit SongWidget(Song *song, QWidget *parent = 0);
+    Song* song();
     ~SongWidget();
 private:
     Ui::SongWidget *ui;

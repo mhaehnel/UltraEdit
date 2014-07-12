@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
+   <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="tabPosition">
@@ -31,15 +31,15 @@
         <item>
          <widget class="QToolBox" name="toolBox">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>293</width>
-             <height>287</height>
+             <width>274</width>
+             <height>326</height>
             </rect>
            </property>
            <attribute name="label">
@@ -153,8 +153,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>283</width>
-             <height>301</height>
+             <width>274</width>
+             <height>326</height>
             </rect>
            </property>
            <attribute name="label">
@@ -268,8 +268,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>292</width>
-             <height>287</height>
+             <width>274</width>
+             <height>326</height>
             </rect>
            </property>
            <attribute name="label">
@@ -322,8 +322,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>326</width>
-         <height>405</height>
+         <width>342</width>
+         <height>424</height>
         </rect>
        </property>
       </widget>
@@ -337,7 +337,7 @@
      <x>0</x>
      <y>0</y>
      <width>681</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
@@ -397,6 +397,17 @@
     <string>Validator ...</string>
    </property>
   </action>
+  <action name="actionRefresh_List">
+   <property name="text">
+    <string>Refresh List</string>
+   </property>
+   <property name="toolTip">
+    <string>Refreshes the Songlist</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
@@ -417,5 +428,456 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>missingBackgroundFile</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingCoverFile</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingMP3File</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingMandatoryTags</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingSongtextFile</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingVideoFile</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hasUnknownTags</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>startsAt0</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>isValid</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wellFormed</sender>
+   <signal>clicked()</signal>
+   <receiver>actionChecker_Settings</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingSongtextFile</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>113</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingMandatoryTags</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hasUnknownTags</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>184</x>
+     <y>174</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingMP3File</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingCoverFile</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>208</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingVideoFile</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missingBackgroundFile</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>startsAt0</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wellFormed</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>isValid</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>403</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>titleFilter</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>94</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>artistFilter</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>298</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>minGap</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maxGap</sender>
+   <signal>valueChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>208</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>minBPM</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>295</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maxBPM</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hasVideo</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>353</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>353</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hasBackground</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>refreshList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>refreshList()</slot>
+ </slots>
 </ui>

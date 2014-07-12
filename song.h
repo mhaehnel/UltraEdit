@@ -3,6 +3,7 @@
 
 #include <QFileInfo>
 #include <QMap>
+#include <QPixmap>
 
 class Song : public QObject
 {
@@ -19,8 +20,10 @@ private:
     int _players = 0; //stays 0 for simple file
     QString _title, _artist;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
+    QPixmap _covPM;
     QMap<QString,QString> tags;
     static QStringList seenTags;
+    static QPixmap* noCover;
 
 public:
     Song(const QFileInfo& source);
@@ -40,10 +43,12 @@ public:
     const QFileInfo& vid() const;
     const QFileInfo& cov() const;
     const QFileInfo& bg() const;
-    QString artist() const;
-    QString title() const;
-    QPixmap cover() const;
+    const QString& artist() const;
+    const QString title() const;
+    QPixmap cover();
     QPixmap background() const;
 };
+
+Q_DECLARE_METATYPE(Song*);
 
 #endif // SONG_H

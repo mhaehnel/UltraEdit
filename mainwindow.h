@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <collectionscanner.h>
 #include "song.h"
+#include "songwidget.h"
 #include <QThread>
 #include <QProgressBar>
 
@@ -18,7 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    bool filter(const Song& song);
+    bool filter(const Song* song);
     ~MainWindow();
 
 signals:
@@ -32,6 +33,7 @@ private slots:
 private:
     int notWellFormedCount, invalidCount;
     QList<Song*> songlist;
+    QList<SongWidget*> songwidgets;
     Ui::MainWindow *ui;
     QSettings config;
     QThread scanThread;
