@@ -23,19 +23,19 @@ SOURCES += main.cpp\
     selectsongdirs.cpp \
     song.cpp \
     collectionscanner.cpp \
-    songwidget.cpp
+    songframe.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
     selectsongdirs.h \
     song.h \
     collectionscanner.h \
-    songwidget.h
+    songframe.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
     selectsongdirs.ui \
-    songwidget.ui
+    songframe.ui
 
 RESOURCES += \
     ultraedit.qrc

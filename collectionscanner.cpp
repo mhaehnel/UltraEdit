@@ -1,5 +1,6 @@
 #include "collectionscanner.h"
 #include <QDebug>
+#include <QApplication>
 #include <QDirIterator>
 
 CollectionScanner::CollectionScanner(QObject *parent) :

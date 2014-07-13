@@ -1,5 +1,5 @@
-#include "songwidget.h"
-#include "ui_songwidget.h"
+#include "songframe.h"
+#include "ui_songframe.h"
 
 //TODO: Credit multiplayer icon author:
 //<div>Icon made by <a href="http://www.freepik.com" alt="Freepik.com" title="Freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/two-persons-silhouettes_35120" title="Flaticon">www.flaticon.com</a></div>
@@ -12,21 +12,26 @@
 //TODO: Credit Background icon author:
 //<div>Icon made by <a href="http://www.freepik.com" alt="Freepik.com" title="Freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/movie_31087" title="Flaticon">www.flaticon.com</a></div>
 
-SongWidget::SongWidget(Song *song, QWidget *parent) :
-    QWidget(parent), _song(song),
-    ui(new Ui::SongWidget)
+SongFrame::SongFrame(Song *song, QWidget *parent) :
+    QFrame(parent), _song(song),
+    ui(new Ui::songframe)
 {
     ui->setupUi(this);
     ui->title->setText(ui->title->text().replace("#TITLE#",song->title()));
     ui->artist->setText(ui->artist->text().replace("#ARTIST#",song->artist()));
     ui->cover->setPixmap(song->cover());
+//    setAttribute(Qt::WA_StyledBackground);
 }
 
-Song* SongWidget::song() {
+Song* SongFrame::song() {
     return _song;
 }
 
-SongWidget::~SongWidget()
+const Song* SongFrame::song() const {
+    return _song;
+}
+
+SongFrame::~SongFrame()
 {
     delete ui;
 }

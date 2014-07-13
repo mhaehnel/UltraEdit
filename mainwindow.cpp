@@ -2,7 +2,6 @@
 #include <QSemaphore>
 #include "mainwindow.h"
 #include "selectsongdirs.h"
-#include "songwidget.h"
 #include "ui_mainwindow.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
@@ -35,11 +34,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this,&MainWindow::rescanCollection,&scanner,&CollectionScanner::scanCollection);
     connect(&scanner,&CollectionScanner::foundSong,this,&MainWindow::addSong);
-    connect(&scanner,&CollectionScanner::scanFinished, this, &MainWindow::refreshList);
     connect(ui->actionRefresh_List,&QAction::triggered,this,&MainWindow::refreshList);
     connect(&scanner,&CollectionScanner::scanFinished, [this] {
-//        statusProgress.setValue(100);
-//        statusProgress.setRange(0,100);
+        ((QBoxLayout*)ui->songList->layout())->addStretch(1);
+        QMetaObject::invokeMethod(this,"regroupList");
+        QMetaObject::invokeMethod(this,"resortList");
     });
     connect(&scanner,&CollectionScanner::scanStarted,[this] {
        statusProgress.setRange(0,0);
@@ -84,8 +83,22 @@ bool MainWindow::filter(const Song *song) {
         case Qt::Checked:   if (!song->isValid()) return false; break;
         case Qt::Unchecked: if (song->isValid()) return false; break;
     }
+    if (!ui->titleFilter->text().isEmpty() && !song->title().contains(ui->titleFilter->text(),Qt::CaseInsensitive)) return false;
+    if (!ui->artistFilter->text().isEmpty() && !song->artist().contains(ui->artistFilter->text(),Qt::CaseInsensitive)) return false;
     return true;
     //TODO: freestyle / goldennote / players
+}
+
+QString MainWindow::getGroup(Song *song) {
+    if (!ui->groupList->isChecked()) return "*";
+    //we need to group
+    if (ui->groupArtist->isChecked()) return song->artist();
+}
+
+void MainWindow::regroupList() {
+    groupedFrames.clear();
+    for (SongFrame* sf : songFrames)
+        groupedFrames[getGroup(sf->song())].append(sf);
 }
 
 void MainWindow::refreshList() {
@@ -108,11 +121,12 @@ void MainWindow::refreshList() {
     qWarning() << "Creating items ...";
     do {
         redo = false;
-        QFuture<Song*> sl = QtConcurrent::filtered(songlist,[this] (Song* s) -> bool { return filter(s); });
+        QFuture<Song*> sl = QtConcurrent::filtered(songList,[this] (Song* s) -> bool { return filter(s); });
         int cnt = 0;
         sl.waitForFinished();
-        statusProgress.setRange(0,songwidgets.count()); //sl.resultCount());
-        for (SongWidget *sw : songwidgets) {
+        statusProgress.setRange(0,songFrames.count()); //sl.resultCount());
+
+        for (SongFrame *sw : songFrames) {
             statusProgress.setValue(cnt++);
             if (sl.results().contains(sw->song()) && !sw->isVisible()) {
                 sw->show();
@@ -145,13 +159,35 @@ void MainWindow::on_actionSources_triggered()
         emit rescanCollection(config.value("songdirs").toStringList());
 }
 
+bool MainWindow::songCompare(SongFrame* s1, SongFrame* s2) { //less than
+}
+
+void MainWindow::resortList() {
+    qWarning() << "Starting sort";
+    for (SongFrame* wi : songFrames) ui->songList->layout()->removeWidget(wi);
+    std::sort(songFrames.begin(),songFrames.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
+        if (!ui->reverseSort->isChecked()) {
+            if (ui->sortTitle->isChecked()) return (s1->song()->title() < s2->song()->title());
+            if (ui->sortArtist->isChecked()) return (s1->song()->artist() < s2->song()->artist());
+        } else {
+            if (ui->sortTitle->isChecked()) return (s1->song()->title() > s2->song()->title());
+            if (ui->sortArtist->isChecked()) return (s1->song()->artist() > s2->song()->artist());
+        }
+        qDebug() << "Fallback";
+        return s1 < s2;
+    });
+    for (SongFrame* wi : songFrames) ui->songList->layout()->addWidget(wi);
+    qWarning() << "Sorting finished, refreshing";
+    refreshList();
+}
+
 void MainWindow::addSong(Song *song) {
-    songlist.append(song);
-    SongWidget* sw = new SongWidget(song,ui->songList);
+    songList.append(song);
+    SongFrame* sw = new SongFrame(song);
     sw->hide();
-    songwidgets.append(sw);
-    ui->songList->layout()->addWidget(sw);
+    songFrames.append(sw);
+//    ui->songList->layout()->addWidget(sw);
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
-    statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songlist.size()).arg(invalidCount).arg(notWellFormedCount));
+    statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));
 }

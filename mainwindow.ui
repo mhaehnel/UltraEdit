@@ -16,12 +16,15 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="sortTab">
       <property name="tabPosition">
        <enum>QTabWidget::West</enum>
       </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Triangular</enum>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -30,6 +33,12 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QToolBox" name="toolBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="currentIndex">
            <number>0</number>
           </property>
@@ -41,6 +50,12 @@
              <width>274</width>
              <height>326</height>
             </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
            <attribute name="label">
             <string>Tags</string>
@@ -56,7 +71,14 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="titleFilter"/>
+               <widget class="QLineEdit" name="titleFilter">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_2">
@@ -66,7 +88,14 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLineEdit" name="artistFilter"/>
+               <widget class="QLineEdit" name="artistFilter">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -153,8 +182,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>274</width>
-             <height>326</height>
+             <width>188</width>
+             <height>254</height>
             </rect>
            </property>
            <attribute name="label">
@@ -268,8 +297,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>274</width>
-             <height>326</height>
+             <width>270</width>
+             <height>32</height>
             </rect>
            </property>
            <attribute name="label">
@@ -310,10 +339,91 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Sort &amp;&amp; Group</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QGroupBox" name="sortList">
+          <property name="title">
+           <string>Sort by</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="reverseSort">
+             <property name="text">
+              <string>Descending</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="sortTitle">
+             <property name="text">
+              <string>Title</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="sortArtist">
+             <property name="text">
+              <string>Artist</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupList">
+          <property name="title">
+           <string>Group by</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <widget class="QRadioButton" name="groupArtist">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>40</y>
+             <width>102</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Artist</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
      <widget class="QScrollArea" name="songScroller">
+      <property name="styleSheet">
+       <string notr="true">background-color: palette(light)</string>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -435,8 +545,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>300</y>
+     <x>207</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -451,8 +561,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>238</y>
+     <x>207</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -467,8 +577,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>207</y>
+     <x>207</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -483,8 +593,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>145</y>
+     <x>207</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -499,8 +609,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>114</y>
+     <x>207</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -515,8 +625,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>269</y>
+     <x>207</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -531,8 +641,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>176</y>
+     <x>207</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -547,8 +657,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>331</y>
+     <x>207</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -563,8 +673,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>393</y>
+     <x>207</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -579,8 +689,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>362</y>
+     <x>207</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -595,8 +705,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>113</x>
-     <y>117</y>
+     <x>139</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -611,8 +721,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>193</x>
-     <y>140</y>
+     <x>216</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -627,8 +737,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>174</y>
+     <x>210</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -643,8 +753,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>207</y>
+     <x>209</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -659,8 +769,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>208</x>
-     <y>241</y>
+     <x>216</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -675,8 +785,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>279</y>
+     <x>216</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -691,8 +801,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>310</y>
+     <x>216</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -707,8 +817,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>341</y>
+     <x>216</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -723,8 +833,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>179</x>
-     <y>360</y>
+     <x>205</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -739,8 +849,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>193</x>
-     <y>383</y>
+     <x>216</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -787,8 +897,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>112</x>
-     <y>202</y>
+     <x>127</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -803,8 +913,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>281</x>
-     <y>205</y>
+     <x>306</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -819,8 +929,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>295</y>
+     <x>127</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>328</x>
@@ -835,8 +945,8 @@
    <slot>refreshList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>265</x>
-     <y>292</y>
+     <x>306</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>326</x>
@@ -876,8 +986,57 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sortTitle</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resortList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>70</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sortArtist</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resortList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>198</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>reverseSort</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resortList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>refreshList()</slot>
+  <slot>resortList()</slot>
  </slots>
 </ui>

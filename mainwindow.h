@@ -5,7 +5,7 @@
 #include <QSettings>
 #include <collectionscanner.h>
 #include "song.h"
-#include "songwidget.h"
+#include "songframe.h"
 #include <QThread>
 #include <QProgressBar>
 
@@ -29,11 +29,16 @@ private slots:
     void on_actionSources_triggered();
     void addSong(Song* song);
     void refreshList();
+    void resortList();
+    void regroupList();
+    bool songCompare(SongFrame* s1, SongFrame* s2);
 
 private:
+    QString getGroup(Song* song);
     int notWellFormedCount, invalidCount;
-    QList<Song*> songlist;
-    QList<SongWidget*> songwidgets;
+    QList<Song*> songList;
+    QList<SongFrame*> songFrames;
+    QMap<QString,QList<SongFrame*>> groupedFrames;
     Ui::MainWindow *ui;
     QSettings config;
     QThread scanThread;
