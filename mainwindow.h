@@ -29,12 +29,12 @@ private slots:
     void on_actionSources_triggered();
     void addSong(Song* song);
     void refreshList();
-    void resortList();
     void regroupList();
-    bool songCompare(SongFrame* s1, SongFrame* s2);
 
 private:
     QString getGroup(Song* song);
+    void sortList(QList<SongFrame*> &lst);
+
     int notWellFormedCount, invalidCount;
     QList<Song*> songList;
     QList<SongFrame*> songFrames;

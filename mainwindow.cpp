@@ -7,6 +7,7 @@
 #include <QFuture>
 #include <QMutex>
 #include <atomic>
+#include <cassert>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
@@ -121,9 +122,14 @@ void MainWindow::refreshList() {
     qWarning() << "Creating items ...";
     do {
         redo = false;
-        QFuture<Song*> sl = QtConcurrent::filtered(songList,[this] (Song* s) -> bool { return filter(s); });
+        //Sort all groups ..
+        QHash<QString,QFuture<SongFrame*>> groupedAndFiltered;
+        for (QString key : groupedFrames.keys()) {
+            groupedAndFiltered[key] = QtConcurrent::filtered(groupedFrames[key],[this] (SongFrame* s) -> bool { return filter(s->song()); });
+            sortList(groupedAndFiltered[key]);
+        }
         int cnt = 0;
-        sl.waitForFinished();
+        assert(groupedAndFiltered.keys().count() == 1);
         statusProgress.setRange(0,songFrames.count()); //sl.resultCount());
 
         for (SongFrame *sw : songFrames) {
@@ -159,13 +165,10 @@ void MainWindow::on_actionSources_triggered()
         emit rescanCollection(config.value("songdirs").toStringList());
 }
 
-bool MainWindow::songCompare(SongFrame* s1, SongFrame* s2) { //less than
-}
-
-void MainWindow::resortList() {
+void MainWindow::sortList(QList<SongFrame*> &lst) {
     qWarning() << "Starting sort";
-    for (SongFrame* wi : songFrames) ui->songList->layout()->removeWidget(wi);
-    std::sort(songFrames.begin(),songFrames.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
+    //for (SongFrame* wi : songFrames) ui->songList->layout()->removeWidget(wi);
+    std::sort(lst.begin(),lst.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
         if (!ui->reverseSort->isChecked()) {
             if (ui->sortTitle->isChecked()) return (s1->song()->title() < s2->song()->title());
             if (ui->sortArtist->isChecked()) return (s1->song()->artist() < s2->song()->artist());
