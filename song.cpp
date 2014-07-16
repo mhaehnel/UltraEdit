@@ -58,29 +58,26 @@ Song::Song(const QFileInfo& source) : _txt(source)
             }
             if (tag == "COVER") {
                 _cov.setFile(_txt.dir(),value);
+                _hasCov = true;
                 if (!_cov.exists()) {
 //                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
-                } else {
-                    _hasCov = true;
                 }
             }
             if (tag == "BACKGROUND") {
                 _bg.setFile(_txt.dir(),value);
+                _hasBg = true;
                 if (!_bg.exists()) {
 //                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
-                } else {
-                    _hasBg = true;
                 }
             }
             if (tag == "VIDEO") {
                 _vid.setFile(_txt.dir(),value);
+                _hasVid = true;
                 if (!_vid.exists()) {
 //                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
                     wellFormed = false;
-                } else {
-                    _hasVid = true;
                 }
             }
             //TODO: qWarning() << "Unknown Tag " << tag;
@@ -126,15 +123,27 @@ Song::Song(const QFileInfo& source) : _txt(source)
 }
 
 bool Song::hasBG() const {
-    return valid && _hasBg;
+    return _hasBg;
+}
+
+bool Song::missingBG() const {
+    return hasBG() && !_bg.exists();
 }
 
 bool Song::hasVideo() const {
-    return valid && _hasVid;
+    return _hasVid;
+}
+
+bool Song::missingVideo() const {
+    return hasVideo() && !_vid.exists();
 }
 
 bool Song::hasCover() const {
-    return valid && _hasCov;
+    return _hasCov;
+}
+
+bool Song::missingCover() const {
+    return hasCover() && !_cov.exists();
 }
 
 bool Song::isWellFormed() const {
@@ -159,11 +168,11 @@ const QString &Song::artist() const { return _artist; }
 QPixmap Song::cover() {
     if (_hasCov) {
         if (_covPM.isNull())
-            _covPM = QPixmap(_cov.canonicalFilePath()).scaled(128,128,Qt::KeepAspectRatio);
+            _covPM = QPixmap(_cov.canonicalFilePath()).scaled(96,96,Qt::KeepAspectRatio);
         return _covPM;
     }
     if (noCover == nullptr)
-        noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(128,128,Qt::KeepAspectRatio));
+        noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(96,96,Qt::KeepAspectRatio));
     return *noCover; //TODO: Dummy image!
 }
 

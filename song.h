@@ -31,8 +31,11 @@ public:
     Song operator=(const Song&) = delete;
     bool isValid() const;
     bool hasVideo() const;
+    bool missingVideo() const;
     bool hasBG() const;
+    bool missingBG() const;
     bool hasCover() const;
+    bool missingCover() const;
     bool hasGoldenNotes() const;
     bool hasFreestyle() const;
     bool isWellFormed() const;

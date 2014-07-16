@@ -23,14 +23,23 @@
    <enum>QFrame::Sunken</enum>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="cover">
+       <property name="minimumSize">
+        <size>
+         <width>96</width>
+         <height>96</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
-         <width>128</width>
-         <height>128</height>
+         <width>96</width>
+         <height>96</height>
         </size>
        </property>
        <property name="text">
@@ -39,12 +48,12 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="video">
+        <widget class="QLabel" name="multi">
          <property name="maximumSize">
           <size>
            <width>16</width>
@@ -55,45 +64,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="ultraedit.qrc">:/images/video.png</pixmap>
-         </property>
-         <property name="scaledContents">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="background">
-         <property name="maximumSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap resource="ultraedit.qrc">:/images/landscape.png</pixmap>
-         </property>
-         <property name="scaledContents">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="golden">
-         <property name="maximumSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap resource="ultraedit.qrc">:/images/note.png</pixmap>
+          <pixmap resource="ultraedit.qrc">:/images/multi.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -120,7 +91,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="multi">
+        <widget class="QLabel" name="golden">
          <property name="maximumSize">
           <size>
            <width>16</width>
@@ -131,7 +102,45 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="ultraedit.qrc">:/images/multi.png</pixmap>
+          <pixmap resource="ultraedit.qrc">:/images/note.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="background">
+         <property name="maximumSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="ultraedit.qrc">:/images/landscape.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="video">
+         <property name="maximumSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="ultraedit.qrc">:/images/video.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>

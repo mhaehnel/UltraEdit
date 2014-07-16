@@ -20,7 +20,10 @@ SongFrame::SongFrame(Song *song, QWidget *parent) :
     ui->title->setText(ui->title->text().replace("#TITLE#",song->title()));
     ui->artist->setText(ui->artist->text().replace("#ARTIST#",song->artist()));
     ui->cover->setPixmap(song->cover());
-//    setAttribute(Qt::WA_StyledBackground);
+    if (_song->missingBG()) ui->background->setPixmap(QPixmap(":/images/landscape_notFound"));
+    if (!_song->hasBG()) ui->background->setPixmap(QPixmap(":/images/landscape_haveNo"));
+    if (_song->missingVideo()) ui->video->setPixmap(QPixmap(":/images/video_notFound"));
+    if (!_song->hasVideo()) ui->video->setPixmap(QPixmap(":/images/video_haveNo"));
 }
 
 Song* SongFrame::song() {

@@ -6,5 +6,9 @@
         <file>images/note.png</file>
         <file>images/freestyle.png</file>
         <file>images/landscape.png</file>
+        <file>images/landscape_haveNo.png</file>
+        <file>images/video_haveNo.png</file>
+        <file>images/landscape_notFound.png</file>
+        <file>images/video_notFound.png</file>
     </qresource>
 </RCC>

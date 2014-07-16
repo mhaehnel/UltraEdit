@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,0">
     <item>
      <widget class="QTabWidget" name="sortTab">
       <property name="tabPosition">
@@ -40,15 +40,15 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>274</width>
-             <height>326</height>
+             <width>271</width>
+             <height>164</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -398,7 +398,7 @@
            <bool>true</bool>
           </property>
           <property name="checked">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <widget class="QRadioButton" name="groupArtist">
            <property name="geometry">
@@ -411,6 +411,9 @@
            </property>
            <property name="text">
             <string>Artist</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </widget>
@@ -432,12 +435,15 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>342</width>
+         <width>329</width>
          <height>424</height>
         </rect>
        </property>
       </widget>
      </widget>
+    </item>
+    <item>
+     <widget class="SongInfo" name="songDetails" native="true"/>
     </item>
    </layout>
   </widget>
@@ -520,6 +526,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>SongInfo</class>
+   <extends>QWidget</extends>
+   <header>songinfo.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -545,8 +559,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>211</y>
+     <x>212</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -561,8 +575,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>161</y>
+     <x>212</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -577,8 +591,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>136</y>
+     <x>212</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -593,8 +607,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>86</y>
+     <x>212</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -609,8 +623,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>61</y>
+     <x>212</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -625,8 +639,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>186</y>
+     <x>212</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -641,8 +655,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>111</y>
+     <x>212</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -657,8 +671,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>236</y>
+     <x>212</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -673,8 +687,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>286</y>
+     <x>212</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -689,8 +703,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>261</y>
+     <x>212</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -702,11 +716,11 @@
    <sender>missingSongtextFile</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>61</y>
+     <x>144</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -718,11 +732,11 @@
    <sender>missingMandatoryTags</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>86</y>
+     <x>221</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -734,11 +748,11 @@
    <sender>hasUnknownTags</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>111</y>
+     <x>215</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -750,11 +764,11 @@
    <sender>missingMP3File</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>209</x>
-     <y>136</y>
+     <x>214</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -766,11 +780,11 @@
    <sender>missingCoverFile</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>161</y>
+     <x>221</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -782,11 +796,11 @@
    <sender>missingVideoFile</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>186</y>
+     <x>221</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -798,11 +812,11 @@
    <sender>missingBackgroundFile</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>211</y>
+     <x>221</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -814,11 +828,11 @@
    <sender>startsAt0</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>236</y>
+     <x>221</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -830,11 +844,11 @@
    <sender>wellFormed</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>205</x>
-     <y>261</y>
+     <x>210</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -846,11 +860,11 @@
    <sender>isValid</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>286</y>
+     <x>221</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -862,7 +876,7 @@
    <sender>titleFilter</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>133</x>
@@ -878,7 +892,7 @@
    <sender>artistFilter</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
@@ -894,10 +908,10 @@
    <sender>minGap</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
+     <x>126</x>
      <y>289</y>
     </hint>
     <hint type="destinationlabel">
@@ -910,10 +924,10 @@
    <sender>maxGap</sender>
    <signal>valueChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
+     <x>303</x>
      <y>289</y>
     </hint>
     <hint type="destinationlabel">
@@ -926,10 +940,10 @@
    <sender>minBPM</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
+     <x>126</x>
      <y>338</y>
     </hint>
     <hint type="destinationlabel">
@@ -942,10 +956,10 @@
    <sender>maxBPM</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
+     <x>303</x>
      <y>338</y>
     </hint>
     <hint type="destinationlabel">
@@ -958,7 +972,7 @@
    <sender>hasVideo</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>63</x>
@@ -974,7 +988,7 @@
    <sender>hasBackground</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>refreshList()</slot>
+   <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>183</x>
@@ -993,7 +1007,7 @@
    <slot>resortList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>283</x>
+     <x>226</x>
      <y>159</y>
     </hint>
     <hint type="destinationlabel">
@@ -1025,7 +1039,7 @@
    <slot>resortList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
+     <x>226</x>
      <y>105</y>
     </hint>
     <hint type="destinationlabel">
@@ -1034,9 +1048,59 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>groupArtist</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>regroupList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>130</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>288</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupList</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>regroupList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>324</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sortList</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resortList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>428</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>refreshList()</slot>
   <slot>resortList()</slot>
+  <slot>filterList()</slot>
+  <slot>regroupList()</slot>
  </slots>
 </ui>

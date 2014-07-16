@@ -39,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&scanner,&CollectionScanner::scanFinished, [this] {
         ((QBoxLayout*)ui->songList->layout())->addStretch(1);
         QMetaObject::invokeMethod(this,"regroupList");
-        QMetaObject::invokeMethod(this,"resortList");
     });
     connect(&scanner,&CollectionScanner::scanStarted,[this] {
        statusProgress.setRange(0,0);
@@ -58,18 +57,18 @@ MainWindow::~MainWindow()
 bool MainWindow::filter(const Song *song) {
     switch (ui->missingBackgroundFile->checkState())
     {
-      case Qt::Checked:   if (song->hasBG()) return false; break;
-      case Qt::Unchecked: if (!song->hasBG()) return false; break;
+      case Qt::Checked:   if (song->missingBG()) return false; break;
+      case Qt::Unchecked: if (!song->missingBG()) return false; break;
     }
     switch (ui->missingCoverFile->checkState())
     {
-      case Qt::Checked:   if (song->hasCover()) return false; break;
-      case Qt::Unchecked: if (!song->hasCover()) return false; break;
+      case Qt::Checked:   if (song->missingCover()) return false; break;
+      case Qt::Unchecked: if (!song->missingCover()) return false; break;
     }
     switch (ui->missingVideoFile->checkState())
     {
-      case Qt::Checked:   if (song->hasVideo()) return false; break;
-      case Qt::Unchecked: if (!song->hasVideo()) return false; break;
+      case Qt::Checked:   if (song->missingVideo()) return false; break;
+      case Qt::Unchecked: if (!song->missingVideo()) return false; break;
     }
     switch (ui->missingMP3File->checkState())
     {
@@ -86,7 +85,7 @@ bool MainWindow::filter(const Song *song) {
     }
     if (!ui->titleFilter->text().isEmpty() && !song->title().contains(ui->titleFilter->text(),Qt::CaseInsensitive)) return false;
     if (!ui->artistFilter->text().isEmpty() && !song->artist().contains(ui->artistFilter->text(),Qt::CaseInsensitive)) return false;
-    return true;
+    return true; //In!
     //TODO: freestyle / goldennote / players
 }
 
@@ -96,10 +95,98 @@ QString MainWindow::getGroup(Song *song) {
     if (ui->groupArtist->isChecked()) return song->artist();
 }
 
+//This does currently not support rapid regroups! Lock it to make it work!
 void MainWindow::regroupList() {
-    groupedFrames.clear();
-    for (SongFrame* sf : songFrames)
-        groupedFrames[getGroup(sf->song())].append(sf);
+    qDebug() << "regroupList";
+    groupedFrames.clear();  //Frames are only once instanciated. Do not delete!
+    for (SongGroup* sg : songGroups) delete sg; //We govern these. Must be deleted!
+    songGroups.clear();
+
+    for (SongFrame* sf : songFrames) {
+        QString group = getGroup(sf->song());
+        groupedFrames[group].append(sf);
+        songGroups[group] = new SongGroup(group);
+    }
+    for (SongGroup* sg : songGroups) ui->songList->layout()->addWidget(sg);
+    //Sort in group
+    qDebug() << "Starting sort ..";
+    resortList();
+    qDebug() << "Starting filter ...";
+    //hide filtered frames / empty groups
+    filterList();
+    qDebug() << "Finished!";
+}
+
+//This is expensive since it has to readd all layouts! For all groups ... kinde sucks ... so ... regroup is costly!
+void MainWindow::resortList() {
+    qDebug() << "resortList";
+    QList<QString> keys = groupedFrames.keys();
+    QFuture<void> fut = QtConcurrent::map(keys,[this] (QString const& k) { sortFrames(groupedFrames[k]); });
+    fut.waitForFinished();
+
+    //add frames to group widgets (in sort order)
+    statusProgress.setRange(0,songGroups.keys().count());
+    int sp = 0;
+    for (QString g : songGroups.keys()) {
+        QLayoutItem* li = nullptr;
+        songGroups[g]->setVisible(false);
+        while ((li = songGroups[g]->layout().takeAt(0)) != nullptr) {
+            songGroups[g]->layout().removeItem(li);
+        }
+        for (SongFrame* f : groupedFrames[g]) {
+            qApp->processEvents();
+            songGroups[g]->layout().addWidget(f);
+        }
+        songGroups[g]->setVisible(true);
+        statusProgress.setValue(++sp);
+    }
+}
+
+void MainWindow::filterList() {
+    qDebug() << "filterList";
+    static std::atomic<bool> running(false);
+    static QMutex mutex(QMutex::Recursive);
+    static bool redo = false;
+    mutex.lock();
+    if (running.exchange(true)) {
+        //Someone was running ... too bad ;) We signal redo and return
+        qWarning() << "Redo!";
+        redo = true;
+        return;
+    }
+    mutex.unlock();
+
+    do {
+        redo = false;
+        //Filter
+        statusProgress.setRange(0,songFrames.count());
+        int sp = 0;
+
+        for (QString group : songGroups.keys()) {
+            QList<SongFrame*> sl = groupedFrames[group];
+            int cnt = 0;
+            for (SongFrame* sf : sl) {
+                qApp->processEvents();
+                statusProgress.setValue(++sp);
+                bool flt = filter(sf->song());
+                sf->setVisible(flt);
+                if (flt) cnt++;
+                if (redo) break;
+            }
+            if (redo) break;
+            songGroups[group]->setVisible(cnt != 0);
+        }
+
+
+        mutex.lock();
+        if (!redo) {
+            if (!running.exchange(false)) qFatal("Broken lock state! This can not happen");
+            mutex.unlock();
+            return;
+        }
+        mutex.unlock(); //Redo :/
+    } while (redo); //could also be while true!
+    __builtin_unreachable();
 }
 
 void MainWindow::refreshList() {
@@ -110,49 +197,51 @@ void MainWindow::refreshList() {
 
 
     if (ui->songList->layout() == nullptr) return;
-    mutex.lock();
-    if (running.exchange(true)) {
-        //Someone was running ... too bad ;) We signal redo and return
-        qWarning() << "Redo!";
-        redo = true;
-        return;
-    }
-    mutex.unlock();
+    regroupList();
+//    mutex.lock();
+//    if (running.exchange(true)) {
+//        //Someone was running ... too bad ;) We signal redo and return
+//        qWarning() << "Redo!";
+//        redo = true;
+//        return;
+//    }
+//    mutex.unlock();
 
-    qWarning() << "Creating items ...";
-    do {
-        redo = false;
-        //Sort all groups ..
-        QHash<QString,QFuture<SongFrame*>> groupedAndFiltered;
-        for (QString key : groupedFrames.keys()) {
-            groupedAndFiltered[key] = QtConcurrent::filtered(groupedFrames[key],[this] (SongFrame* s) -> bool { return filter(s->song()); });
-            sortList(groupedAndFiltered[key]);
-        }
-        int cnt = 0;
-        assert(groupedAndFiltered.keys().count() == 1);
-        statusProgress.setRange(0,songFrames.count()); //sl.resultCount());
+//    qWarning() << "Creating items ...";
+//    do {
+//        redo = false;
+//        //Sort all groups ..
+//        QHash<QString,QFuture<SongFrame*>> groupedAndFiltered;
 
-        for (SongFrame *sw : songFrames) {
-            statusProgress.setValue(cnt++);
-            if (sl.results().contains(sw->song()) && !sw->isVisible()) {
-                sw->show();
-            } else if (!sl.results().contains(sw->song()) && sw->isVisible()) {
-                sw->hide();
-            }
-            if (redo) break;
-            qApp->processEvents();
-        }
-        mutex.lock();
-        if (!redo) {
-            if (!running.exchange(false)) qWarning() << "Broken lock state! This can not happen";
-            qWarning() << "DONE!" << sl.resultCount();
-            statusProgress.setValue(sl.resultCount());
-            mutex.unlock();
-            return;
-        }
-        mutex.unlock(); //Redo :/
-    } while (redo); //could also be while true!
-    __builtin_unreachable();
+//        for (QString key : groupedFrames.keys()) {
+//            groupedAndFiltered[key] = QtConcurrent::filtered(groupedFrames[key],[this] (SongFrame* s) -> bool { return filter(s->song()); });
+//            sortFrames(groupedAndFiltered[key]);
+//        }
+//        int cnt = 0;
+//        assert(groupedAndFiltered.keys().count() == 1);
+//        statusProgress.setRange(0,songFrames.count()); //sl.resultCount());
+
+////        for (SongFrame *sw : songFrames) {
+////            statusProgress.setValue(cnt++);
+////            if (sl.results().contains(sw->song()) && !sw->isVisible()) {
+////                sw->show();
+////            } else if (!sl.results().contains(sw->song()) && sw->isVisible()) {
+////                sw->hide();
+////            }
+////            if (redo) break;
+////            qApp->processEvents();
+////        }
+//        mutex.lock();
+//        if (!redo) {
+//            if (!running.exchange(false)) qWarning() << "Broken lock state! This can not happen";
+////            qWarning() << "DONE!" << sl.resultCount();
+////            statusProgress.setValue(sl.resultCount());
+//            mutex.unlock();
+//            return;
+//        }
+//        mutex.unlock(); //Redo :/
+//    } while (redo); //could also be while true!
+//    __builtin_unreachable();
 }
 
 void MainWindow::on_actionSources_triggered()
@@ -165,10 +254,10 @@ void MainWindow::on_actionSources_triggered()
         emit rescanCollection(config.value("songdirs").toStringList());
 }
 
-void MainWindow::sortList(QList<SongFrame*> &lst) {
-    qWarning() << "Starting sort";
-    //for (SongFrame* wi : songFrames) ui->songList->layout()->removeWidget(wi);
-    std::sort(lst.begin(),lst.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
+void MainWindow::sortFrames(QList<SongFrame*> &sf) {
+    //qWarning() << "Starting sort";
+    //for (SongFrame* wi : sf) ui->songList->layout()->removeWidget(wi);
+    std::sort(sf.begin(),sf.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
         if (!ui->reverseSort->isChecked()) {
             if (ui->sortTitle->isChecked()) return (s1->song()->title() < s2->song()->title());
             if (ui->sortArtist->isChecked()) return (s1->song()->artist() < s2->song()->artist());
@@ -179,9 +268,9 @@ void MainWindow::sortList(QList<SongFrame*> &lst) {
         qDebug() << "Fallback";
         return s1 < s2;
     });
-    for (SongFrame* wi : songFrames) ui->songList->layout()->addWidget(wi);
-    qWarning() << "Sorting finished, refreshing";
-    refreshList();
+    //for (SongFrame* wi : songFrames) ui->songList->layout()->addWidget(wi);
+    //qWarning() << "Sorting finished, refreshing";
+//    refreshList();
 }
 
 void MainWindow::addSong(Song *song) {
@@ -190,6 +279,7 @@ void MainWindow::addSong(Song *song) {
     sw->hide();
     songFrames.append(sw);
 //    ui->songList->layout()->addWidget(sw);
+//    qApp->processEvents();
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));

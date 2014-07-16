@@ -22,6 +22,8 @@ public:
 
 private:
     Ui::songframe *ui;
+    void markMissing(QPixmap &pm);
+    void markNo(QPixmap &pm);
 };
 
 #endif // SONGFRAME_H

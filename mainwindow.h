@@ -6,6 +6,7 @@
 #include <collectionscanner.h>
 #include "song.h"
 #include "songframe.h"
+#include "songgroup.h"
 #include <QThread>
 #include <QProgressBar>
 
@@ -30,15 +31,18 @@ private slots:
     void addSong(Song* song);
     void refreshList();
     void regroupList();
+    void resortList();
+    void filterList();
 
 private:
     QString getGroup(Song* song);
-    void sortList(QList<SongFrame*> &lst);
+    void sortFrames(QList<SongFrame*> &sf);
 
     int notWellFormedCount, invalidCount;
     QList<Song*> songList;
     QList<SongFrame*> songFrames;
     QMap<QString,QList<SongFrame*>> groupedFrames;
+    QMap<QString,SongGroup*> songGroups;
     Ui::MainWindow *ui;
     QSettings config;
     QThread scanThread;
