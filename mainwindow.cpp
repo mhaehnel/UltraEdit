@@ -129,6 +129,7 @@ void MainWindow::resortList() {
     int sp = 0;
     for (QString g : songGroups.keys()) {
         QLayoutItem* li = nullptr;
+        bool old = songGroups[g]->isVisible();
         songGroups[g]->setVisible(false);
         while ((li = songGroups[g]->layout().takeAt(0)) != nullptr) {
             songGroups[g]->layout().removeItem(li);
@@ -137,7 +138,7 @@ void MainWindow::resortList() {
             qApp->processEvents();
             songGroups[g]->layout().addWidget(f);
         }
-        songGroups[g]->setVisible(true);
+        songGroups[g]->setVisible(old);
         statusProgress.setValue(++sp);
     }
 }
@@ -170,7 +171,11 @@ void MainWindow::filterList() {
                 statusProgress.setValue(++sp);
                 bool flt = filter(sf->song());
                 sf->setVisible(flt);
-                if (flt) cnt++;
+                if (flt) {
+                    cnt++;
+                    sf->deselect();
+                    selectedFrames.removeAll(sf);
+                }
                 if (redo) break;
             }
             if (redo) break;
@@ -273,11 +278,24 @@ void MainWindow::sortFrames(QList<SongFrame*> &sf) {
 //    refreshList();
 }
 
+void MainWindow::selectFrame(SongFrame *sf) {
+    if (selectedFrames.contains(sf)) {
+        qDebug() << "Deselect: " << sf;
+        sf->deselect();
+        selectedFrames.removeAll(sf);
+    } else {
+        qDebug() << "Select: " << sf;
+        sf->select();
+        selectedFrames.append(sf);
+    }
+}
+
 void MainWindow::addSong(Song *song) {
     songList.append(song);
-    SongFrame* sw = new SongFrame(song);
-    sw->hide();
-    songFrames.append(sw);
+    SongFrame* sf = new SongFrame(song);
+    sf->hide();
+    songFrames.append(sf);
+    sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
 //    ui->songList->layout()->addWidget(sw);
 //    qApp->processEvents();
     if (!song->isValid()) invalidCount++;

@@ -26,6 +26,21 @@ SongFrame::SongFrame(Song *song, QWidget *parent) :
     if (!_song->hasVideo()) ui->video->setPixmap(QPixmap(":/images/video_haveNo"));
 }
 
+void SongFrame::mousePressEvent(QMouseEvent *ev) {
+    if (ev->button() == Qt::LeftButton) {
+        emit clicked(this);
+    }
+    QFrame::mousePressEvent(ev);
+}
+
+void SongFrame::select() {
+    setStyleSheet("background-color: palette(highlight);");
+}
+
+void SongFrame::deselect() {
+    setStyleSheet("");
+}
+
 Song* SongFrame::song() {
     return _song;
 }

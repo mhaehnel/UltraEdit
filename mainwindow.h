@@ -33,6 +33,7 @@ private slots:
     void regroupList();
     void resortList();
     void filterList();
+    void selectFrame(SongFrame* sf);
 
 private:
     QString getGroup(Song* song);
@@ -40,6 +41,7 @@ private:
 
     int notWellFormedCount, invalidCount;
     QList<Song*> songList;
+    QList<SongFrame*> selectedFrames;
     QList<SongFrame*> songFrames;
     QMap<QString,QList<SongFrame*>> groupedFrames;
     QMap<QString,SongGroup*> songGroups;

@@ -3,6 +3,7 @@
 
 #include "song.h"
 #include <QFrame>
+#include <QMouseEvent>
 
 namespace Ui {
 class songframe;
@@ -19,6 +20,16 @@ public:
     const Song* song() const;
 
     ~SongFrame();
+
+protected:
+    void mousePressEvent(QMouseEvent *ev);
+
+signals:
+    void clicked(SongFrame* sf);
+
+public slots:
+    void select();
+    void deselect();
 
 private:
     Ui::songframe *ui;
