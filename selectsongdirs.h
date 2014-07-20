@@ -14,6 +14,7 @@ class SelectSongDirs : public QDialog
 public:
     explicit SelectSongDirs(QWidget *parent = 0);
     ~SelectSongDirs();
+
     void setPaths(QStringList paths);
     QStringList getPaths() const;
     bool changed() const;

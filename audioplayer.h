@@ -22,6 +22,7 @@ public slots:
     void playSong(Song* song);
 private slots:
     void updateSongData();
+
 private:
     Song* _song;
     Ui::AudioPlayer *ui;
