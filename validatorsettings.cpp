@@ -4,8 +4,8 @@
 #include "ui_validatorsettings.h"
 
 ValidatorSettings::ValidatorSettings(QSettings& settings, QList<Song*> *songs, QWidget *parent) :
-    QDialog(parent), s(settings), songs(songs),
-    ui(new Ui::ValidatorSettings)
+    QDialog(parent), s(settings),
+    ui(new Ui::ValidatorSettings), songs(songs)
 {
     ui->setupUi(this);
     sample = new SongFrame(songs->at(qrand()%songs->size()));
@@ -49,7 +49,7 @@ void ValidatorSettings::on_samplePath_textChanged(const QString &arg1)
     } else {
         if (vt == Validator::Type::ALL)
             qWarning() << "Checking against all does not make a lot of sense for a single filename!";
-        if (!v.good() || !v.validatePath(vt,sample->song(),ui->samplePath->text())) {
+        if (!v.good() || !v.validatePath(vt,sample->song(),arg1)) {
             ui->samplePath->setStyleSheet("background-color: red");
         } else {
             ui->samplePath->setStyleSheet("background-color: green");
@@ -60,7 +60,7 @@ void ValidatorSettings::on_samplePath_textChanged(const QString &arg1)
 void ValidatorSettings::on_dirFormat_textChanged(const QString &arg1)
 {
     //TODO: Save last valid string for abort case
-    s.setValue("dirFormat",ui->dirFormat->text());
+    s.setValue("dirFormat",arg1);
     Validator v(s,Validator::Mode::ReadOnly,sample->song()->basePath());
     if (!v.good()) {
         ui->dirFormat->setStyleSheet("background-color: red");
@@ -79,7 +79,7 @@ void ValidatorSettings::on_realFile_toggled(bool checked)
     }
 }
 
-void ValidatorSettings::on_comboBox_currentIndexChanged(int index)
+void ValidatorSettings::on_comboBox_currentIndexChanged(int)
 {
     on_samplePath_textChanged(ui->samplePath->text());
 }

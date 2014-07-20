@@ -27,7 +27,7 @@ private slots:
 
     void on_realFile_toggled(bool checked);
 
-    void on_comboBox_currentIndexChanged(int index);
+    void on_comboBox_currentIndexChanged(int);
 
 private:
     Ui::ValidatorSettings *ui;

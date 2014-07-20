@@ -2,8 +2,8 @@
 #include <QDebug>
 
 Validator::Validator(QSettings& settings,Mode mode, QString basePath) :
-    pattern(settings.value("dirFormat","${artist:start}/${artist} - ${title}/${artist} - ${title}!{COV:_COV}!{BG:_BG}.${suffix}").toString()),
-    fixMode(mode), basePath(basePath), _good(true)
+    _good(true), pattern(settings.value("dirFormat","${artist:start}/${artist} - ${title}/${artist} - ${title}!{COV:_COV}!{BG:_BG}.${suffix}").toString()),
+    fixMode(mode),  basePath(basePath)
 {
     //Compiling pattern ...
     //Find possible tags ...
@@ -160,6 +160,7 @@ bool Validator::validate(Song *song, Type t) {
         case Type::COV: return validatePath(Type::COV,song,reducePath(song->cov().filePath()));
         case Type::ALL: __builtin_unreachable();
     }
+    __builtin_unreachable();
 }
 
 bool Validator::good() {

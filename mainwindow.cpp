@@ -69,6 +69,7 @@ bool filterState(const QCheckBox* cb, std::function<bool(void)> func) {
         case Qt::Unchecked:
             return !func();
     }
+    __builtin_unreachable();
 }
 
 bool MainWindow::filter(const Song *song) {
@@ -91,6 +92,8 @@ QString MainWindow::getGroup(Song *song) {
     if (!ui->groupList->isChecked()) return "*";
     //we need to group
     if (ui->groupArtist->isChecked()) return song->artist();
+    //if we group, we must have selected a criterion!
+    __builtin_unreachable();
 }
 
 //This does currently not support rapid regroups! Lock it to make it work!
