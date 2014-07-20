@@ -26,10 +26,14 @@ protected:
 
 signals:
     void clicked(SongFrame* sf);
-
+    void playSong(Song* song);
 public slots:
     void select();
     void deselect();
+    void updateData();
+
+private slots:
+    void on_playMedia_clicked();
 
 private:
     Ui::songframe *ui;

@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <atomic>
 #include <cassert>
+#include <functional>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
@@ -29,16 +30,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->startsAt0->setCheckState(Qt::PartiallyChecked);
     ui->wellFormed->setCheckState(Qt::PartiallyChecked);
     ui->isValid->setCheckState(Qt::PartiallyChecked);
+    ui->songDetails->setSelection(&selectedFrames);
+
     scanner.moveToThread(&scanThread);
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
     statusBar()->addPermanentWidget(&statusProgress);
 
+    connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
     connect(this,&MainWindow::rescanCollection,&scanner,&CollectionScanner::scanCollection);
     connect(&scanner,&CollectionScanner::foundSong,this,&MainWindow::addSong);
-    connect(ui->actionRefresh_List,&QAction::triggered,this,&MainWindow::refreshList);
     connect(&scanner,&CollectionScanner::scanFinished, [this] {
         ((QBoxLayout*)ui->songList->layout())->addStretch(1);
         QMetaObject::invokeMethod(this,"regroupList");
+        selectedFrames.clear();
+        emit selectionChanged();
     });
     connect(&scanner,&CollectionScanner::scanStarted,[this] {
        statusProgress.setRange(0,0);
@@ -54,35 +59,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+bool filterState(const QCheckBox* cb, std::function<bool(void)> func) {
+    switch (cb->checkState()) {
+        case Qt::PartiallyChecked:
+            return true;
+        case Qt::Checked:
+            return func();
+        case Qt::Unchecked:
+            return !func();
+    }
+}
+
 bool MainWindow::filter(const Song *song) {
-    switch (ui->missingBackgroundFile->checkState())
-    {
-      case Qt::Checked:   if (song->missingBG()) return false; break;
-      case Qt::Unchecked: if (!song->missingBG()) return false; break;
-    }
-    switch (ui->missingCoverFile->checkState())
-    {
-      case Qt::Checked:   if (song->missingCover()) return false; break;
-      case Qt::Unchecked: if (!song->missingCover()) return false; break;
-    }
-    switch (ui->missingVideoFile->checkState())
-    {
-      case Qt::Checked:   if (song->missingVideo()) return false; break;
-      case Qt::Unchecked: if (!song->missingVideo()) return false; break;
-    }
-    switch (ui->missingMP3File->checkState())
-    {
-      case Qt::Checked:   if (song->mp3().exists()) return false; break;
-      case Qt::Unchecked: if (!song->mp3().exists()) return false; break;
-    }
-    switch (ui->wellFormed->checkState()) {
-        case Qt::Checked:   if (!song->isWellFormed()) return false; break;
-        case Qt::Unchecked: if (song->isWellFormed()) return false; break;
-    }
-    switch (ui->isValid->checkState()) {
-        case Qt::Checked:   if (!song->isValid()) return false; break;
-        case Qt::Unchecked: if (song->isValid()) return false; break;
-    }
+    if (!filterState(ui->missingBackgroundFile,std::bind(&Song::missingBG,song))) return false;
+    if (!filterState(ui->missingCoverFile,std::bind(&Song::missingCover,song))) return false;
+    if (!filterState(ui->missingVideoFile,std::bind(&Song::missingVideo,song))) return false;
+    if (!filterState(ui->hasBackground,std::bind(&Song::hasBG,song))) return false;
+    if (!filterState(ui->hasVideo,std::bind(&Song::hasVideo,song))) return false;
+    if (!filterState(ui->wellFormed,std::bind(&Song::isWellFormed,song))) return false;
+    if (!filterState(ui->isValid,std::bind(&Song::isValid,song))) return false;
+    if (!filterState(ui->missingMP3File,[&song] { return !song->mp3().exists(); })) return false;
+
     if (!ui->titleFilter->text().isEmpty() && !song->title().contains(ui->titleFilter->text(),Qt::CaseInsensitive)) return false;
     if (!ui->artistFilter->text().isEmpty() && !song->artist().contains(ui->artistFilter->text(),Qt::CaseInsensitive)) return false;
     return true; //In!
@@ -106,6 +103,7 @@ void MainWindow::regroupList() {
         QString group = getGroup(sf->song());
         groupedFrames[group].append(sf);
         songGroups[group] = new SongGroup(group);
+        songGroups[group]->hide();
     }
     for (SongGroup* sg : songGroups) ui->songList->layout()->addWidget(sg);
     //Sort in group
@@ -194,61 +192,6 @@ void MainWindow::filterList() {
     __builtin_unreachable();
 }
 
-void MainWindow::refreshList() {
-    QLayoutItem *li;
-    static std::atomic<bool> running(false);
-    static QMutex mutex(QMutex::Recursive);
-    static bool redo = false;
-
-
-    if (ui->songList->layout() == nullptr) return;
-    regroupList();
-//    mutex.lock();
-//    if (running.exchange(true)) {
-//        //Someone was running ... too bad ;) We signal redo and return
-//        qWarning() << "Redo!";
-//        redo = true;
-//        return;
-//    }
-//    mutex.unlock();
-
-//    qWarning() << "Creating items ...";
-//    do {
-//        redo = false;
-//        //Sort all groups ..
-//        QHash<QString,QFuture<SongFrame*>> groupedAndFiltered;
-
-//        for (QString key : groupedFrames.keys()) {
-//            groupedAndFiltered[key] = QtConcurrent::filtered(groupedFrames[key],[this] (SongFrame* s) -> bool { return filter(s->song()); });
-//            sortFrames(groupedAndFiltered[key]);
-//        }
-//        int cnt = 0;
-//        assert(groupedAndFiltered.keys().count() == 1);
-//        statusProgress.setRange(0,songFrames.count()); //sl.resultCount());
-
-////        for (SongFrame *sw : songFrames) {
-////            statusProgress.setValue(cnt++);
-////            if (sl.results().contains(sw->song()) && !sw->isVisible()) {
-////                sw->show();
-////            } else if (!sl.results().contains(sw->song()) && sw->isVisible()) {
-////                sw->hide();
-////            }
-////            if (redo) break;
-////            qApp->processEvents();
-////        }
-//        mutex.lock();
-//        if (!redo) {
-//            if (!running.exchange(false)) qWarning() << "Broken lock state! This can not happen";
-////            qWarning() << "DONE!" << sl.resultCount();
-////            statusProgress.setValue(sl.resultCount());
-//            mutex.unlock();
-//            return;
-//        }
-//        mutex.unlock(); //Redo :/
-//    } while (redo); //could also be while true!
-//    __builtin_unreachable();
-}
-
 void MainWindow::on_actionSources_triggered()
 {
     SelectSongDirs ssd;
@@ -260,8 +203,6 @@ void MainWindow::on_actionSources_triggered()
 }
 
 void MainWindow::sortFrames(QList<SongFrame*> &sf) {
-    //qWarning() << "Starting sort";
-    //for (SongFrame* wi : sf) ui->songList->layout()->removeWidget(wi);
     std::sort(sf.begin(),sf.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
         if (!ui->reverseSort->isChecked()) {
             if (ui->sortTitle->isChecked()) return (s1->song()->title() < s2->song()->title());
@@ -273,29 +214,39 @@ void MainWindow::sortFrames(QList<SongFrame*> &sf) {
         qDebug() << "Fallback";
         return s1 < s2;
     });
-    //for (SongFrame* wi : songFrames) ui->songList->layout()->addWidget(wi);
-    //qWarning() << "Sorting finished, refreshing";
-//    refreshList();
 }
 
 void MainWindow::selectFrame(SongFrame *sf) {
     if (selectedFrames.contains(sf)) {
-        qDebug() << "Deselect: " << sf;
         sf->deselect();
+        disconnect(sf->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         selectedFrames.removeAll(sf);
     } else {
-        qDebug() << "Select: " << sf;
+        //Enforce single selection for now!
+        if (selectedFrames.size() == 1) {
+            disconnect(selectedFrames.first()->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
+            selectedFrames.first()->deselect();
+            selectedFrames.removeFirst();
+            qWarning() << "TODO: Multi selection not implemented ATM";
+        }
+        connect(sf->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         sf->select();
         selectedFrames.append(sf);
     }
+//    if (selectedFrames.count() > 0) { //THIS looks ugly ATM. Fix?
+//        if (selectedFrames.first()->song()->hasBG())
+//            ui->centralWidget->setStyleSheet(QString("background-image: url(%1)").arg(selectedFrames.first()->song()->bg().absoluteFilePath()));
+//    }
+    emit selectionChanged();
 }
 
 void MainWindow::addSong(Song *song) {
     songList.append(song);
-    SongFrame* sf = new SongFrame(song);
+    SongFrame* sf = new SongFrame(song,this);
     sf->hide();
     songFrames.append(sf);
     sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
+    sf->connect(sf,&SongFrame::playSong,ui->musicPlayer,&AudioPlayer::playSong);
 //    ui->songList->layout()->addWidget(sw);
 //    qApp->processEvents();
     if (!song->isValid()) invalidCount++;

@@ -25,11 +25,12 @@ public:
 
 signals:
     void rescanCollection(const QStringList& paths);
+    void selectionChanged();
 
 private slots:
     void on_actionSources_triggered();
     void addSong(Song* song);
-    void refreshList();
+    //void refreshList();
     void regroupList();
     void resortList();
     void filterList();

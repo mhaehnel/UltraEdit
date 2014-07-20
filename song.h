@@ -12,9 +12,6 @@ Q_OBJECT
 private:
     bool wellFormed = true;
     bool valid = true;
-    bool _hasBg = false;
-    bool _hasCov = false;
-    bool _hasVid = false;
     bool _golden = false;
     bool _freestyle = false;
     int _players = 0; //stays 0 for simple file
@@ -23,12 +20,14 @@ private:
     QPixmap _covPM;
     QMap<QString,QString> tags;
     static QStringList seenTags;
-    static QPixmap* noCover;
-
+    static QPixmap *_noCover, *_coverMissing;
+    bool setTag(const QString& tag, const QString& value);
 public:
     Song(const QFileInfo& source);
     Song(const Song&) = delete;
     Song operator=(const Song&) = delete;
+    bool addTag(const QString& tag, const QString& value);
+    bool updateTag(const QString& tag, const QString& value);
     bool isValid() const;
     bool hasVideo() const;
     bool missingVideo() const;
@@ -47,9 +46,13 @@ public:
     const QFileInfo& cov() const;
     const QFileInfo& bg() const;
     const QString& artist() const;
-    const QString title() const;
+    QString title() const;
+    QString tag(const QString& tag) const;
     QPixmap cover();
     QPixmap background() const;
+
+signals:
+    void updated();
 };
 
 Q_DECLARE_METATYPE(Song*);

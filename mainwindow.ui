@@ -13,437 +13,459 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,0">
+   <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0">
     <item>
-     <widget class="QTabWidget" name="sortTab">
-      <property name="tabPosition">
-       <enum>QTabWidget::West</enum>
+     <widget class="QSplitter" name="splitter">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Triangular</enum>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
       </property>
-      <property name="currentIndex">
-       <number>1</number>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Filter</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QToolBox" name="toolBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="currentIndex">
-           <number>2</number>
-          </property>
-          <widget class="QWidget" name="page">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>271</width>
-             <height>164</height>
-            </rect>
-           </property>
+      <property name="handleWidth">
+       <number>4</number>
+      </property>
+      <widget class="QTabWidget" name="sortTab">
+       <property name="tabPosition">
+        <enum>QTabWidget::West</enum>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Triangular</enum>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Filter</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QToolBox" name="toolBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <attribute name="label">
-            <string>Tags</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="currentIndex">
+            <number>2</number>
+           </property>
+           <widget class="QWidget" name="page">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>293</width>
+              <height>184</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <attribute name="label">
+             <string>Tags</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>Title</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="titleFilter">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>Artist</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="artistFilter">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <widget class="QSpinBox" name="minGap">
+                 <property name="maximum">
+                  <number>1000000</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;≤ GAP [ms] ≤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="maxGap">
+                 <property name="maximum">
+                  <number>1000000</number>
+                 </property>
+                 <property name="value">
+                  <number>1000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QSpinBox" name="minBPM">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;p&gt;≤ BPM &amp;le;&lt;/p&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="maxBPM">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="hasVideo">
+               <property name="text">
+                <string>Has Video</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="hasBackground">
+               <property name="text">
+                <string>Has Background</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>198</width>
+              <height>272</height>
+             </rect>
+            </property>
+            <attribute name="label">
+             <string>Validator</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QCheckBox" name="missingSongtextFile">
+               <property name="text">
+                <string>Missing Songtext</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="missingMandatoryTags">
+               <property name="text">
+                <string>Missing Mandatory Tags</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="hasUnknownTags">
+               <property name="text">
+                <string>Unknown Tags</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="missingMP3File">
+               <property name="text">
+                <string>Missing MP3</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="missingCoverFile">
+               <property name="text">
+                <string>Missing Cover</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="missingVideoFile">
+               <property name="text">
+                <string>Missing Video</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="missingBackgroundFile">
+               <property name="text">
+                <string>Missing Background</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="startsAt0">
+               <property name="text">
+                <string>Song does not start at 0</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="wellFormed">
+               <property name="text">
+                <string>Is Well Formed</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isValid">
+               <property name="text">
+                <string>Is Valid</string>
+               </property>
+               <property name="tristate">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>406</width>
+              <height>285</height>
+             </rect>
+            </property>
+            <attribute name="label">
+             <string>Properties</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QSpinBox" name="minLen">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;≤ (MP3) Length [s] ≤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="maxLen">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_2">
+        <attribute name="title">
+         <string>Sort &amp;&amp; Group</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QGroupBox" name="sortList">
+           <property name="title">
+            <string>Sort by</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <layout class="QFormLayout" name="formLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Title</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="titleFilter">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Artist</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="artistFilter">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QSpinBox" name="minGap">
-                <property name="maximum">
-                 <number>1000000</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;≤ GAP [ms] ≤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="maxGap">
-                <property name="maximum">
-                 <number>1000000</number>
-                </property>
-                <property name="value">
-                 <number>1000000</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QSpinBox" name="minBPM">
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;p&gt;≤ BPM &amp;le;&lt;/p&gt;&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="maxBPM">
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-                <property name="value">
-                 <number>1000</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="hasVideo">
+             <widget class="QCheckBox" name="reverseSort">
               <property name="text">
-               <string>Has Video</string>
+               <string>Descending</string>
               </property>
-              <property name="tristate">
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="sortTitle">
+              <property name="text">
+               <string>Title</string>
+              </property>
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="hasBackground">
+             <widget class="QRadioButton" name="sortArtist">
               <property name="text">
-               <string>Has Background</string>
+               <string>Artist</string>
               </property>
-              <property name="tristate">
-               <bool>true</bool>
+              <property name="checked">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="page_2">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>188</width>
-             <height>254</height>
-            </rect>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupList">
+           <property name="title">
+            <string>Group by</string>
            </property>
-           <attribute name="label">
-            <string>Validator</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QCheckBox" name="missingSongtextFile">
-              <property name="text">
-               <string>Missing Songtext</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="missingMandatoryTags">
-              <property name="text">
-               <string>Missing Mandatory Tags</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="hasUnknownTags">
-              <property name="text">
-               <string>Unknown Tags</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="missingMP3File">
-              <property name="text">
-               <string>Missing MP3</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="missingCoverFile">
-              <property name="text">
-               <string>Missing Cover</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="missingVideoFile">
-              <property name="text">
-               <string>Missing Video</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="missingBackgroundFile">
-              <property name="text">
-               <string>Missing Background</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="startsAt0">
-              <property name="text">
-               <string>Song does not start at 0</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="wellFormed">
-              <property name="text">
-               <string>Is Well Formed</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="isValid">
-              <property name="text">
-               <string>Is Valid</string>
-              </property>
-              <property name="tristate">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="page_3">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>273</width>
-             <height>326</height>
-            </rect>
+           <property name="flat">
+            <bool>true</bool>
            </property>
-           <attribute name="label">
-            <string>Properties</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QSpinBox" name="minLen">
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;≤ (MP3) Length [s] ≤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="maxLen">
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-                <property name="value">
-                 <number>1000</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>Sort &amp;&amp; Group</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QGroupBox" name="sortList">
-          <property name="title">
-           <string>Sort by</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_6">
-           <item>
-            <widget class="QCheckBox" name="reverseSort">
-             <property name="text">
-              <string>Descending</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="sortTitle">
-             <property name="text">
-              <string>Title</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="sortArtist">
-             <property name="text">
-              <string>Artist</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupList">
-          <property name="title">
-           <string>Group by</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <widget class="QRadioButton" name="groupArtist">
-           <property name="geometry">
-            <rect>
-             <x>40</x>
-             <y>40</y>
-             <width>102</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Artist</string>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
            <property name="checked">
             <bool>true</bool>
            </property>
+           <widget class="QRadioButton" name="groupArtist">
+            <property name="geometry">
+             <rect>
+              <x>40</x>
+              <y>40</y>
+              <width>102</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Artist</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </widget>
-        </item>
-       </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QScrollArea" name="songScroller">
-      <property name="styleSheet">
-       <string notr="true">background-color: palette(light)</string>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="songList">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>329</width>
-         <height>424</height>
-        </rect>
+      <widget class="QScrollArea" name="songScroller">
+       <property name="styleSheet">
+        <string notr="true">background-color: palette(light)</string>
        </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="songList">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>68</width>
+          <height>389</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </widget>
+      <widget class="SongInfo" name="songDetails" native="true"/>
      </widget>
     </item>
     <item>
-     <widget class="SongInfo" name="songDetails" native="true"/>
+     <widget class="AudioPlayer" name="musicPlayer" native="true"/>
     </item>
    </layout>
   </widget>
@@ -453,7 +475,7 @@
      <x>0</x>
      <y>0</y>
      <width>681</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
@@ -513,17 +535,6 @@
     <string>Validator ...</string>
    </property>
   </action>
-  <action name="actionRefresh_List">
-   <property name="text">
-    <string>Refresh List</string>
-   </property>
-   <property name="toolTip">
-    <string>Refreshes the Songlist</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -531,6 +542,12 @@
    <class>SongInfo</class>
    <extends>QWidget</extends>
    <header>songinfo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AudioPlayer</class>
+   <extends>QWidget</extends>
+   <header>audioplayer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -553,174 +570,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>missingBackgroundFile</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>310</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>missingCoverFile</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>248</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>missingMP3File</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>217</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>missingMandatoryTags</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>155</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>missingSongtextFile</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>124</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>missingVideoFile</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>279</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>hasUnknownTags</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>186</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startsAt0</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>isValid</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>403</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>wellFormed</sender>
-   <signal>clicked()</signal>
-   <receiver>actionChecker_Settings</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>372</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>missingSongtextFile</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>124</y>
+     <x>178</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -735,8 +592,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>155</y>
+     <x>232</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -751,8 +608,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>215</x>
-     <y>186</y>
+     <x>232</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -767,8 +624,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>217</y>
+     <x>232</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -783,8 +640,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>248</y>
+     <x>232</x>
+     <y>188</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -799,8 +656,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>279</y>
+     <x>232</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -815,8 +672,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>310</y>
+     <x>232</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>342</x>
@@ -831,8 +688,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>341</y>
+     <x>232</x>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
      <x>340</x>
@@ -847,8 +704,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>372</y>
+     <x>232</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -863,8 +720,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>403</y>
+     <x>232</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -911,8 +768,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>289</y>
+     <x>141</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -927,8 +784,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>289</y>
+     <x>326</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -943,8 +800,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>338</y>
+     <x>140</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>328</x>
@@ -959,8 +816,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>338</y>
+     <x>326</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>326</x>
@@ -975,8 +832,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>353</y>
+     <x>97</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -991,8 +848,8 @@
    <slot>filterList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>382</y>
+     <x>217</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>328</x>
@@ -1023,8 +880,8 @@
    <slot>resortList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>176</x>
-     <y>208</y>
+     <x>223</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -1087,8 +944,8 @@
    <slot>resortList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>41</y>
+     <x>115</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>428</x>

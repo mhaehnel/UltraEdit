@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui concurrent
+QT       += core gui concurrent multimedia
 
 CONFIG += c++11
 
@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     song.cpp \
     collectionscanner.cpp \
     songframe.cpp \
-    songgroup.cpp
+    songgroup.cpp \
+    audioplayer.cpp \
+    validatorsettings.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -32,13 +34,17 @@ HEADERS  += mainwindow.h \
     song.h \
     collectionscanner.h \
     songframe.h \
-    songgroup.h
+    songgroup.h \
+    audioplayer.h \
+    validatorsettings.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
     selectsongdirs.ui \
     songframe.ui \
-    songgroup.ui
+    songgroup.ui \
+    audioplayer.ui \
+    validatorsettings.ui
 
 RESOURCES += \
     ultraedit.qrc

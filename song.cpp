@@ -5,7 +5,8 @@
 #include <QDir>
 
 QStringList Song::seenTags;
-QPixmap* Song::noCover = nullptr;
+QPixmap* Song::_noCover = nullptr;
+QPixmap* Song::_coverMissing = nullptr;
 
 Song::Song(const QFileInfo& source) : _txt(source)
 {
@@ -29,58 +30,19 @@ Song::Song(const QFileInfo& source) : _txt(source)
         if (line.startsWith('#')) {
             if (endOfTags) {
                 wellFormed = false;
-//                qWarning() << QString("[%1:%2]: Tags after end of tag section. Discarding Tag!").arg(source.filePath()).arg(lineNo);
+                qWarning() << QString("[%1:%2]: Tags after end of tag section. Discarding Tag!").arg(source.filePath()).arg(lineNo);
                 continue;
             }
             line.remove(0,1);
             QStringList elements = line.split(':');
             if (elements.length() != 2) {
                 wellFormed = false;
-//                qWarning() << QString("[%1:%2]: Malformed Tag! Skipping.").arg(source.filePath()).arg(lineNo);
+                qWarning() << QString("[%1:%2]: Malformed Tag! Skipping.").arg(source.filePath()).arg(lineNo);
                 continue;
             }
-            QString tag = elements.first().toUpper();
+            QString tag = elements.first();
             QString value = elements.last().trimmed();
-            if (value.trimmed().isEmpty()) {
-//                qWarning() << QString("[%1:%2]: Tag without parameter! Skipping.").arg(source.filePath()).arg(lineNo);
-                wellFormed = false;
-                continue;
-            }
-            if (!seenTags.contains(tag)) seenTags.append(tag);
-            if (tag == "TITLE") _title = value;
-            if (tag == "ARTIST") _artist = value;
-            if (tag == "MP3") {
-                _mp3.setFile(_txt.dir(),value);
-                if (!_mp3.exists()) {
-//                    qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-                    wellFormed = false;
-                }
-            }
-            if (tag == "COVER") {
-                _cov.setFile(_txt.dir(),value);
-                _hasCov = true;
-                if (!_cov.exists()) {
-//                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-                    wellFormed = false;
-                }
-            }
-            if (tag == "BACKGROUND") {
-                _bg.setFile(_txt.dir(),value);
-                _hasBg = true;
-                if (!_bg.exists()) {
-//                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-                    wellFormed = false;
-                }
-            }
-            if (tag == "VIDEO") {
-                _vid.setFile(_txt.dir(),value);
-                _hasVid = true;
-                if (!_vid.exists()) {
-//                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-                    wellFormed = false;
-                }
-            }
-            //TODO: qWarning() << "Unknown Tag " << tag;
+            addTag(elements.first(),elements.last());
         } else if (line.startsWith(':')) {
             //Note!
             endOfTags = true;
@@ -122,8 +84,70 @@ Song::Song(const QFileInfo& source) : _txt(source)
     }
 }
 
+//This may fail when moving in Filesystem!
+bool Song::setTag(const QString &tag, const QString &value) {
+    if (value.trimmed().isEmpty()) {
+        qWarning() << QString("[%1]: Tag (\"%2\") without value! Skipping.").arg(_txt.filePath()).arg(tag);
+        wellFormed = false;
+        return false;
+    }
+    if (tag == "TITLE") _title = value;
+    if (tag == "ARTIST") _artist = value;
+    if (tag == "MP3") {
+        _mp3.setFile(_txt.dir(),value);
+        if (!_mp3.exists()) {
+//                    qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+            wellFormed = false;
+        }
+    }
+    if (tag == "COVER") {
+        _cov.setFile(_txt.dir(),value);
+        if (!_cov.exists()) {
+//                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+            wellFormed = false;
+        }
+    }
+    if (tag == "BACKGROUND") {
+        _bg.setFile(_txt.dir(),value);
+        if (!_bg.exists()) {
+//                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+            wellFormed = false;
+        }
+    }
+    if (tag == "VIDEO") {
+        _vid.setFile(_txt.dir(),value);
+        if (!_vid.exists()) {
+//                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
+            wellFormed = false;
+        }
+    }
+    //TODO: qWarning() << "Unknown Tag " << tag;
+    tags[tag] = value;
+    emit updated();
+    return true;
+}
+
+bool Song::addTag(const QString &tag, const QString &value) {
+    QString _tag = tag.toUpper();
+    if (!seenTags.contains(_tag)) seenTags.append(_tag);
+    if (tags.contains(_tag)) {
+        qWarning() << "The tag" << tag << "already exists in" << _txt.canonicalFilePath() <<". Ignoring!";
+        return false;
+    }
+    return setTag(_tag,value);
+}
+
+bool Song::updateTag(const QString &tag, const QString &value) {
+    QString _tag = tag.toUpper();
+    if (!tags.contains(_tag)) {
+        qWarning() << "The tag" << tag << "does not exist in" << _txt.canonicalFilePath() <<" and can not be updated. Ignoring!";
+        return false;
+    }
+    return setTag(_tag,value);
+}
+
 bool Song::hasBG() const {
-    return _hasBg;
+    return !tag("BACKGROUND").isNull();
 }
 
 bool Song::missingBG() const {
@@ -131,7 +155,7 @@ bool Song::missingBG() const {
 }
 
 bool Song::hasVideo() const {
-    return _hasVid;
+    return !tag("VIDEO").isNull();
 }
 
 bool Song::missingVideo() const {
@@ -139,7 +163,7 @@ bool Song::missingVideo() const {
 }
 
 bool Song::hasCover() const {
-    return _hasCov;
+    return !tag("COVER").isNull();
 }
 
 bool Song::missingCover() const {
@@ -154,26 +178,59 @@ bool Song::isValid() const {
     return valid;
 }
 
+const QFileInfo& Song::txt() const {
+    return _txt;
+}
+
+const QFileInfo& Song::cov() const {
+    return _cov;
+}
+
 const QFileInfo& Song::mp3() const {
     return _mp3;
 }
 
-const QString Song::title() const
+const QFileInfo& Song::vid() const {
+    return _vid;
+}
+
+const QFileInfo& Song::bg() const {
+    return _bg;
+}
+
+QString Song::title() const
 {
     if (!valid) return _txt.path();
     return _title;
 }
-const QString &Song::artist() const { return _artist; }
+const QString &Song::artist() const {
+    return _artist;
+}
+
+QString Song::tag(const QString &tag) const {
+//    qWarning() << tags;
+    if (tags.contains(tag.toUpper()))  return tags[tag.toUpper()];
+    return QString::null;
+}
 
 QPixmap Song::cover() {
-    if (_hasCov) {
-        if (_covPM.isNull())
-            _covPM = QPixmap(_cov.canonicalFilePath()).scaled(96,96,Qt::KeepAspectRatio);
+    if (!tag("COVER").isNull()) {
+        if (_covPM.isNull()) {
+            QPixmap covPM(_cov.canonicalFilePath());
+            if (!covPM.isNull()) {
+                _covPM = covPM.scaled(96,96,Qt::KeepAspectRatio);
+                return _covPM;
+            } else {
+                if (_coverMissing == nullptr)
+                    _coverMissing = new QPixmap(QPixmap(":/images/nocover_notFound.png").scaled(96,96,Qt::KeepAspectRatio));
+                return *_coverMissing;
+            }
+        }
         return _covPM;
     }
-    if (noCover == nullptr)
-        noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(96,96,Qt::KeepAspectRatio));
-    return *noCover; //TODO: Dummy image!
+    if (_noCover == nullptr)
+        _noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(96,96,Qt::KeepAspectRatio));
+    return *_noCover; //TODO: Dummy image!
 }
 
 //Todo: Whatever needs to be constructed on copy

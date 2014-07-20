@@ -1,5 +1,6 @@
 #include "songframe.h"
 #include "ui_songframe.h"
+#include <QDebug>
 
 //TODO: Credit multiplayer icon author:
 //<div>Icon made by <a href="http://www.freepik.com" alt="Freepik.com" title="Freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/two-persons-silhouettes_35120" title="Flaticon">www.flaticon.com</a></div>
@@ -17,13 +18,29 @@ SongFrame::SongFrame(Song *song, QWidget *parent) :
     ui(new Ui::songframe)
 {
     ui->setupUi(this);
-    ui->title->setText(ui->title->text().replace("#TITLE#",song->title()));
-    ui->artist->setText(ui->artist->text().replace("#ARTIST#",song->artist()));
-    ui->cover->setPixmap(song->cover());
-    if (_song->missingBG()) ui->background->setPixmap(QPixmap(":/images/landscape_notFound"));
-    if (!_song->hasBG()) ui->background->setPixmap(QPixmap(":/images/landscape_haveNo"));
-    if (_song->missingVideo()) ui->video->setPixmap(QPixmap(":/images/video_notFound"));
-    if (!_song->hasVideo()) ui->video->setPixmap(QPixmap(":/images/video_haveNo"));
+    connect(_song,&Song::updated,this,&SongFrame::updateData);
+    updateData();
+}
+
+void SongFrame::updateData() {
+    ui->title->setText(QString("<HTML><H1><CENTER>%1</CENTER></H1></CENTER>").arg(_song->title()));
+    ui->artist->setText(QString("<HTML><H3><CENTER>%1</CENTER></H3></CENTER>").arg(_song->artist()));
+//    ui->artist->setText(ui->artist->text().replace("#ARTIST#",_song->artist()));
+    ui->cover->setPixmap(_song->cover());
+    if (!_song->hasBG()) {
+        ui->background->setPixmap(QPixmap(":/images/landscape_haveNo"));
+    } else if (_song->missingBG()) {
+        ui->background->setPixmap(QPixmap(":/images/landscape_notFound"));
+    } else {
+        ui->background->setPixmap(QPixmap(":/images/landscape"));
+    }
+    if (!_song->hasVideo()) {
+        ui->video->setPixmap(QPixmap(":/images/video_haveNo"));
+    } else if (_song->missingVideo()) {
+        ui->video->setPixmap(QPixmap(":/images/video_notFound"));
+    } else {
+        ui->video->setPixmap(QPixmap(":/images/video"));
+    }
 }
 
 void SongFrame::mousePressEvent(QMouseEvent *ev) {
@@ -52,4 +69,10 @@ const Song* SongFrame::song() const {
 SongFrame::~SongFrame()
 {
     delete ui;
+}
+
+void SongFrame::on_playMedia_clicked()
+{
+    qWarning() << "Emitting play!";
+    emit playSong(_song);
 }

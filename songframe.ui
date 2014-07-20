@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Frame</string>
   </property>
+  <property name="windowOpacity">
+   <double>0.500000000000000</double>
+  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
@@ -23,7 +26,16 @@
    <enum>QFrame::Sunken</enum>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
