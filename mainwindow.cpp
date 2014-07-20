@@ -2,6 +2,7 @@
 #include <QSemaphore>
 #include "mainwindow.h"
 #include "selectsongdirs.h"
+#include "validatorsettings.h"
 #include "ui_mainwindow.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
@@ -192,16 +193,6 @@ void MainWindow::filterList() {
     __builtin_unreachable();
 }
 
-void MainWindow::on_actionSources_triggered()
-{
-    SelectSongDirs ssd;
-    ssd.setPaths(config.value("songdirs").toStringList());
-    ssd.exec();
-    config.setValue("songdirs",ssd.getPaths());
-    if (ssd.changed())
-        emit rescanCollection(config.value("songdirs").toStringList());
-}
-
 void MainWindow::sortFrames(QList<SongFrame*> &sf) {
     std::sort(sf.begin(),sf.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
         if (!ui->reverseSort->isChecked()) {
@@ -252,4 +243,20 @@ void MainWindow::addSong(Song *song) {
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));
+}
+
+void MainWindow::on_actionChecker_Settings_triggered()
+{
+    ValidatorSettings val(config,&songList);
+    val.exec();
+}
+
+void MainWindow::on_actionSources_triggered()
+{
+    SelectSongDirs ssd;
+    ssd.setPaths(config.value("songdirs").toStringList());
+    ssd.exec();
+    config.setValue("songdirs",ssd.getPaths());
+    if (ssd.changed())
+        emit rescanCollection(config.value("songdirs").toStringList());
 }

@@ -16,7 +16,7 @@ void CollectionScanner::scanCollection(const QStringList& paths) {
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
-            emit foundSong(new Song(fi));
+            emit foundSong(new Song(fi,d));
         };
     }
     emit scanFinished();

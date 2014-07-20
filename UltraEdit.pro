@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     songframe.cpp \
     songgroup.cpp \
     audioplayer.cpp \
-    validatorsettings.cpp
+    validatorsettings.cpp \
+    validator.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -36,7 +37,8 @@ HEADERS  += mainwindow.h \
     songframe.h \
     songgroup.h \
     audioplayer.h \
-    validatorsettings.h
+    validatorsettings.h \
+    validator.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

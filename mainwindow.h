@@ -36,6 +36,8 @@ private slots:
     void filterList();
     void selectFrame(SongFrame* sf);
 
+    void on_actionChecker_Settings_triggered();
+
 private:
     QString getGroup(Song* song);
     void sortFrames(QList<SongFrame*> &sf);

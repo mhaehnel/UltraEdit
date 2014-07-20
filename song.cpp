@@ -8,7 +8,7 @@ QStringList Song::seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
 
-Song::Song(const QFileInfo& source) : _txt(source)
+Song::Song(const QFileInfo& source, const QString basePath) : _txt(source), _basePath(basePath)
 {
     if (!source.exists()) {
         qWarning() << "Tried to load non-existing song" << source.filePath() << "! Unable to determine canonical path";
@@ -205,6 +205,10 @@ QString Song::title() const
 }
 const QString &Song::artist() const {
     return _artist;
+}
+
+QString Song::basePath() const {
+    return _basePath;
 }
 
 QString Song::tag(const QString &tag) const {
