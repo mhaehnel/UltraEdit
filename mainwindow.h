@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include <collectionscanner.h>
 #include "song.h"
 #include "songframe.h"
 #include "songgroup.h"
@@ -24,7 +23,7 @@ public:
     ~MainWindow();
 
 signals:
-    void rescanCollection(const QStringList& paths);
+//    void rescanCollection(QSettings& paths);
     void selectionChanged();
 
 private slots:
@@ -34,8 +33,8 @@ private slots:
     void regroupList();
     void resortList();
     void filterList();
+    void rescanCollection();
     void selectFrame(SongFrame* sf);
-
     void on_actionChecker_Settings_triggered();
 
 private:
@@ -50,8 +49,6 @@ private:
     QMap<QString,SongGroup*> songGroups;
     Ui::MainWindow *ui;
     QSettings config;
-    QThread scanThread;
-    CollectionScanner scanner;
     QProgressBar statusProgress;
 };
 

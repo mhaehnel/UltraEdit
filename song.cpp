@@ -8,7 +8,7 @@ QStringList Song::seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
 
-Song::Song(const QFileInfo& source, const QString basePath) : _basePath(basePath),  _txt(source)
+Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _basePath(basePath),  _txt(source), validator(val)
 {
     if (!source.exists()) {
         qWarning() << "Tried to load non-existing song" << source.filePath() << "! Unable to determine canonical path";
@@ -40,31 +40,24 @@ Song::Song(const QFileInfo& source, const QString basePath) : _basePath(basePath
                 qWarning() << QString("[%1:%2]: Malformed Tag! Skipping.").arg(source.filePath()).arg(lineNo);
                 continue;
             }
-            QString tag = elements.first();
-            QString value = elements.last().trimmed();
             addTag(elements.first(),elements.last());
-        } else if (line.startsWith(':')) {
-            //Note!
+        } else if (line.startsWith(':')) { //Notes!
             endOfTags = true;
-        } else if (line.startsWith('*')) {
-            //Golden Note
+        } else if (line.startsWith('*')) { //Golden Note
             _golden = true;
             endOfTags = true;
-        } else if (line.startsWith('F')) {
-            //Freestyle
+        } else if (line.startsWith('F')) { //Freestyle
             _freestyle = true;
             endOfTags = true;
-        } else if (line.startsWith('-')) {
-            //Linebreak (this should not be the first!)
+        } else if (line.startsWith('-')) { //Linebreak (this should not be the first! TODO?)
             endOfTags = true;
-        } else if (line.startsWith('E')) {
-            //End of file
+        } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
-//                qWarning() << QString("[%1:%2]: Data beyond end of file!").arg(source.filePath()).arg(lineNo);
+                qWarning() << QString("[%1]: Data beyond end of file!").arg(source.filePath());
                 wellFormed = false;
                 break;
             }
-        } else if (line.startsWith('P')) {
+        } else if (line.startsWith('P')) { //TODO: This does not implement nested players!
             bool ok;
             int newPlayer = line.trimmed().remove(0,1).toInt(&ok);
             if (!ok) {
@@ -78,19 +71,21 @@ Song::Song(const QFileInfo& source, const QString basePath) : _basePath(basePath
             }
 	    _players = newPlayer;
         } else {
-//            qWarning() << QString("[%1:%2]: Line could not be interpreted!").arg(source.filePath()).arg(lineNo);
+            qWarning() << QString("[%1]: Line \"%2\" could not be interpreted!").arg(source.filePath(),line);
             wellFormed = false;
         }
     }
+    initialized = true;
 }
 
-//This may fail when moving in Filesystem!
+//This may fail when moving in Filesystem atm!
 bool Song::setTag(const QString &tag, const QString &value) {
     if (value.trimmed().isEmpty()) {
         qWarning() << QString("[%1]: Tag (\"%2\") without value! Skipping.").arg(_txt.filePath()).arg(tag);
         wellFormed = false;
         return false;
     }
+    tags[tag] = value;
     if (tag == "TITLE") _title = value;
     if (tag == "ARTIST") _artist = value;
     if (tag == "MP3") {
@@ -122,8 +117,10 @@ bool Song::setTag(const QString &tag, const QString &value) {
         }
     }
     //TODO: qWarning() << "Unknown Tag " << tag;
-    tags[tag] = value;
     emit updated();
+    if (initialized) {
+
+    }
     return true;
 }
 

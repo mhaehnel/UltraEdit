@@ -5,12 +5,15 @@
 #include <QMap>
 #include <QPixmap>
 
+class Validator;
+
 class Song : public QObject
 {
 
 Q_OBJECT
 private:
     bool wellFormed = true;
+    bool initialized = false;
     bool valid = true;
     bool _golden = false;
     bool _freestyle = false;
@@ -22,8 +25,9 @@ private:
     static QStringList seenTags;
     static QPixmap *_noCover, *_coverMissing;
     bool setTag(const QString& tag, const QString& value);
+    Validator* validator;
 public:
-    Song(const QFileInfo& source, const QString basePath);
+    Song(const QFileInfo& source, Validator* val, const QString basePath);
     Song(const Song&) = delete;
     Song operator=(const Song&) = delete;
     bool addTag(const QString& tag, const QString& value);

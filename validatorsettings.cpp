@@ -15,7 +15,6 @@ ValidatorSettings::ValidatorSettings(QSettings& settings, QList<Song*> *songs, Q
 
 ValidatorSettings::~ValidatorSettings()
 {
-    qWarning() << "Closing!";
     s.setValue("dirFormat",ui->dirFormat->text());
     delete ui;
 }

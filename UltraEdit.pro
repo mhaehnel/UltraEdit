@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     songinfo.cpp \
     selectsongdirs.cpp \
     song.cpp \
-    collectionscanner.cpp \
     songframe.cpp \
     songgroup.cpp \
     audioplayer.cpp \
@@ -33,7 +32,6 @@ HEADERS  += mainwindow.h \
     songinfo.h \
     selectsongdirs.h \
     song.h \
-    collectionscanner.h \
     songframe.h \
     songgroup.h \
     audioplayer.h \

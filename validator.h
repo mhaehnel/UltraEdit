@@ -19,6 +19,7 @@ public:
 
     Validator(QSettings& settings,Mode mode, QString basePath);
     bool validate(Song* song, Type t = Type::ALL);\
+    QStringList possiblePaths(Song* song, Type t);
     bool good(); //False if failed to compile validator string!
 private:
     bool _good;

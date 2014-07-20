@@ -10,6 +10,8 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
+#include <validator.h>
+#include <QProgressDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
@@ -33,31 +35,41 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->isValid->setCheckState(Qt::PartiallyChecked);
     ui->songDetails->setSelection(&selectedFrames);
 
-    scanner.moveToThread(&scanThread);
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
     statusBar()->addPermanentWidget(&statusProgress);
 
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
-    connect(this,&MainWindow::rescanCollection,&scanner,&CollectionScanner::scanCollection);
-    connect(&scanner,&CollectionScanner::foundSong,this,&MainWindow::addSong);
-    connect(&scanner,&CollectionScanner::scanFinished, [this] {
-        ((QBoxLayout*)ui->songList->layout())->addStretch(1);
-        QMetaObject::invokeMethod(this,"regroupList");
-        selectedFrames.clear();
-        emit selectionChanged();
-    });
-    connect(&scanner,&CollectionScanner::scanStarted,[this] {
-       statusProgress.setRange(0,0);
-       statusProgress.setVisible(true);
-       statusBar()->showMessage("Scanning ... 0 Found");
-    });
-    emit rescanCollection(config.value("songdirs").toStringList());
-    scanThread.start();
+
+    QTimer::singleShot(0,this,SLOT(rescanCollection()));
 }
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::rescanCollection() {
+    QProgressDialog progress("Scanning collection ..","Cancel",0,0,this);
+    progress.setWindowModality(Qt::WindowModal);
+    QStringList paths = config.value("songdirs").toStringList();
+    qDebug() << "Go ahead :)";
+    for (QString d : paths) {
+        //TODO: This is leaking on rescan!
+        Validator* val = new Validator(config,Validator::Mode::ReadOnly,d);
+        qDebug() << "Scannning:"  << d;
+        QDirIterator di(d,QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+        while (di.hasNext()) {
+            QFileInfo fi(di.next());
+            if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
+            addSong(new Song(fi,val, d));
+            qApp->processEvents();
+        };
+    }
+    ((QBoxLayout*)ui->songList->layout())->addStretch(1);
+    regroupList();
+    selectedFrames.clear();
+    emit selectionChanged();
 }
 
 bool filterState(const QCheckBox* cb, std::function<bool(void)> func) {
@@ -241,8 +253,6 @@ void MainWindow::addSong(Song *song) {
     songFrames.append(sf);
     sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
     sf->connect(sf,&SongFrame::playSong,ui->musicPlayer,&AudioPlayer::playSong);
-//    ui->songList->layout()->addWidget(sw);
-//    qApp->processEvents();
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));
@@ -261,5 +271,5 @@ void MainWindow::on_actionSources_triggered()
     ssd.exec();
     config.setValue("songdirs",ssd.getPaths());
     if (ssd.changed())
-        emit rescanCollection(config.value("songdirs").toStringList());
+        rescanCollection();
 }

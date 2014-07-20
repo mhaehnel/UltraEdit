@@ -14,7 +14,6 @@ Validator::Validator(QSettings& settings,Mode mode, QString basePath) :
     QString genPattern = pattern;
     QRegExp conditionals("!\\{(BG|VID|COV|TXT|MP3):([^\\}]*)\\}",Qt::CaseInsensitive);
     while (genPattern.contains(conditionals)) genPattern.replace(conditionals,"\\2");
-//    qWarning() << "Generic version:" << genPattern;
 
     while ( (idx = pattern.indexOf("${",lastPos)) != -1) {
         int end = pattern.indexOf("}",idx);
@@ -46,12 +45,10 @@ Validator::Validator(QSettings& settings,Mode mode, QString basePath) :
         }
         if (!target->contains(tag)) {
             target->append(tag);
-//            qWarning() << "Added:" << tag << "to" << target;
         }
         lastPos = end;
     }
 //    qWarning() << "DONE!";
-    //WARNING! THis does currently not handle nested ! statements! TODO:
     QRegExp txtConditional("!\\{TXT:([^\\}]*)\\}",Qt::CaseInsensitive);
     QRegExp mp3Conditional("!\\{MP3:([^\\}]*)\\}",Qt::CaseInsensitive);
     QRegExp covConditional("!\\{COV:([^\\}]*)\\}",Qt::CaseInsensitive);
@@ -130,6 +127,32 @@ bool Validator::validatePath(Type t, Song *song, QString path) {
     return path.contains(QRegExp(pattern,Qt::CaseSensitive));
 }
 
+static QStringList pathReplace(QList<QString> needles,QString pattern, Song* song) {
+    if (needles.empty()) return QStringList();
+    QStringList res;
+    QString curNeedle = needles.first();
+    needles.removeFirst();
+    //TODO: Need to handle missing needle?
+    QStringList sl = song->tag(curNeedle).split(' ');
+    QString currentVal = sl.first();
+    sl.removeFirst();
+    for (QString part : sl) {
+        QString localPattern = pattern;
+        localPattern.replace(QString("{%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+        res.append(pathReplace(needles,localPattern,song));
+        currentVal.append(QString(" %1").arg(part));
+    }
+    QString localPattern = pattern;
+    localPattern.replace(QString("{%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+    res.append(pathReplace(needles,localPattern,song));
+    return res;
+}
+
+QStringList Validator::possiblePaths(Song *song, Type t) {
+    QString pattern = songPattern(t,song);
+    return pathReplace(start,pattern,song);
+}
+
 QString Validator::reducePath(QString path) {
     if (!path.startsWith(basePath)) {
         qWarning() << "This is not a valid song for this validator!";
@@ -143,7 +166,7 @@ QString Validator::reducePath(QString path) {
 bool Validator::validate(Song *song, Type t) {
     if (!_good) return false;
     //Check only txt for now ...
-    qWarning() << "Got pattern:      " << songPattern(Type::TXT,song);
+    qWarning() << "Got pattern:     " << songPattern(t,song);
     if (t == Type::ALL) {
         if (!validatePath(Type::TXT,song,reducePath(song->txt().filePath()))) return false;
         if (!validatePath(Type::MP3,song,reducePath(song->mp3().filePath()))) return false;
