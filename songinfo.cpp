@@ -36,6 +36,10 @@ void SongInfo::selectionUpdated() {
     ui->mediaTab->setDisabled(selection->size() != 1);
     //Title
     if (selection->size() == 1) {
+        //If we don't do this we will get update signals. Thats not usefull
+        for (QWidget* w : this->findChildren<QWidget*>())
+            w->blockSignals(true);
+
         Song* s = selection->first()->song();
         ui->title->setText(s->title());
         ui->artist->setText(s->artist());
@@ -51,6 +55,9 @@ void SongInfo::selectionUpdated() {
         ui->bgFile->setStyleSheet((s->hasBG() && !s->bg().exists())?"background-color: red":"");
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
+
+        for (QWidget* w : findChildren<QWidget*>())
+            w->blockSignals(false);
     }
 
     //TODO: Support mass edit!

@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <QPixmap>
 #include <QDir>
+#include "validator.h"
+#include <pathinstanceselector.h>
+#include <cassert>
 
 QStringList Song::seenTags;
 QPixmap* Song::_noCover = nullptr;
@@ -86,8 +89,8 @@ bool Song::setTag(const QString &tag, const QString &value) {
         return false;
     }
     tags[tag] = value;
-    if (tag == "TITLE") _title = value;
-    if (tag == "ARTIST") _artist = value;
+//    if (tag == "TITLE") _title = value;
+//    if (tag == "ARTIST") _artist = value;
     if (tag == "MP3") {
         _mp3.setFile(_txt.dir(),value);
         if (!_mp3.exists()) {
@@ -119,7 +122,26 @@ bool Song::setTag(const QString &tag, const QString &value) {
     //TODO: qWarning() << "Unknown Tag " << tag;
     emit updated();
     if (initialized) {
-
+        //We only do this if initialization went well!
+        //check if we need reselection of path (due to changed variable tag)
+        if (validator->isVariable(tag)) {
+            qWarning() << "Current TXT path: " << _txt.absoluteFilePath().remove(0,_basePath.length());
+            QStringList choice = validator->possiblePaths(this,Validator::Type::TXT);
+            qWarning() << "Updated TXT path: " << choice;
+            assert(choice.size() >= 1);
+            QString sel;
+            if (choice.size() == 1) {
+                sel = choice.first();
+            } else {
+                PathInstanceSelector pis(choice);
+                if (pis.exec() == QDialog::Accepted) {
+                    sel = pis.getSelected();
+                    qWarning() << "Chosen path: " << pis.getSelected();
+                } else {
+                    qWarning() << "Abort not possible at the moment!"; //TODO
+                }
+            }
+        }
     }
     return true;
 }
@@ -198,10 +220,10 @@ const QFileInfo& Song::bg() const {
 QString Song::title() const
 {
     if (!valid) return _txt.path();
-    return _title;
+    return tags["TITLE"];
 }
-const QString &Song::artist() const {
-    return _artist;
+QString Song::artist() const {
+    return tags["ARTIST"];
 }
 
 QString Song::basePath() const {

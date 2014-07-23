@@ -22,7 +22,7 @@ Validator::Validator(QSettings& settings,Mode mode, QString basePath) :
             _good = false;
             return;
         }
-        QString tag = pattern.mid(idx+2,end-idx-2);
+        QString tag = pattern.mid(idx+2,end-idx-2).toUpper();
         QList<QString>* target;
         if (!tag.contains(':')) {
             if (!tag.contains(onlyLettersOrNumbers)) {
@@ -93,13 +93,13 @@ QString Validator::songPattern(Type t, Song *song) {
     p.replace("${suffix}",f.suffix());
     //TODO: Handle what happens if tag does not exist!
     for (QString tag : exact)
-        p.replace(QString("${%1}").arg(tag),song->tag(tag));
+        p.replace(QString("${%1}").arg(tag),song->tag(tag),Qt::CaseInsensitive);
     for (QString tag : upper)
-        p.replace(QString("${%1}").arg(tag),song->tag(tag).toUpper());
+        p.replace(QString("${%1}").arg(tag),song->tag(tag).toUpper(),Qt::CaseInsensitive);
     for (QString tag : lower)
-        p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower());
+        p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower(),Qt::CaseInsensitive);
     for (QString tag : title)
-        p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower());
+        p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower(),Qt::CaseInsensitive);
 
     return p;
 }
@@ -128,7 +128,8 @@ bool Validator::validatePath(Type t, Song *song, QString path) {
 }
 
 static QStringList pathReplace(QList<QString> needles,QString pattern, Song* song) {
-    if (needles.empty()) return QStringList();
+    if (needles.empty()) return QStringList(pattern);
+    qWarning() << "Checking for" << needles.first() << "Current Pattern:" << pattern;
     QStringList res;
     QString curNeedle = needles.first();
     needles.removeFirst();
@@ -137,14 +138,23 @@ static QStringList pathReplace(QList<QString> needles,QString pattern, Song* son
     QString currentVal = sl.first();
     sl.removeFirst();
     for (QString part : sl) {
+        qWarning() << "Part:" << part;
         QString localPattern = pattern;
-        localPattern.replace(QString("{%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+        localPattern.replace(QString("${%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+//        res.append(localPattern);
+        qWarning() << "Recursing for" << needles;
         res.append(pathReplace(needles,localPattern,song));
+        qWarning() << "localPattern:" << localPattern;
         currentVal.append(QString(" %1").arg(part));
+        qWarning() << "currentVal: " << currentVal;
     }
     QString localPattern = pattern;
-    localPattern.replace(QString("{%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+    localPattern.replace(QString("${%1:start}").arg(curNeedle),currentVal,Qt::CaseInsensitive);
+    qWarning() << "localPattern: " << localPattern;
+    qWarning() << "res:" << res;
+    qWarning() << "Recursing for" << needles;
     res.append(pathReplace(needles,localPattern,song));
+//    res.append(localPattern);
     return res;
 }
 
@@ -188,4 +198,8 @@ bool Validator::validate(Song *song, Type t) {
 
 bool Validator::good() {
     return _good;
+}
+
+bool Validator::isVariable(const QString &tag) {
+    return start.contains(tag.toUpper());
 }

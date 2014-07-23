@@ -18,10 +18,11 @@ private:
     bool _golden = false;
     bool _freestyle = false;
     int _players = 0; //stays 0 for simple file
-    QString _title, _artist, _basePath;
+    QString _basePath;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
     QPixmap _covPM;
     QMap<QString,QString> tags;
+    QMap<QString,int> agreedComponentCount;
     static QStringList seenTags;
     static QPixmap *_noCover, *_coverMissing;
     bool setTag(const QString& tag, const QString& value);
@@ -49,7 +50,7 @@ public:
     const QFileInfo& vid() const;
     const QFileInfo& cov() const;
     const QFileInfo& bg() const;
-    const QString& artist() const;
+    QString artist() const;
     QString title() const;
     QString basePath() const;
     QString tag(const QString& tag) const;

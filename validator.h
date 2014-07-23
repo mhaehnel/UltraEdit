@@ -8,18 +8,18 @@
 
 class Validator
 {
-    enum class Type {
-        MP3, TXT, COV, BG, VID, ALL
-    };
-
 public:
     enum class Mode {
         ReadOnly, Fix
     };
 
+    enum class Type {
+        MP3, TXT, COV, BG, VID, ALL
+    };
     Validator(QSettings& settings,Mode mode, QString basePath);
     bool validate(Song* song, Type t = Type::ALL);\
     QStringList possiblePaths(Song* song, Type t);
+    bool isVariable(const QString& tag);
     bool good(); //False if failed to compile validator string!
 private:
     bool _good;
