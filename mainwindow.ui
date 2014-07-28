@@ -33,6 +33,12 @@
        <number>4</number>
       </property>
       <widget class="QTabWidget" name="sortTab">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="tabPosition">
         <enum>QTabWidget::West</enum>
        </property>
@@ -313,7 +319,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>526</width>
+              <width>294</width>
               <height>285</height>
              </rect>
             </property>
@@ -438,6 +444,12 @@
        </widget>
       </widget>
       <widget class="QScrollArea" name="songScroller">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color: palette(light)</string>
        </property>
@@ -449,7 +461,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>68</width>
+          <width>368</width>
           <height>389</height>
          </rect>
         </property>
@@ -461,7 +473,14 @@
         </property>
        </widget>
       </widget>
-      <widget class="SongInfo" name="songDetails" native="true"/>
+      <widget class="SongInfo" name="songDetails" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>

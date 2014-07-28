@@ -98,9 +98,6 @@ QString Validator::songPattern(Type t, Song *song) {
         p.replace(QString("${%1}").arg(tag),song->tag(tag).toUpper(),Qt::CaseInsensitive);
     for (QString tag : lower)
         p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower(),Qt::CaseInsensitive);
-    for (QString tag : title)
-        p.replace(QString("${%1}").arg(tag),song->tag(tag).toLower(),Qt::CaseInsensitive);
-
     return p;
 }
 
@@ -202,4 +199,11 @@ bool Validator::good() {
 
 bool Validator::isVariable(const QString &tag) {
     return start.contains(tag.toUpper());
+}
+
+bool Validator::isPathTag(const QString &tag) {
+    return start.contains(tag.toUpper())
+            || upper.contains(tag.toUpper())
+            || lower.contains(tag.toUpper())
+            || exact.contains(tag.toUpper());
 }

@@ -2,6 +2,7 @@
 #define SONG_H
 
 #include <QFileInfo>
+#include <sylabel.h>
 #include <QMap>
 #include <QPixmap>
 
@@ -18,11 +19,16 @@ private:
     bool _golden = false;
     bool _freestyle = false;
     int _players = 0; //stays 0 for simple file
-    QString _basePath;
+    double _bpm = 0;
+    double _gap = 0;
+    QString _basePath, _rawTextCache;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
     QPixmap _covPM;
     QMap<QString,QString> tags;
+    QMap<QString,int> components;
     QMap<QString,int> agreedComponentCount;
+    //Player -> (time -> text)
+    QList<Sylabel> musicAndLyrics;
     static QStringList seenTags;
     static QPixmap *_noCover, *_coverMissing;
     bool setTag(const QString& tag, const QString& value);
@@ -50,15 +56,23 @@ public:
     const QFileInfo& vid() const;
     const QFileInfo& cov() const;
     const QFileInfo& bg() const;
+    QString rawLyrics();
     QString artist() const;
     QString title() const;
     QString basePath() const;
+    double bpm() const { return _bpm; }
+    double gap() const { return _gap; }
     QString tag(const QString& tag) const;
     QPixmap cover();
     QPixmap background() const;
 
 signals:
     void updated();
+    void playingSylabel(int from, int to);
+    void playingSylabel(const Sylabel& s);
+
+public slots:
+    void playing(int ms);
 };
 
 Q_DECLARE_METATYPE(Song*);

@@ -26,6 +26,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
     QTextStream in(&ifile);
     bool endOfTags = false;
     int lineNo = 0;
+    int curPlayer = 1;
     while (!in.atEnd()) {
         lineNo++;
         QString line = in.readLine();
@@ -44,23 +45,25 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
                 continue;
             }
             addTag(elements.first(),elements.last());
-        } else if (line.startsWith(':')) { //Notes!
+        } else if (line.startsWith(':') ||
+                   line.startsWith('*') ||
+                   line.startsWith('F') ||
+                   line.startsWith('-')) { //Linebreak (this should not be the first! TODO?)
             endOfTags = true;
-        } else if (line.startsWith('*')) { //Golden Note
-            _golden = true;
-            endOfTags = true;
-        } else if (line.startsWith('F')) { //Freestyle
-            _freestyle = true;
-            endOfTags = true;
-        } else if (line.startsWith('-')) { //Linebreak (this should not be the first! TODO?)
-            endOfTags = true;
+            if (_bpm == -1) {
+                wellFormed = false;
+                qWarning() << QString("[%1]: Contains no BPM!").arg(source.filePath());
+                valid =false;
+                return;
+            }
+            musicAndLyrics.append(Sylabel(line,curPlayer));
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
                 qWarning() << QString("[%1]: Data beyond end of file!").arg(source.filePath());
                 wellFormed = false;
                 break;
             }
-        } else if (line.startsWith('P')) { //TODO: This does not implement nested players!
+        } else if (line.startsWith('P')) { //TODO: This does not implement nested players! And we do not check the player count tag ...
             bool ok;
             int newPlayer = line.trimmed().remove(0,1).toInt(&ok);
             if (!ok) {
@@ -72,12 +75,16 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
 //                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);
                 wellFormed = false;
             }
+            curPlayer = newPlayer;
 	    _players = newPlayer;
         } else {
             qWarning() << QString("[%1]: Line \"%2\" could not be interpreted!").arg(source.filePath(),line);
             wellFormed = false;
         }
     }
+    std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[] (const Sylabel& s1, const Sylabel& s2) {
+        return s1.beat() < s2.beat();
+    });
     initialized = true;
 }
 
@@ -119,31 +126,65 @@ bool Song::setTag(const QString &tag, const QString &value) {
             wellFormed = false;
         }
     }
+    bool ok;
+    if (tag == "BPM") {
+        _bpm = QString(value).replace(",",".").toDouble(&ok);
+        if (!ok) {
+            qWarning() << QString("[%1]: BPM is not a double!").arg(_txt.filePath());
+            valid =false;
+            return false;
+        }
+    }
+    if (tag == "GAP") {
+        _gap = QString(value).replace(",",".").toDouble(&ok);
+        if (!ok) {
+            qWarning() << QString("[%1]: GAP is not a double!").arg(_txt.filePath());
+            valid =false;
+            return false;
+        }
+    }
     //TODO: qWarning() << "Unknown Tag " << tag;
     emit updated();
     if (initialized) {
-        //We only do this if initialization went well!
-        //check if we need reselection of path (due to changed variable tag)
-        if (validator->isVariable(tag)) {
-            qWarning() << "Current TXT path: " << _txt.absoluteFilePath().remove(0,_basePath.length());
-            QStringList choice = validator->possiblePaths(this,Validator::Type::TXT);
-            qWarning() << "Updated TXT path: " << choice;
-            assert(choice.size() >= 1);
-            QString sel;
-            if (choice.size() == 1) {
-                sel = choice.first();
-            } else {
-                PathInstanceSelector pis(choice);
-                if (pis.exec() == QDialog::Accepted) {
-                    sel = pis.getSelected();
-                    qWarning() << "Chosen path: " << pis.getSelected();
+        if (validator->isPathTag(tag)) {
+            //We only do this if initialization went well!
+            //check if we need reselection of path (due to changed variable tag)
+            //Moving is tbd ...TODO!
+            if (0 && validator->isVariable(tag)) {
+                qWarning() << "Current TXT path: " << _txt.absoluteFilePath().remove(0,_basePath.length());
+                QStringList choice = validator->possiblePaths(this,Validator::Type::TXT);
+                qWarning() << "Updated TXT path: " << choice;
+                assert(choice.size() >= 1);
+                QString sel;
+                if (choice.size() == 1) {
+                    sel = choice.first();
                 } else {
-                    qWarning() << "Abort not possible at the moment!"; //TODO
+                    PathInstanceSelector pis(choice);
+                    if (pis.exec() == QDialog::Accepted) {
+                        sel = pis.getSelected();
+                        qWarning() << "Chosen path: " << pis.getSelected();
+                    } else {
+                        qWarning() << "Abort not possible at the moment!"; //TODO
+                    }
                 }
             }
         }
     }
     return true;
+}
+
+QString Song::rawLyrics() {
+    if (_rawTextCache.isEmpty()) {
+        for (const Sylabel &s : musicAndLyrics) {
+            qWarning() << s.time(_bpm) << s.text();
+            if (s.type() == Sylabel::Type::LineBreak) {
+                _rawTextCache.append("\n");
+            } else {
+                _rawTextCache.append(s.text());
+            }
+        }
+    }
+    return _rawTextCache;
 }
 
 bool Song::addTag(const QString &tag, const QString &value) {
@@ -254,6 +295,26 @@ QPixmap Song::cover() {
     if (_noCover == nullptr)
         _noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(96,96,Qt::KeepAspectRatio));
     return *_noCover; //TODO: Dummy image!
+}
+
+void Song::playing(int ms) {
+    //ms to from / to
+    int from = 0;
+    ms -= _gap;
+    if (ms/1000.0 < musicAndLyrics.first().time(_bpm)) return;
+    for (const Sylabel& s : musicAndLyrics) {
+        if (s.type() == Sylabel::Type::LineBreak) {
+            from++;
+            continue;
+        }
+        if (s.time(_bpm) <= ms/1000.0 && s.time(_bpm)+s.duration(_bpm) >= ms/1000.0) {
+//            qWarning() << s.time(_bpm) << "-" << s.time(_bpm)+s.duration(_bpm) << "=>" << s.text();
+            emit playingSylabel(from,from+s.text().length());
+            emit playingSylabel(s);
+            return;
+        }
+        from += s.text().length();
+    }
 }
 
 //Todo: Whatever needs to be constructed on copy

@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     audioplayer.cpp \
     validatorsettings.cpp \
     validator.cpp \
-    pathinstanceselector.cpp
+    pathinstanceselector.cpp \
+    sylabel.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -38,7 +39,8 @@ HEADERS  += mainwindow.h \
     audioplayer.h \
     validatorsettings.h \
     validator.h \
-    pathinstanceselector.h
+    pathinstanceselector.h \
+    sylabel.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
@@ -47,7 +49,8 @@ FORMS    += mainwindow.ui \
     songgroup.ui \
     audioplayer.ui \
     validatorsettings.ui \
-    pathinstanceselector.ui
+    pathinstanceselector.ui \
+    noteview.ui
 
 RESOURCES += \
     ultraedit.qrc

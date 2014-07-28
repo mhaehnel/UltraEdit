@@ -35,6 +35,7 @@ void SongInfo::selectionUpdated() {
     ui->tonesTab->setDisabled(selection->size() != 1);
     ui->mediaTab->setDisabled(selection->size() != 1);
     //Title
+    this->disconnect(con);
     if (selection->size() == 1) {
         //If we don't do this we will get update signals. Thats not usefull
         for (QWidget* w : this->findChildren<QWidget*>())
@@ -55,7 +56,8 @@ void SongInfo::selectionUpdated() {
         ui->bgFile->setStyleSheet((s->hasBG() && !s->bg().exists())?"background-color: red":"");
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
-
+        ui->rawLyrics->setText(s->rawLyrics());
+        con = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
     }
@@ -72,6 +74,15 @@ void SongInfo::on_title_textChanged(const QString &arg1)
         //TODO
         qWarning() << "Updating title failed!";
     }
+}
+
+void SongInfo::highlightText(int from, int to) {
+    QTextCursor c = ui->rawLyrics->textCursor();
+    if (c.anchor() == from && c.position() == to) return;
+//    qWarning()  << "Cursor -> " << from << "-" << to;
+    c.setPosition(from);
+    c.setPosition(to,QTextCursor::KeepAnchor);
+    ui->rawLyrics->setTextCursor(c);
 }
 
 void SongInfo::on_artist_textChanged(const QString &arg1)

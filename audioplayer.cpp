@@ -29,11 +29,14 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
                 player.pause();
                 break;
         }});
-    connect(&player,&QMediaPlayer::positionChanged,ui->songPos,&QSlider::setValue);
     connect(&player,&QMediaPlayer::positionChanged,[this] (qint64 pos) {
-        qint64 rem = player.duration() - pos;
-        ui->songTimePassed->display(QString("%1:%2").arg(pos/60000,2,10,QLatin1Char('0')).arg((pos/1000)%60,2,10,QLatin1Char('0')));
-        ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60000,2,10,QLatin1Char('0')).arg((rem/1000)%60,2,10,QLatin1Char('0')));
+        bool o = ui->songPos->blockSignals(true); //Needed to avoid feedback
+        ui->songPos->setValue(pos);
+        ui->songPos->blockSignals(o);
+        pos /= 1000; //to seconds
+        qint64 rem = player.duration()/1000 - pos;
+        ui->songTimePassed->display(QString("%1:%2").arg(pos/60,2,10,QLatin1Char('0')).arg(pos%60,2,10,QLatin1Char('0')));
+        ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
     });
     connect(&player,&QMediaPlayer::durationChanged,[this] (qint64 dur) { ui->songPos->setRange(0,dur); });
 }
@@ -49,14 +52,18 @@ void AudioPlayer::updateSongData() {
 }
 
 void AudioPlayer::playSong(Song *song) {
-    if (_song != nullptr)
+    if (_song != nullptr) {
         disconnect(_song,&Song::updated,this,&AudioPlayer::updateSongData);
+        disconnect(&player,&QMediaPlayer::positionChanged,_song,&Song::playing);
+    }
     _song = song;
     if (!song->mp3().exists()) return;
     updateSongData();
     connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
+    connect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
     player.stop();\
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
+    player.setNotifyInterval(15/song->bpm()*1000);
     player.play();
-    qWarning() << "Should play";
+    qWarning() << "Should play. Notify: " << 15/(song->bpm())*1000;
 }

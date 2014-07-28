@@ -22,11 +22,12 @@ public slots:
 
 private slots:
     void on_title_textChanged(const QString &arg1);
-
     void on_artist_textChanged(const QString &arg1);
+    void highlightText(int from, int to);
 
 private:
     Ui::SongInfo *ui;
+    QMetaObject::Connection con;
     QList<SongFrame*> *selection;
 };
 

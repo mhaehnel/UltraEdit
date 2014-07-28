@@ -31,7 +31,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="generalTab">
         <attribute name="title">
@@ -308,11 +308,21 @@
         <attribute name="title">
          <string>Tones</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QGraphicsView" name="noteView"/>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="lyricsTab">
         <attribute name="title">
          <string>Lyrics</string>
         </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QTextEdit" name="rawLyrics"/>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="rawData">
         <attribute name="title">

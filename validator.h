@@ -20,6 +20,7 @@ public:
     bool validate(Song* song, Type t = Type::ALL);\
     QStringList possiblePaths(Song* song, Type t);
     bool isVariable(const QString& tag);
+    bool isPathTag(const QString& tag);
     bool good(); //False if failed to compile validator string!
 private:
     bool _good;
@@ -31,7 +32,7 @@ private:
     Mode fixMode;
     QString basePath;
     QString txtPattern, mp3Pattern, vidPattern, covPattern, bgPattern;
-    QList<QString> upper, exact, lower, title, start;
+    QList<QString> upper, exact, lower, start;
 
     friend class ValidatorSettings;
 };
