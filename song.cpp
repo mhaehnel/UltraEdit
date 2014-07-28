@@ -299,11 +299,17 @@ QPixmap Song::cover() {
 
 void Song::playing(int ms) {
     //ms to from / to
+    int line = 0;
+    int lineStart = 0;
+    static int last_line = -1;
     int from = 0;
     ms -= _gap;
     if (ms/1000.0 < musicAndLyrics.first().time(_bpm)) return;
-    for (const Sylabel& s : musicAndLyrics) {
+    for (int i = 0; i < musicAndLyrics.size(); i++) {
+        const Sylabel& s = musicAndLyrics.at(i);
         if (s.type() == Sylabel::Type::LineBreak) {
+            line++;
+            lineStart = i+1;
             from++;
             continue;
         }
@@ -311,6 +317,16 @@ void Song::playing(int ms) {
 //            qWarning() << s.time(_bpm) << "-" << s.time(_bpm)+s.duration(_bpm) << "=>" << s.text();
             emit playingSylabel(from,from+s.text().length());
             emit playingSylabel(s);
+            if (line != last_line) {
+                QList<Sylabel> notes;
+                while (lineStart < musicAndLyrics.size()
+                       && musicAndLyrics.at(lineStart).type() != Sylabel::Type::LineBreak) {
+                    notes.append(musicAndLyrics.at(lineStart));
+                    lineStart++;
+                }
+                emit lineChanged(line,notes);
+                last_line = line;
+            }
             return;
         }
         from += s.text().length();

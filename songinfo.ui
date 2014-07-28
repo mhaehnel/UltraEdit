@@ -310,7 +310,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QGraphicsView" name="noteView"/>
+          <widget class="NoteWidget" name="notes" native="true"/>
          </item>
         </layout>
        </widget>
@@ -335,6 +335,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>NoteWidget</class>
+   <extends>QWidget</extends>
+   <header>notewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

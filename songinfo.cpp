@@ -35,7 +35,9 @@ void SongInfo::selectionUpdated() {
     ui->tonesTab->setDisabled(selection->size() != 1);
     ui->mediaTab->setDisabled(selection->size() != 1);
     //Title
-    this->disconnect(con);
+    this->disconnect(conSylText);
+    this->disconnect(conSylLine);
+    this->disconnect(conSyl);
     if (selection->size() == 1) {
         //If we don't do this we will get update signals. Thats not usefull
         for (QWidget* w : this->findChildren<QWidget*>())
@@ -57,7 +59,11 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
-        con = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
+        conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
+        conSyl = connect(s,static_cast<void (Song::*)(const Sylabel&)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
+        conSylLine = connect(s,&Song::lineChanged,[this] (int, QList<Sylabel> notes) {
+            ui->notes->setNotes(notes);
+        });
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
     }

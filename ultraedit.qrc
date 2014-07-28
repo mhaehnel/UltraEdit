@@ -11,5 +11,7 @@
         <file>images/landscape_notFound.png</file>
         <file>images/video_notFound.png</file>
         <file>images/nocover_notFound.png</file>
+        <file>images/gclef.svg</file>
+        <file>images/fclef.svg</file>
     </qresource>
 </RCC>

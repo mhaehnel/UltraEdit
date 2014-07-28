@@ -27,7 +27,9 @@ private slots:
 
 private:
     Ui::SongInfo *ui;
-    QMetaObject::Connection con;
+    QMetaObject::Connection conSylText;
+    QMetaObject::Connection conSylLine;
+    QMetaObject::Connection conSyl;
     QList<SongFrame*> *selection;
 };
 

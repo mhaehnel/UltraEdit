@@ -48,3 +48,23 @@ Sylabel::Sylabel(QString source, int players) : _beats(-1), _players(players)
     assert(re.captureCount() == 1);
     _text = re.cap(1);
 }
+
+bool Sylabel::operator ==(const Sylabel& other) const {
+    return other.key() == _pitch && other.text() == _text && other.type() == _t
+            && other.beat() == _beat && other.beats() == _beats;
+
+}
+
+bool Sylabel::isSharp() const {
+    return (_pitch == 1 || _pitch == 3 || _pitch == 6 || _pitch == 8 || _pitch == 10);
+}
+
+int Sylabel::getLine(Clef c) const {
+    static int tbl[] = {0,0,1,1,2,3,3,4,4,5,5,6};
+    int base = (_pitch < 0)?_pitch%12+12:_pitch%12;
+    int fixup = ((_pitch < 0)?_pitch/12-1:_pitch/12)*7;
+//    qWarning() << "Base:" << base << "Fixup:" << fixup << "[]" << tbl[base];
+    int result = (tbl[base] + fixup + ((c==Clef::G)?0:12));
+//    qWarning() << "=>" << result;
+    return result;
+}

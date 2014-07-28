@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui concurrent multimedia
+QT       += core gui concurrent multimedia svg
 
 CONFIG += c++11
 
@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     validatorsettings.cpp \
     validator.cpp \
     pathinstanceselector.cpp \
-    sylabel.cpp
+    sylabel.cpp \
+    notewidget.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     validatorsettings.h \
     validator.h \
     pathinstanceselector.h \
-    sylabel.h
+    sylabel.h \
+    notewidget.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
@@ -50,7 +52,8 @@ FORMS    += mainwindow.ui \
     audioplayer.ui \
     validatorsettings.ui \
     pathinstanceselector.ui \
-    noteview.ui
+    noteview.ui \
+    notewidget.ui
 
 RESOURCES += \
     ultraedit.qrc
