@@ -20,6 +20,8 @@ public:
 
 public slots:
     void playSong(Song* song);
+    void seek(quint64 pos);
+
 private slots:
     void updateSongData();
 

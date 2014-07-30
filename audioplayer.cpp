@@ -46,6 +46,10 @@ AudioPlayer::~AudioPlayer()
     delete ui;
 }
 
+void AudioPlayer::seek(quint64 pos) {
+    player.setPosition(pos);
+}
+
 void AudioPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
     ui->playerTitle->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(_song->artist(),_song->title()));

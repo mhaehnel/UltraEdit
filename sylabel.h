@@ -2,6 +2,9 @@
 #define SYLABEL_H
 
 #include <QString>
+#include <QHash>
+
+class Song;
 
 class Sylabel
 {
@@ -14,7 +17,12 @@ public:
         G, F
     };
 
-    Sylabel(QString source, int players);
+    enum class Note {
+        C, D, E, F, G, A, B
+    };
+
+    Song * song;
+    Sylabel(QString source, int players, Song * song);
     Type type() const { return _t; }
     QString text() const { return _text; }
     int beat() const { return _beat; }
@@ -26,6 +34,8 @@ public:
     int forPlayers() const { return _players; }
     bool isExtension() const { return _text == "~" || _text == "~ "; }
     bool isSharp() const;
+    Sylabel::Note note() const;
+
     int getLine(Clef c) const;
     bool operator==(const Sylabel& other) const;
 private:
@@ -35,5 +45,9 @@ private:
     QString _text;
     int _pitch, _players;
 };
+
+inline uint qHash(const Sylabel::Note &n) {
+    return qHash(static_cast<std::underlying_type<Sylabel::Note>::type>(n));
+}
 
 #endif // SYLABEL_H

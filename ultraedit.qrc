@@ -13,5 +13,7 @@
         <file>images/nocover_notFound.png</file>
         <file>images/gclef.svg</file>
         <file>images/fclef.svg</file>
+        <file>images/sharp.svg</file>
+        <file>images/natural.svg</file>
     </qresource>
 </RCC>

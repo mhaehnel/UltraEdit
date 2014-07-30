@@ -25,6 +25,9 @@ private slots:
     void on_artist_textChanged(const QString &arg1);
     void highlightText(int from, int to);
 
+signals:
+    void seek(quint64 pos);
+
 private:
     Ui::SongInfo *ui;
     QMetaObject::Connection conSylText;

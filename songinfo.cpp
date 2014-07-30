@@ -68,6 +68,10 @@ void SongInfo::selectionUpdated() {
             w->blockSignals(false);
     }
 
+    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
+    connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
+
+
     //TODO: Support mass edit!
 }
 

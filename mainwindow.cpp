@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(&statusProgress);
 
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
+    connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
 
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
 }

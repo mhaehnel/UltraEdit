@@ -5,7 +5,7 @@
 
 //TODO: Put error outputs on abort
 
-Sylabel::Sylabel(QString source, int players) : _beats(-1), _players(players)
+Sylabel::Sylabel(QString source, int players, Song* song) : _beats(-1), _players(players), song(song)
 {
     _t = Type::Bad;
     Type t = Type::Bad; //Internal (only set if all well!)
@@ -56,7 +56,14 @@ bool Sylabel::operator ==(const Sylabel& other) const {
 }
 
 bool Sylabel::isSharp() const {
-    return (_pitch == 1 || _pitch == 3 || _pitch == 6 || _pitch == 8 || _pitch == 10);
+    int idx = (_pitch < 0)?_pitch%12+12:_pitch%12;
+    return (idx == 1 || idx == 3 || idx == 6 || idx == 8 || idx == 10);
+}
+
+Sylabel::Note Sylabel::note() const {
+    Note tbl[] = {Note::C,Note::C,Note::D,Note::D,Note::E,Note::F,
+                  Note::F,Note::G,Note::G,Note::A,Note::A,Note::B};
+    return tbl[(_pitch < 0)?_pitch%12+12:_pitch%12];
 }
 
 int Sylabel::getLine(Clef c) const {

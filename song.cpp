@@ -56,7 +56,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
                 valid =false;
                 return;
             }
-            musicAndLyrics.append(Sylabel(line,curPlayer));
+            musicAndLyrics.append(Sylabel(line,curPlayer,this));
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
                 qWarning() << QString("[%1]: Data beyond end of file!").arg(source.filePath());
