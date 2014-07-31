@@ -150,23 +150,19 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     //painter.drawRect(QRectF(lineHeight,top,width,height));
 }
 
-void NoteWidget::setNotes(const QList<Sylabel>& notes) {
+void NoteWidget::setSong(Song* song) {
     int line = 0;
-    for (QList<Sylabel*> l : _notes)
-        for (Sylabel* s : l)
-            delete s;
     _notes.clear();
-    for (const Sylabel& s : notes) {
+    for (Sylabel& s : song->sylabels()) {
         if (s.type() == Sylabel::Type::LineBreak) line++;
-        else _notes[line].append(new Sylabel(s));
+        else _notes[line].append(&s);
         //TODO: This does not handle linebreak timings!
     }
     currentLine = -1;
-    setLine(0);
+    setLine(0); //We need this to paint the first line.
     currentLine = 0;
     currentNote = _notes.first().first();
     emit lineCount(line);
-    qWarning() << "emitting " << line;
     emit lineChanged(0);
 }
 

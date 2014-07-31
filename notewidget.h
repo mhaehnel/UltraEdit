@@ -32,7 +32,7 @@ signals:
 public slots:
     void setCurrentNote(Sylabel s);
     void setLine(int line);
-    void setNotes(QList<Sylabel> const& note);
+    void setSong(Song* song);
     void goToLine(int line);
 
 protected:

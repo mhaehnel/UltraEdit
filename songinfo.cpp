@@ -94,7 +94,8 @@ void SongInfo::selectionUpdated() {
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
-        ui->notes->setNotes(s->sylabels());
+//        ui->notes->setNotes(s->sylabels());
+        ui->notes->setSong(s);
     }
 
     //TODO: THis breaks if the notewidget edits another song than the one currently playing!

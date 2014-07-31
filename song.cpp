@@ -258,7 +258,7 @@ const QFileInfo& Song::bg() const {
     return _bg;
 }
 
-const QList<Sylabel>& Song::sylabels() const {
+QList<Sylabel>& Song::sylabels() {
     return musicAndLyrics;
 }
 

@@ -65,7 +65,7 @@ public:
     QString tag(const QString& tag) const;
     QPixmap cover();
     QPixmap background() const;
-    const QList<Sylabel>& sylabels() const;
+    QList<Sylabel>& sylabels();
 
 signals:
     void updated();
