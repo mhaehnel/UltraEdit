@@ -2,6 +2,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <cassert>
+#include <song.h>
 
 //TODO: Put error outputs on abort
 
@@ -58,6 +59,14 @@ bool Sylabel::operator ==(const Sylabel& other) const {
 bool Sylabel::isSharp() const {
     int idx = (_pitch < 0)?_pitch%12+12:_pitch%12;
     return (idx == 1 || idx == 3 || idx == 6 || idx == 8 || idx == 10);
+}
+
+double Sylabel::time() const {
+    return _beat/song->bpm()/4*60.0;
+}
+
+double Sylabel::duration() const {
+     return _beats/song->bpm()/4*60.0;
 }
 
 Sylabel::Note Sylabel::note() const {

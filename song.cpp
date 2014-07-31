@@ -176,7 +176,7 @@ bool Song::setTag(const QString &tag, const QString &value) {
 QString Song::rawLyrics() {
     if (_rawTextCache.isEmpty()) {
         for (const Sylabel &s : musicAndLyrics) {
-            qWarning() << s.time(_bpm) << s.text();
+            qWarning() << s.time() << s.text();
             if (s.type() == Sylabel::Type::LineBreak) {
                 _rawTextCache.append("\n");
             } else {
@@ -258,6 +258,10 @@ const QFileInfo& Song::bg() const {
     return _bg;
 }
 
+const QList<Sylabel>& Song::sylabels() const {
+    return musicAndLyrics;
+}
+
 QString Song::title() const
 {
     if (!valid) return _txt.path();
@@ -304,7 +308,7 @@ void Song::playing(int ms) {
     static int last_line = -1;
     int from = 0;
     ms -= _gap;
-    if (ms/1000.0 < musicAndLyrics.first().time(_bpm)) return;
+    if (ms/1000.0 < musicAndLyrics.first().time()) return;
     for (int i = 0; i < musicAndLyrics.size(); i++) {
         const Sylabel& s = musicAndLyrics.at(i);
         if (s.type() == Sylabel::Type::LineBreak) {
@@ -313,18 +317,18 @@ void Song::playing(int ms) {
             from++;
             continue;
         }
-        if (s.time(_bpm) <= ms/1000.0 && s.time(_bpm)+s.duration(_bpm) >= ms/1000.0) {
+        if (s.time() <= ms/1000.0 && s.time()+s.duration() >= ms/1000.0) {
 //            qWarning() << s.time(_bpm) << "-" << s.time(_bpm)+s.duration(_bpm) << "=>" << s.text();
             emit playingSylabel(from,from+s.text().length());
             emit playingSylabel(s);
             if (line != last_line) {
-                QList<Sylabel> notes;
-                while (lineStart < musicAndLyrics.size()
-                       && musicAndLyrics.at(lineStart).type() != Sylabel::Type::LineBreak) {
-                    notes.append(musicAndLyrics.at(lineStart));
-                    lineStart++;
-                }
-                emit lineChanged(line,notes);
+//                QList<Sylabel> notes;
+//                while (lineStart < musicAndLyrics.size()
+//                       && musicAndLyrics.at(lineStart).type() != Sylabel::Type::LineBreak) {
+//                    notes.append(musicAndLyrics.at(lineStart));
+//                    lineStart++;
+//                }
+                emit lineChanged(line);
                 last_line = line;
             }
             return;

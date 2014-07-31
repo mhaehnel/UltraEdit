@@ -65,12 +65,13 @@ public:
     QString tag(const QString& tag) const;
     QPixmap cover();
     QPixmap background() const;
+    const QList<Sylabel>& sylabels() const;
 
 signals:
     void updated();
     void playingSylabel(int from, int to);
     void playingSylabel(const Sylabel& s);
-    void lineChanged(int line, QList<Sylabel> notes);
+    void lineChanged(int line); //, QList<Sylabel> notes);
 
 public slots:
     void playing(int ms);

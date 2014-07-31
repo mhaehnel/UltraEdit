@@ -27,8 +27,8 @@ public:
     QString text() const { return _text; }
     int beat() const { return _beat; }
     int beats() const { return _beats; } //This is 'show next line hint' for line break!
-    double time(double bpm) const { return _beat/bpm/4*60.0; }
-    double duration(double bpm) const { return _beats/bpm/4*60.0; }
+    double time() const;
+    double duration() const;
     int key() const { return _pitch; }
     bool isBad() const { return _t == Type::Bad; }
     int forPlayers() const { return _players; }

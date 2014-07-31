@@ -5,10 +5,11 @@
 #include <QPainter>
 #include <QDebug>
 #include <QMouseEvent>
+#include <sylabel.h>
 #include <song.h>
 
 NoteWidget::NoteWidget(QWidget *parent) :
-    QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0)
+    QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0), currentLine(0)
 {
     QFile gcf(":/images/gclef.svg");
     gcf.open(QIODevice::ReadOnly);
@@ -32,6 +33,21 @@ NoteWidget::NoteWidget(QWidget *parent) :
 NoteWidget::~NoteWidget()
 {
     delete ui;
+}
+
+int NoteWidget::line() const {
+    qWarning() << currentLine;
+    return currentLine;
+}
+
+int NoteWidget::lines() const {
+    return _notes.size();
+}
+
+void NoteWidget::goToLine(int line) {
+    if (line >= _notes.size() || line < 0) return;
+    setLine(line);
+    emit seek(_notes[line].first()->time()*1000+_notes.first().first()->song->gap());
 }
 
 void NoteWidget::paintEvent(QPaintEvent *) {
@@ -68,32 +84,32 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     QSet<Sylabel::Note> sharpified;
     renderer.load(sharp);
     QSvgRenderer rnatural(natural,this);
-    for (const Sylabel& s : _notes) {
-        double y = ycenter-lineHeight*(s.getLine(currentClef)-6)*0.5;
-        double x = pos+(s.beat()-startBeat)*lengthPerBeat;
-        double length = s.beats()*lengthPerBeat;
+    for (const Sylabel* s : _notes[currentLine]) {
+        double y = ycenter-lineHeight*(s->getLine(currentClef)-6)*0.5;
+        double x = pos+(s->beat()-startBeat)*lengthPerBeat;
+        double length = s->beats()*lengthPerBeat;
         QLinearGradient noteGrad(x,y,x+length,y);
-        if (&s == currentNote) {
+        if (s == currentNote) {
             noteGrad.setColorAt(0,Qt::green);
         } else {
             noteGrad.setColorAt(0,Qt::blue);
         }
         noteGrad.setColorAt(1,Qt::white);
         painter.setBrush(QBrush(noteGrad));
-        if (s.getLine(currentClef)-3 < -1) {
-            for (int i = -6; i >= s.getLine(currentClef)-6; i-=2)
+        if (s->getLine(currentClef)-3 < -1) {
+            for (int i = -6; i >= s->getLine(currentClef)-6; i-=2)
                 painter.drawLine(x-0.25*lengthPerBeat,ycenter-lineHeight*i*0.5,x+length+0.25*lengthPerBeat,ycenter-lineHeight*i*0.5);
         }
-        if (s.getLine(currentClef)-3 > 6) {
-            for (int i = 6; i <= s.getLine(currentClef)-6; i+=2)
+        if (s->getLine(currentClef)-3 > 6) {
+            for (int i = 6; i <= s->getLine(currentClef)-6; i+=2)
                 painter.drawLine(x-0.25*lengthPerBeat,ycenter-lineHeight*i*0.5,x+length+0.25*lengthPerBeat,ycenter-lineHeight*i*0.5);
         }
-        if (someSharpies.contains(s.note())) {
-            if (s.isSharp() && !sharpified.contains(s.note())) {
-                sharpified.insert(s.note());
+        if (someSharpies.contains(s->note())) {
+            if (s->isSharp() && !sharpified.contains(s->note())) {
+                sharpified.insert(s->note());
                 renderer.render(&painter,QRectF(x-0.9*lineHeight,y-1.5*lineHeight,0.8*lineHeight,2.5*lineHeight));
-            } else if (!s.isSharp() && sharpified.contains(s.note())) {
-                sharpified.remove(s.note());
+            } else if (!s->isSharp() && sharpified.contains(s->note())) {
+                sharpified.remove(s->note());
                 rnatural.render(&painter,QRectF(x-0.9*lineHeight,y-1.5*lineHeight,0.8*lineHeight,2.5*lineHeight));
             }
         }
@@ -118,15 +134,15 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     textFont.setPointSize(21);
     painter.setFont(textFont);
 
-    for (const Sylabel& s : _notes) {
-        double w = painter.fontMetrics().width(s.text());
+    for (const Sylabel* s : _notes[currentLine]) {
+        double w = painter.fontMetrics().width(s->text());
         painter.save();
-        if (&s == currentNote) {
+        if (s == currentNote) {
             QPen colPen(painter.pen());
             colPen.setColor(Qt::green);
             painter.setPen(colPen);
         }
-        painter.drawText(QRectF(lengthSoFar,ycenter+lineHeight*10,w,painter.fontMetrics().height()),s.text());
+        painter.drawText(QRectF(lengthSoFar,ycenter+lineHeight*10,w,painter.fontMetrics().height()),s->text());
         lengthSoFar+=w;
         painter.restore();
     }
@@ -134,19 +150,42 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     //painter.drawRect(QRectF(lineHeight,top,width,height));
 }
 
-void NoteWidget::setNotes(QList<Sylabel> notes) {
+void NoteWidget::setNotes(const QList<Sylabel>& notes) {
+    int line = 0;
+    for (QList<Sylabel*> l : _notes)
+        for (Sylabel* s : l)
+            delete s;
+    _notes.clear();
+    for (const Sylabel& s : notes) {
+        if (s.type() == Sylabel::Type::LineBreak) line++;
+        else _notes[line].append(new Sylabel(s));
+        //TODO: This does not handle linebreak timings!
+    }
+    currentLine = -1;
+    setLine(0);
+    currentLine = 0;
+    currentNote = _notes.first().first();
+    emit lineCount(line);
+    qWarning() << "emitting " << line;
+    emit lineChanged(0);
+}
+
+void NoteWidget::setLine(int line) {
+    if (currentLine == line) return;
+    const QList<Sylabel*>& notes = _notes[line];
     assert(notes.size() > 0);
     sharpies.clear();
     nonSharpies.clear();
     someSharpies.clear();
     minKey = std::numeric_limits<int>::max();
     maxKey = std::numeric_limits<int>::min();
-    startBeat = notes.first().beat();
-    totalBeats = notes.last().beat()+notes.last().beats()-startBeat;
-    for (const Sylabel& s : notes) {
-        Sylabel::Note n = s.note();
+    startBeat = notes.first()->beat();
+    totalBeats = notes.last()->beat()+notes.last()->beats()-startBeat;
+    qWarning() << "Line:" << line << "Beats: " << startBeat << "-" << startBeat+totalBeats;
+    for (const Sylabel* s : notes) {
+        Sylabel::Note n = s->note();
         if (!someSharpies.contains(n)) {
-            if (s.isSharp()) {
+            if (s->isSharp()) {
                 if (nonSharpies.contains(n)) {
                     nonSharpies.remove(n);
                     someSharpies.insert(n);
@@ -162,18 +201,22 @@ void NoteWidget::setNotes(QList<Sylabel> notes) {
                 }
             }
         }
-        if (s.key() < minKey) minKey = s.key();
-        if (s.key() > maxKey) maxKey = s.key();
+        if (s->key() < minKey) minKey = s->key();
+        if (s->key() > maxKey) maxKey = s->key();
     }
 
-    _notes = notes;
-    currentNote = &_notes.first();
+    currentNote = notes.first();
+    currentLine = line;
+    emit lineChanged(line);
     update();
 }
 
 void NoteWidget::setCurrentNote(Sylabel s) {
-    for (const Sylabel& _s : _notes) {
-        if (_s == s) currentNote = &_s;
+    for (const Sylabel* _s : _notes[currentLine]) {
+        if (*_s == s) {
+            currentNote = _s;
+            break;
+        }
     }
     update();
 }
@@ -186,11 +229,12 @@ void NoteWidget::mousePressEvent(QMouseEvent *event) {
 
     int beat = std::floor(startBeat+(event->localPos().x() - notesStart)/lengthPerBeat);
     qWarning() << "Clicked beat" << beat;
-    for (const Sylabel& _s : _notes) {
-        if (_s.beat() <= beat && _s.beat()+_s.beats() > beat) {
-            qWarning() << "Sylabel: " << _s.text();
-            qWarning() << "Emiting seek to: " << _s.time(_s.song->bpm())+_s.song->gap()/1000.0;
-            emit seek(_s.time(_s.song->bpm())*1000.0+_s.song->gap());
+    for (const Sylabel* _s : _notes[currentLine]) {
+        const Song* song = _s->song;
+        if (_s->beat() <= beat && _s->beat()+_s->beats() > beat) {
+            qWarning() << "Sylabel: " << _s->text();
+            qWarning() << "Emiting seek to: " << _s->time()+song->gap()/1000.0;
+            emit seek(_s->time()*1000.0+song->gap());
             return;
         }
     }

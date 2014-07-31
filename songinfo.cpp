@@ -8,6 +8,36 @@ SongInfo::SongInfo(QWidget *parent) :
     ui(new Ui::SongInfo)
 {
     ui->setupUi(this);
+    connect(ui->nextLine,&QPushButton::clicked,[this] {
+       ui->notes->goToLine(ui->notes->line()+1);
+    });
+
+    connect(ui->prevLine,&QPushButton::clicked,[this] {
+       ui->notes->goToLine(ui->notes->line()-1);
+    });
+
+    connect(ui->firstLine,&QPushButton::clicked,[this] {
+       ui->notes->goToLine(0);
+    });
+
+    connect(ui->lastLine,&QPushButton::clicked,[this] {
+       ui->notes->goToLine(ui->notes->lines()-1);
+    });
+
+    connect(ui->notes,&NoteWidget::lineChanged,[this] (int line) {
+        ui->curLine->setText(QString::number(line));
+    });
+
+    connect(ui->curLine,&QLineEdit::editingFinished, [this] {
+        ui->notes->goToLine(ui->curLine->text().toInt());
+    });
+
+    connect(ui->notes,&NoteWidget::lineCount,[this] (int count) {
+        qWarning() << "Counting " << count;
+        ui->maxLine->setReadOnly(false);
+        ui->maxLine->setText(QString::number(count));
+        ui->maxLine->setReadOnly(true);
+    });
 }
 
 SongInfo::~SongInfo()
@@ -61,11 +91,10 @@ void SongInfo::selectionUpdated() {
         ui->rawLyrics->setText(s->rawLyrics());
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(const Sylabel&)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
-        conSylLine = connect(s,&Song::lineChanged,[this] (int, QList<Sylabel> notes) {
-            ui->notes->setNotes(notes);
-        });
+        conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
+        ui->notes->setNotes(s->sylabels());
     }
 
     //TODO: THis breaks if the notewidget edits another song than the one currently playing!
