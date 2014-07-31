@@ -43,7 +43,7 @@ void SongInfo::selectionUpdated() {
         for (QWidget* w : this->findChildren<QWidget*>())
             w->blockSignals(true);
 
-        Song* s = selection->first()->song();
+        Song* s = selection->first()->song;
         ui->title->setText(s->title());
         ui->artist->setText(s->artist());
         ui->edition->setText(s->tag("Edition"));
@@ -79,7 +79,7 @@ void SongInfo::on_title_textChanged(const QString &arg1)
 {
     //This function only makes sense for single songs!
     assert(selection->size() == 1);
-    Song* s = selection->first()->song();
+    Song* s = selection->first()->song;
     if (!s->updateTag("TITLE",arg1)) {
         //TODO
         qWarning() << "Updating title failed!";
@@ -98,7 +98,7 @@ void SongInfo::highlightText(int from, int to) {
 void SongInfo::on_artist_textChanged(const QString &arg1)
 {
     for (SongFrame* sf : *selection) {
-        Song* s = sf->song();
+        Song* s = sf->song;
         if (!s->updateTag("ARTIST",arg1)) {
             //TODO
             qWarning() << "Updating title failed!";

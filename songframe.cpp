@@ -14,29 +14,28 @@
 //<div>Icon made by <a href="http://www.freepik.com" alt="Freepik.com" title="Freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/movie_31087" title="Flaticon">www.flaticon.com</a></div>
 
 SongFrame::SongFrame(Song *song, QWidget *parent) :
-    QFrame(parent), _song(song),
+    QFrame(parent), song(song),
     ui(new Ui::songframe)
 {
     ui->setupUi(this);
-    connect(_song,&Song::updated,this,&SongFrame::updateData);
+    connect(song,&Song::updated,this,&SongFrame::updateData);
     updateData();
 }
 
 void SongFrame::updateData() {
-    ui->title->setText(QString("<HTML><H1><CENTER>%1</CENTER></H1></CENTER>").arg(_song->title()));
-    ui->artist->setText(QString("<HTML><H3><CENTER>%1</CENTER></H3></CENTER>").arg(_song->artist()));
-//    ui->artist->setText(ui->artist->text().replace("#ARTIST#",_song->artist()));
-    ui->cover->setPixmap(_song->cover());
-    if (!_song->hasBG()) {
+    ui->title->setText(QString("<HTML><H1><CENTER>%1</CENTER></H1></CENTER>").arg(song->title()));
+    ui->artist->setText(QString("<HTML><H3><CENTER>%1</CENTER></H3></CENTER>").arg(song->artist()));
+    ui->cover->setPixmap(song->cover());
+    if (!song->hasBG()) {
         ui->background->setPixmap(QPixmap(":/images/landscape_haveNo"));
-    } else if (_song->missingBG()) {
+    } else if (song->missingBG()) {
         ui->background->setPixmap(QPixmap(":/images/landscape_notFound"));
     } else {
         ui->background->setPixmap(QPixmap(":/images/landscape"));
     }
-    if (!_song->hasVideo()) {
+    if (!song->hasVideo()) {
         ui->video->setPixmap(QPixmap(":/images/video_haveNo"));
-    } else if (_song->missingVideo()) {
+    } else if (song->missingVideo()) {
         ui->video->setPixmap(QPixmap(":/images/video_notFound"));
     } else {
         ui->video->setPixmap(QPixmap(":/images/video"));
@@ -58,14 +57,6 @@ void SongFrame::deselect() {
     setStyleSheet("");
 }
 
-Song* SongFrame::song() {
-    return _song;
-}
-
-const Song* SongFrame::song() const {
-    return _song;
-}
-
 SongFrame::~SongFrame()
 {
     delete ui;
@@ -73,6 +64,5 @@ SongFrame::~SongFrame()
 
 void SongFrame::on_playMedia_clicked()
 {
-    qWarning() << "Emitting play!";
-    emit playSong(_song);
+    emit playSong(song);
 }

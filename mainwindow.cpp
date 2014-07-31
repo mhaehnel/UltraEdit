@@ -117,7 +117,7 @@ void MainWindow::regroupList() {
     songGroups.clear();
 
     for (SongFrame* sf : songFrames) {
-        QString group = getGroup(sf->song());
+        QString group = getGroup(sf->song);
         groupedFrames[group].append(sf);
         songGroups[group] = new SongGroup(group);
         songGroups[group]->hide();
@@ -184,7 +184,7 @@ void MainWindow::filterList() {
             for (SongFrame* sf : sl) {
                 qApp->processEvents();
                 statusProgress.setValue(++sp);
-                bool flt = filter(sf->song());
+                bool flt = filter(sf->song);
                 sf->setVisible(flt);
                 if (flt) {
                     cnt++;
@@ -212,11 +212,11 @@ void MainWindow::filterList() {
 void MainWindow::sortFrames(QList<SongFrame*> &sf) {
     std::sort(sf.begin(),sf.end(),[this] (SongFrame* s1, SongFrame* s2)->bool {
         if (!ui->reverseSort->isChecked()) {
-            if (ui->sortTitle->isChecked()) return (s1->song()->title() < s2->song()->title());
-            if (ui->sortArtist->isChecked()) return (s1->song()->artist() < s2->song()->artist());
+            if (ui->sortTitle->isChecked()) return (s1->song->title() < s2->song->title());
+            if (ui->sortArtist->isChecked()) return (s1->song->artist() < s2->song->artist());
         } else {
-            if (ui->sortTitle->isChecked()) return (s1->song()->title() > s2->song()->title());
-            if (ui->sortArtist->isChecked()) return (s1->song()->artist() > s2->song()->artist());
+            if (ui->sortTitle->isChecked()) return (s1->song->title() > s2->song->title());
+            if (ui->sortArtist->isChecked()) return (s1->song->artist() > s2->song->artist());
         }
         qDebug() << "Fallback";
         return s1 < s2;
@@ -226,18 +226,20 @@ void MainWindow::sortFrames(QList<SongFrame*> &sf) {
 void MainWindow::selectFrame(SongFrame *sf) {
     if (selectedFrames.contains(sf)) {
         sf->deselect();
-        disconnect(sf->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
+        disconnect(sf->song,&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         selectedFrames.removeAll(sf);
+        ui->musicPlayer->stop();
     } else {
         //Enforce single selection for now!
         if (selectedFrames.size() == 1) {
-            disconnect(selectedFrames.first()->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
+            disconnect(selectedFrames.first()->song,&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
             selectedFrames.first()->deselect();
             selectedFrames.removeFirst();
             qWarning() << "TODO: Multi selection not implemented ATM";
         }
-        connect(sf->song(),&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
+        connect(sf->song,&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         sf->select();
+        ui->musicPlayer->setSong(sf->song);
         selectedFrames.append(sf);
     }
 //    if (selectedFrames.count() > 0) { //THIS looks ugly ATM. Fix?
@@ -253,7 +255,7 @@ void MainWindow::addSong(Song *song) {
     sf->hide();
     songFrames.append(sf);
     sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
-    sf->connect(sf,&SongFrame::playSong,ui->musicPlayer,&AudioPlayer::playSong);
+    sf->connect(sf,&SongFrame::playSong,[this,sf] (Song* song) { if (!selectedFrames.contains(sf)) selectFrame(sf); ui->musicPlayer->play(); });
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));

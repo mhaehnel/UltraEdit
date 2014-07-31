@@ -29,7 +29,7 @@ void ValidatorSettings::on_pushButton_clicked()
 
 void ValidatorSettings::on_samplePath_textChanged(const QString &arg1)
 {
-    Validator v(s,Validator::Mode::ReadOnly, sample->song()->basePath());
+    Validator v(s,Validator::Mode::ReadOnly, sample->song->basePath());
     Validator::Type vt;
     switch (ui->comboBox->currentIndex()) {
         case 0: vt = Validator::Type::MP3; break;
@@ -40,7 +40,7 @@ void ValidatorSettings::on_samplePath_textChanged(const QString &arg1)
         case 5: vt = Validator::Type::ALL; break;
     }
     if (ui->realFile->isChecked()) {
-        if (!v.good() || !v.validate(sample->song(),vt)) {
+        if (!v.good() || !v.validate(sample->song,vt)) {
             ui->samplePath->setStyleSheet("background-color: red");
         } else {
             ui->samplePath->setStyleSheet("background-color: green");
@@ -48,7 +48,7 @@ void ValidatorSettings::on_samplePath_textChanged(const QString &arg1)
     } else {
         if (vt == Validator::Type::ALL)
             qWarning() << "Checking against all does not make a lot of sense for a single filename!";
-        if (!v.good() || !v.validatePath(vt,sample->song(),arg1)) {
+        if (!v.good() || !v.validatePath(vt,sample->song,arg1)) {
             ui->samplePath->setStyleSheet("background-color: red");
         } else {
             ui->samplePath->setStyleSheet("background-color: green");
@@ -60,7 +60,7 @@ void ValidatorSettings::on_dirFormat_textChanged(const QString &arg1)
 {
     //TODO: Save last valid string for abort case
     s.setValue("dirFormat",arg1);
-    Validator v(s,Validator::Mode::ReadOnly,sample->song()->basePath());
+    Validator v(s,Validator::Mode::ReadOnly,sample->song->basePath());
     if (!v.good()) {
         ui->dirFormat->setStyleSheet("background-color: red");
     } else {

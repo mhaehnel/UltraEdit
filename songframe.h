@@ -12,12 +12,10 @@ class songframe;
 class SongFrame : public QFrame
 {
     Q_OBJECT
-    Song* _song;
 
 public:
+    Song *const song;
     explicit SongFrame(Song* song, QWidget *parent = 0);
-    Song* song();
-    const Song* song() const;
 
     ~SongFrame();
 

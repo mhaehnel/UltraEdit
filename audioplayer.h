@@ -19,8 +19,11 @@ public:
     ~AudioPlayer();
 
 public slots:
-    void playSong(Song* song);
+    void setSong(Song* song);
     void seek(quint64 pos);
+    void stop();
+    void play();
+    void pause();
 
 private slots:
     void updateSongData();

@@ -50,24 +50,27 @@ void AudioPlayer::seek(quint64 pos) {
     player.setPosition(pos);
 }
 
+void AudioPlayer::stop() { player.stop(); }
+void AudioPlayer::play() { qWarning() << "PLAY!"; player.play(); }
+void AudioPlayer::pause() { player.pause(); }
+
 void AudioPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
     ui->playerTitle->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(_song->artist(),_song->title()));
 }
 
-void AudioPlayer::playSong(Song *song) {
+void AudioPlayer::setSong(Song *song) {
     if (_song != nullptr) {
         disconnect(_song,&Song::updated,this,&AudioPlayer::updateSongData);
         disconnect(&player,&QMediaPlayer::positionChanged,_song,&Song::playing);
+        player.stop();
     }
     _song = song;
     if (!song->mp3().exists()) return;
     updateSongData();
     connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
     connect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
-    player.stop();\
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
     player.setNotifyInterval(15/song->bpm()*1000);
-    player.play();
     qWarning() << "Should play. Notify: " << 15/(song->bpm())*1000;
 }
