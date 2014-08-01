@@ -8,6 +8,8 @@ SongInfo::SongInfo(QWidget *parent) :
     ui(new Ui::SongInfo)
 {
     ui->setupUi(this);
+    connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
+    connect(ui->notes,&NoteWidget::pause,this,&SongInfo::pause);
     connect(ui->nextLine,&QPushButton::clicked,[this] {
        ui->notes->goToLine(ui->notes->line()+1);
     });

@@ -7,10 +7,13 @@
 #include <QMouseEvent>
 #include <sylabel.h>
 #include <song.h>
+#include <QTimer>
+#include <QMutex>
 
 NoteWidget::NoteWidget(QWidget *parent) :
     QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0), currentLine(0)
 {
+    setFocusPolicy(Qt::ClickFocus);
     QFile gcf(":/images/gclef.svg");
     gcf.open(QIODevice::ReadOnly);
     gclef = gcf.readAll();
@@ -48,6 +51,64 @@ void NoteWidget::goToLine(int line) {
     if (line >= _notes.size() || line < 0) return;
     setLine(line);
     emit seek(_notes[line].first()->time()*1000+_notes.first().first()->song->gap());
+}
+
+void NoteWidget::keyPressEvent(QKeyEvent *event) {
+    double timeout;
+    static QMutex mutex;
+    const QList<Sylabel*>& ln = _notes[currentLine];
+    switch (event->key()) {
+        case Qt::Key_Plus:
+            currentNote->setKey(currentNote->key()+1);
+            calculate();
+            update();
+            return;
+        case Qt::Key_Minus:
+            currentNote->setKey(currentNote->key()-1);
+            calculate();
+            update();
+            return;
+        case Qt::Key_P:
+            emit play();
+            return;
+        case Qt::Key_Space: //Play only this line
+            timeout = ln.last()->time()*1000+ln.last()->duration()*1000-
+                      ln.first()->time()*1000;
+            QTimer::singleShot(timeout,this,SIGNAL(pause()));
+        case Qt::Key_Return: //Play this line and then continue
+            goToLine(currentLine);
+            qWarning() << "Emitting play";
+            emit play();
+            return;
+        case Qt::Key_PageDown:
+            goToLine(currentLine+1);
+            return;
+        case Qt::Key_PageUp:
+            goToLine(currentLine-1);
+            return;
+        case Qt::Key_Period:
+            emit seek(currentNote->time()*1000+currentNote->song->gap());
+            QTimer::singleShot(currentNote->duration()*1000,this,SIGNAL(pause()));
+            emit play();
+            return;
+        case Qt::Key_Right:
+            mutex.lock();
+            if (currentNoteIdx != ln.size()-1) {
+                setCurrentNote(*ln[currentNoteIdx+1]);
+                emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
+            }
+            mutex.unlock();
+            return;
+        case Qt::Key_Left:
+            mutex.lock();
+            if (currentNoteIdx != 0) {
+                setCurrentNote(*ln[currentNoteIdx-1]);
+                emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
+            }
+            mutex.unlock();
+            return;
+        default: QWidget::keyPressEvent(event);
+    }
 }
 
 void NoteWidget::paintEvent(QPaintEvent *) {
@@ -162,14 +223,13 @@ void NoteWidget::setSong(Song* song) {
     setLine(0); //We need this to paint the first line.
     currentLine = 0;
     currentNote = _notes.first().first();
+    currentNoteIdx = 0;
     emit lineCount(line);
     emit lineChanged(0);
 }
 
-void NoteWidget::setLine(int line) {
-    if (currentLine == line) return;
-    const QList<Sylabel*>& notes = _notes[line];
-    assert(notes.size() > 0);
+void NoteWidget::calculate() {
+    QList<Sylabel*>& notes = _notes[currentLine];
     sharpies.clear();
     nonSharpies.clear();
     someSharpies.clear();
@@ -177,7 +237,7 @@ void NoteWidget::setLine(int line) {
     maxKey = std::numeric_limits<int>::min();
     startBeat = notes.first()->beat();
     totalBeats = notes.last()->beat()+notes.last()->beats()-startBeat;
-    qWarning() << "Line:" << line << "Beats: " << startBeat << "-" << startBeat+totalBeats;
+    qWarning() << "Line:" << currentLine << "Beats: " << startBeat << "-" << startBeat+totalBeats;
     for (const Sylabel* s : notes) {
         Sylabel::Note n = s->note();
         if (!someSharpies.contains(n)) {
@@ -200,19 +260,30 @@ void NoteWidget::setLine(int line) {
         if (s->key() < minKey) minKey = s->key();
         if (s->key() > maxKey) maxKey = s->key();
     }
+}
 
+void NoteWidget::setLine(int line) {
+    if (currentLine == line) return;
+    const QList<Sylabel*>& notes = _notes[line];
+    assert(notes.size() > 0);
     currentNote = notes.first();
+    currentNoteIdx = 0;
     currentLine = line;
+    calculate();
     emit lineChanged(line);
     update();
 }
 
 void NoteWidget::setCurrentNote(Sylabel s) {
-    for (const Sylabel* _s : _notes[currentLine]) {
+    if (s == *currentNote) return;
+    int i = 0;
+    for (Sylabel* _s : _notes[currentLine]) {
         if (*_s == s) {
+            currentNoteIdx = i;
             currentNote = _s;
             break;
         }
+        i++;
     }
     update();
 }

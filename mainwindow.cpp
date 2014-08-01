@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
+    connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&AudioPlayer::play);
+    connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);
 
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
 }

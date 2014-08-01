@@ -30,6 +30,7 @@ public:
     double time() const;
     double duration() const;
     int key() const { return _pitch; }
+    void setKey(int key) { _pitch = key; }
     bool isBad() const { return _t == Type::Bad; }
     int forPlayers() const { return _players; }
     bool isExtension() const { return _text == "~" || _text == "~ "; }

@@ -27,6 +27,8 @@ private slots:
 
 signals:
     void seek(quint64 pos);
+    void play();
+    void pause();
 
 private:
     Ui::SongInfo *ui;

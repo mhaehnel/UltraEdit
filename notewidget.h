@@ -37,13 +37,16 @@ public slots:
 
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     void paintEvent(QPaintEvent *);
+    void calculate();
     Ui::NoteWidget *ui;
     int maxKey, minKey, startBeat, totalBeats;
     QByteArray gclef, fclef, sharp, natural;
-    const Sylabel* currentNote;
+    Sylabel* currentNote;
+    int currentNoteIdx;
     QMap<int,QList<Sylabel*>> _notes;
     Sylabel::Clef currentClef;
     double notesStart;
