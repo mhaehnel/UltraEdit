@@ -14,24 +14,13 @@
 NoteWidget::NoteWidget(QWidget *parent) :
     QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0), currentLine(0)
 {
-    setFocusPolicy(Qt::ClickFocus);
-    QFile gcf(":/images/gclef.svg");
-    gcf.open(QIODevice::ReadOnly);
-    gclef = gcf.readAll();
-
-    QFile fcf(":/images/fclef.svg");
-    fcf.open(QIODevice::ReadOnly);
-    fclef = fcf.readAll();
-
-    QFile shf(":/images/sharp.svg");
-    shf.open(QIODevice::ReadOnly);
-    sharp = shf.readAll();
-
-    QFile naf(":/images/natural.svg");
-    naf.open(QIODevice::ReadOnly);
-    natural = naf.readAll();
+    gclef = loadSVG(":/images/gclef.svg");
+    fclef = loadSVG(":/images/fclef.svg");
+    sharp = loadSVG(":/images/sharp.svg");
+    natural = loadSVG(":/images/natural.svg");
 
     ui->setupUi(this);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 NoteWidget::~NoteWidget()
@@ -39,13 +28,10 @@ NoteWidget::~NoteWidget()
     delete ui;
 }
 
-int NoteWidget::line() const {
-    qWarning() << currentLine;
-    return currentLine;
-}
-
-int NoteWidget::lines() const {
-    return _notes.size();
+QByteArray NoteWidget::loadSVG(QString file) {
+    QFile f(file);
+    f.open(QIODevice::ReadOnly);
+    return f.readAll();
 }
 
 void NoteWidget::goToLine(int line) {
@@ -67,12 +53,12 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
     const QList<Sylabel*>& ln = _notes[currentLine];
     switch (event->key()) {
         case Qt::Key_Plus:
-            currentNote->setKey(currentNote->key()+1);
+            currentNote->transpose(1);
             calculate();
             update();
             return;
         case Qt::Key_Minus:
-            currentNote->setKey(currentNote->key()-1);
+            currentNote->transpose(-1);
             calculate();
             update();
             return;
@@ -168,7 +154,7 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     renderer.load(sharp);
     QSvgRenderer rnatural(natural,this);
     for (Sylabel* s : _notes[currentLine]) {
-        double y = ycenter-lineHeight*(s->getLine(currentClef)-6)*0.5;
+        double y = ycenter-lineHeight*(s->line(currentClef)-6)*0.5;
         double x = pos+(s->beat()-startBeat)*lengthPerBeat;
         double length = s->beats()*lengthPerBeat;
         QLinearGradient noteGrad(x,y,x+length,y);
@@ -179,12 +165,12 @@ void NoteWidget::paintEvent(QPaintEvent *) {
         }
         noteGrad.setColorAt(1,Qt::white);
         painter.setBrush(QBrush(noteGrad));
-        if (s->getLine(currentClef)-3 < -1) {
-            for (int i = -6; i >= s->getLine(currentClef)-6; i-=2)
+        if (s->line(currentClef)-3 < -1) {
+            for (int i = -6; i >= s->line(currentClef)-6; i-=2)
                 painter.drawLine(x-0.25*lengthPerBeat,ycenter-lineHeight*i*0.5,x+length+0.25*lengthPerBeat,ycenter-lineHeight*i*0.5);
         }
-        if (s->getLine(currentClef)-3 > 6) {
-            for (int i = 6; i <= s->getLine(currentClef)-6; i+=2)
+        if (s->line(currentClef)-3 > 6) {
+            for (int i = 6; i <= s->line(currentClef)-6; i+=2)
                 painter.drawLine(x-0.25*lengthPerBeat,ycenter-lineHeight*i*0.5,x+length+0.25*lengthPerBeat,ycenter-lineHeight*i*0.5);
         }
         if (someSharpies.contains(s->note())) {
@@ -319,7 +305,7 @@ void NoteWidget::setCurrentNote(Sylabel* s) {
 
 void NoteWidget::transpose(int steps) {
     for (QList<Sylabel*>& l : _notes) {
-        for (Sylabel* s : l) s->setKey(s->key()+steps);
+        for (Sylabel* s : l) s->transpose(steps);
     }
 }
 

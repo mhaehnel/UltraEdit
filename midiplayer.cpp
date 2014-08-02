@@ -74,7 +74,7 @@ void MidiPlayer::setSong(Song *song) {
         if (s->type() == Sylabel::Type::LineBreak) continue;
         //NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
 //        qWarning() << "Getting ...";
-        NoteEvent* ev = s->getEvent();
+        NoteEvent* ev = s->event();
 //        qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
         ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
 //        qWarning() << "Subscribe";

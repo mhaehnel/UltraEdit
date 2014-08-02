@@ -127,7 +127,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
         }
         if (answer) {
             for (Sylabel* s : musicAndLyrics)
-                s->setKey(s->key()+60);
+                s->transpose(60);
         }
     }
 }

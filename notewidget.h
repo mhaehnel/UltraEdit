@@ -18,8 +18,8 @@ class NoteWidget : public QWidget
 
 public:
     explicit NoteWidget(QWidget *parent = 0);
-    int line() const;
-    int lines() const;
+    inline int line() const { return currentLine; }
+    inline int lines() const { return _notes.size(); }
     ~NoteWidget();
 
 signals:
@@ -45,6 +45,7 @@ protected:
     void wheelEvent(QWheelEvent* event);
 
 private:
+    static QByteArray loadSVG(QString file);
     void paintEvent(QPaintEvent *);
     void calculate();
     void transpose(int steps);

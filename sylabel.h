@@ -24,35 +24,45 @@ public:
         C, D, E, F, G, A, B
     };
 
-    Song * song;
     Sylabel(QString source, int players, Song * song);
-    Type type() const { return _t; }
-    QString text() const { return _text; }
-    void setText(QString text) { _text = text; }
-    int beat() const { return _beat; }
-    int beats() const { return _beats; } //This is 'show next line hint' for line break!
-    double time() const;
+    Sylabel(const Sylabel&) = delete;
+
+    virtual ~Sylabel();
+
+    Sylabel& operator=(const Sylabel&) = delete;
+    bool operator==(const Sylabel& other) const;
+
+    inline int beat() const { return _beat; }
+    drumstick::NoteEvent* event() const { return _event; }
+    inline int forPlayers() const { return _players; } //This is unimplemented atm
+    inline bool isBad() const { return _t == Type::Bad; }
+    inline bool isExtension() const { return _text.trimmed() == "~"; }
+    inline QString text() const { return _text; }
+    inline Type type() const { return _t; }
+
+    int beats() const;
     double duration() const;
-    int key() const { return (_event!=nullptr)?_event->getKey():0; } //_pitch
-    void setKey(int key) { if (_event != nullptr) _event->setKey(key); }
-    bool isBad() const { return _t == Type::Bad; }
-    int forPlayers() const { return _players; }
-    bool isExtension() const { return _text == "~" || _text == "~ "; }
     bool isSharp() const;
+    unsigned char key() const;
+    int line(Clef c) const; //note line
+    double time() const;
+
+    void setText(QString text);
+    void transpose(char lvl);
     Sylabel::Note note() const;
 
-    int getLine(Clef c) const;
-    drumstick::NoteEvent* getEvent() const { return _event; }
-    bool operator==(const Sylabel& other) const;
+
+    Song * song;
+signals:
+    void updated();
+
 private:
     static int ppq;
     drumstick::NoteEvent* _event;
     int _beat; //time (beta = quater note no)
-    int _beats; //duration in quarter notes
     Type _t;
     QString _text;
-    //int _pitch;
-    int _players;
+    int _players; //TODO
 };
 
 inline uint qHash(const Sylabel::Note &n) {
