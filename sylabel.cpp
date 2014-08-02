@@ -93,6 +93,7 @@ unsigned char Sylabel::key() const {
 }
 
 void Sylabel::transpose(char lvl) {
+    if (_t == Type::LineBreak) return;
     _event->setKey(std::max(0,_event->getKey()+lvl));
     emit updated();
 }
