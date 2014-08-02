@@ -94,6 +94,7 @@ unsigned char Sylabel::key() const {
 
 void Sylabel::transpose(char lvl) {
     _event->setKey(std::max(0,_event->getKey()+lvl));
+    emit updated();
 }
 
 Sylabel::Note Sylabel::note() const {
