@@ -30,7 +30,7 @@ signals:
     void play();
 
 public slots:
-    void setCurrentNote(Sylabel s);
+    void setCurrentNote(Sylabel* s);
     void setLine(int line);
     void setSong(Song* song);
     void goToLine(int line);

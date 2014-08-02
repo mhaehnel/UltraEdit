@@ -118,7 +118,7 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
-        conSyl = connect(s,static_cast<void (Song::*)(const Sylabel&)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
+        conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
         connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
             if (!ui->playMP3->isChecked()) {

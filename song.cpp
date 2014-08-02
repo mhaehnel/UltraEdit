@@ -56,7 +56,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
                 valid =false;
                 return;
             }
-            musicAndLyrics.append(Sylabel(line,curPlayer,this));
+            musicAndLyrics.append(new Sylabel(line,curPlayer,this));
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
                 qWarning() << QString("[%1]: Data beyond end of file!").arg(source.filePath());
@@ -82,8 +82,8 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
             wellFormed = false;
         }
     }
-    std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[] (const Sylabel& s1, const Sylabel& s2) {
-        return s1.beat() < s2.beat();
+    std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[] (const Sylabel* s1, const Sylabel* s2) {
+        return s1->beat() < s2->beat();
     });
     initialized = true;
 }
@@ -175,12 +175,12 @@ bool Song::setTag(const QString &tag, const QString &value) {
 
 QString Song::rawLyrics() {
     if (_rawTextCache.isEmpty()) {
-        for (const Sylabel &s : musicAndLyrics) {
-            qWarning() << s.time() << s.text();
-            if (s.type() == Sylabel::Type::LineBreak) {
+        for (const Sylabel* s : musicAndLyrics) {
+            qWarning() << s->time() << s->text();
+            if (s->type() == Sylabel::Type::LineBreak) {
                 _rawTextCache.append("\n");
             } else {
-                _rawTextCache.append(s.text());
+                _rawTextCache.append(s->text());
             }
         }
     }
@@ -258,7 +258,7 @@ const QFileInfo& Song::bg() const {
     return _bg;
 }
 
-QList<Sylabel>& Song::sylabels() {
+QList<Sylabel*>& Song::sylabels() {
     return musicAndLyrics;
 }
 
@@ -308,32 +308,25 @@ void Song::playing(int ms) {
     static int last_line = -1;
     int from = 0;
     ms -= _gap;
-    if (ms/1000.0 < musicAndLyrics.first().time()) return;
+    if (ms/1000.0 < musicAndLyrics.first()->time()) return;
     for (int i = 0; i < musicAndLyrics.size(); i++) {
-        const Sylabel& s = musicAndLyrics.at(i);
-        if (s.type() == Sylabel::Type::LineBreak) {
+        Sylabel* s = musicAndLyrics[i];
+        if (s->type() == Sylabel::Type::LineBreak) {
             line++;
             lineStart = i+1;
             from++;
             continue;
         }
-        if (s.time() <= ms/1000.0 && s.time()+s.duration() >= ms/1000.0) {
-//            qWarning() << s.time(_bpm) << "-" << s.time(_bpm)+s.duration(_bpm) << "=>" << s.text();
-            emit playingSylabel(from,from+s.text().length());
+        if (s->time() <= ms/1000.0 && s->time()+s->duration() >= ms/1000.0) {
+            emit playingSylabel(from,from+s->text().length());
             emit playingSylabel(s);
             if (line != last_line) {
-//                QList<Sylabel> notes;
-//                while (lineStart < musicAndLyrics.size()
-//                       && musicAndLyrics.at(lineStart).type() != Sylabel::Type::LineBreak) {
-//                    notes.append(musicAndLyrics.at(lineStart));
-//                    lineStart++;
-//                }
                 emit lineChanged(line);
                 last_line = line;
             }
             return;
         }
-        from += s.text().length();
+        from += s->text().length();
     }
 }
 

@@ -104,7 +104,7 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             mutex.lock();
             if (currentNoteIdx == ln.size()-1) goToLine(currentLine+1);
             if (currentNoteIdx != ln.size()-1) {
-                setCurrentNote(*ln[currentNoteIdx+1]);
+                setCurrentNote(ln[currentNoteIdx+1]);
                 emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
             }
             mutex.unlock();
@@ -113,7 +113,7 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             mutex.lock();
             if (currentNoteIdx == 0) goToLine(currentLine-1);
             if (currentNoteIdx != 0) {
-                setCurrentNote(*ln[currentNoteIdx-1]);
+                setCurrentNote(ln[currentNoteIdx-1]);
                 emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
             }
             mutex.unlock();
@@ -225,9 +225,9 @@ void NoteWidget::paintEvent(QPaintEvent *) {
 void NoteWidget::setSong(Song* song) {
     int line = 0;
     _notes.clear();
-    for (Sylabel& s : song->sylabels()) {
-        if (s.type() == Sylabel::Type::LineBreak) line++;
-        else _notes[line].append(&s);
+    for (Sylabel* s : song->sylabels()) {
+        if (s->type() == Sylabel::Type::LineBreak) line++;
+        else _notes[line].append(s);
         //TODO: This does not handle linebreak timings!
     }
     currentLine = -1;
@@ -286,13 +286,13 @@ void NoteWidget::setLine(int line) {
     update();
 }
 
-void NoteWidget::setCurrentNote(Sylabel s) {
-    if (s == *currentNote) return;
+void NoteWidget::setCurrentNote(Sylabel* s) {
+    if (s == currentNote) return;
     if (keepSylabel) return;
 
     int i = 0;
     for (Sylabel* _s : _notes[currentLine]) {
-        if (*_s == s) {
+        if (_s == s) {
             currentNoteIdx = i;
             currentNote = _s;
             break;

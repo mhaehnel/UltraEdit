@@ -1,13 +1,15 @@
 #ifndef SYLABEL_H
 #define SYLABEL_H
 
+#include <QObject>
 #include <QString>
 #include <QHash>
 
 class Song;
 
-class Sylabel
+class Sylabel : public QObject
 {
+    Q_OBJECT
 public:
     enum class Type {
         Regular, Freestyle, Golden, LineBreak, Bad

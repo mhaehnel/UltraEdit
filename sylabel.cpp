@@ -6,7 +6,7 @@
 
 //TODO: Put error outputs on abort
 
-Sylabel::Sylabel(QString source, int players, Song* song) : _beats(-1), _players(players), song(song)
+Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  _beats(-1), _players(players), song(song)
 {
     _t = Type::Bad;
     Type t = Type::Bad; //Internal (only set if all well!)

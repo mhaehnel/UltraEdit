@@ -25,6 +25,7 @@ void MidiPlayer::play() {
 
 void MidiPlayer::stop() {
     client.stopSequencerInput();
+    seq->allNotesOff();
     seq->stop();
     //seq->allNotesOff();
 }
@@ -70,10 +71,10 @@ void MidiPlayer::setSong(Song *song) {
     queue->start();
     seq->stop();
     events.clear();
-    for (Sylabel& s : song->sylabels()) {
-        NoteEvent ev(0,60+s.key(),100,s.beats()*ppq/4);
-        ev.scheduleTick(queue->getId(),s.beat()*ppq/4+s.song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
-        qWarning() << "Creating event" << s.key() << "[" << s.beats()*ppq/4 << "] @" << s.beat()*ppq/4+s.song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
+    for (const Sylabel* s : song->sylabels()) {
+        NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
+        ev.scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
+        qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
         ev.setSubscribers();
         events.append(ev);
     }

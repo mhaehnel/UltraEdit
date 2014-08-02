@@ -42,6 +42,19 @@ bool MidiThread::hasNext() {
     return iterator->hasNext();
 }
 
+void MidiThread::sendController(int chan, int control, int value) {
+    ControllerEvent ev(chan, control, value);
+    ev.setSource(m_PortId);
+    ev.setSubscribers();
+    ev.setDirect();
+    sendSongEvent(&ev);
+}
+
+void MidiThread::allNotesOff() {
+    sendController(0, MIDI_CTL_ALL_NOTES_OFF, 0);
+    sendController(0, MIDI_CTL_ALL_SOUNDS_OFF, 0);
+}
+
 SequencerEvent* MidiThread::nextEvent() {
     if (last_event != nullptr)
         delete last_event; //TODO: Really?

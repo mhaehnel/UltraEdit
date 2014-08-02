@@ -28,7 +28,7 @@ private:
     QMap<QString,int> components;
     QMap<QString,int> agreedComponentCount;
     //Player -> (time -> text)
-    QList<Sylabel> musicAndLyrics;
+    QList<Sylabel*> musicAndLyrics;
     static QStringList seenTags;
     static QPixmap *_noCover, *_coverMissing;
     bool setTag(const QString& tag, const QString& value);
@@ -65,12 +65,12 @@ public:
     QString tag(const QString& tag) const;
     QPixmap cover();
     QPixmap background() const;
-    QList<Sylabel>& sylabels();
+    QList<Sylabel*>& sylabels();
 
 signals:
     void updated();
     void playingSylabel(int from, int to);
-    void playingSylabel(const Sylabel& s);
+    void playingSylabel(Sylabel* s);
     void lineChanged(int line); //, QList<Sylabel> notes);
 
 public slots:
