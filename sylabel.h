@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QHash>
+#include <drumstick.h>
 
 class Song;
 
@@ -31,8 +32,8 @@ public:
     int beats() const { return _beats; } //This is 'show next line hint' for line break!
     double time() const;
     double duration() const;
-    int key() const { return _pitch; }
-    void setKey(int key) { _pitch = key; }
+    int key() const { return (_event!=nullptr)?_event->getKey():0; } //_pitch
+    void setKey(int key) { if (_event != nullptr) _event->setKey(key); }
     bool isBad() const { return _t == Type::Bad; }
     int forPlayers() const { return _players; }
     bool isExtension() const { return _text == "~" || _text == "~ "; }
@@ -40,13 +41,17 @@ public:
     Sylabel::Note note() const;
 
     int getLine(Clef c) const;
+    drumstick::NoteEvent* getEvent() const { qWarning() << _event; return _event; }
     bool operator==(const Sylabel& other) const;
 private:
+    static int ppq;
+    drumstick::NoteEvent* _event;
     int _beat; //time (beta = quater note no)
     int _beats; //duration in quarter notes
     Type _t;
     QString _text;
-    int _pitch, _players;
+    //int _pitch;
+    int _players;
 };
 
 inline uint qHash(const Sylabel::Note &n) {

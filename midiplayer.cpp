@@ -12,9 +12,8 @@ MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
     seq = new MidiThread(&client,port->getPortId());
     setTempo(120);
     QObject::connect(&client,&MidiClient::eventReceived,[this] (SequencerEvent* ev) {
-        qWarning() << "Got event!";
-        const snd_seq_real_time_t* rt = queue->getStatus().getRealtime();
-        emit positionChanged(rt->tv_sec*1000+rt->tv_nsec/1000000);
+        snd_seq_tick_time_t time = queue->getStatus().getTickTime();
+        emit positionChanged((time*60000.0)/(ppq*queue->getTempo().getNominalBPM()));
     });
 }
 
@@ -60,7 +59,7 @@ void MidiPlayer::setTempo(double bpm) {
 
 //This is in ms ... calculate ticks ..
 void MidiPlayer::seek(quint64 pos) {
-    qWarning() << "Seeking to " << pos << "ms => " <<pos/60000.0*ppq*queue->getTempo().getNominalBPM() ;
+    //qWarning() << "Seeking to " << pos << "ms => " <<pos/60000.0*ppq*queue->getTempo().getNominalBPM() ;
     seq->setPosition(pos/60000.0*ppq*queue->getTempo().getNominalBPM());
 }
 
@@ -72,11 +71,17 @@ void MidiPlayer::setSong(Song *song) {
     seq->stop();
     events.clear();
     for (const Sylabel* s : song->sylabels()) {
-        NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
-        ev.scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
+        if (s->type() == Sylabel::Type::LineBreak) continue;
+        //NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
+        qWarning() << "Getting ...";
+        NoteEvent* ev = s->getEvent();
         qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
-        ev.setSubscribers();
+        ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
+        qWarning() << "Subscribe";
+        ev->setSubscribers();
+        qWarning() << "Append";
         events.append(ev);
     }
+    qWarning() << "DONE! Setting ..";
     seq->setEvents(events);
 }

@@ -27,7 +27,7 @@ class MidiPlayer : public QObject
     Song* _song;
     MidiThread* seq;
     int ppq = 96;
-    QList<SequencerEvent> events;
+    QList<SequencerEvent*> events;
 public:
     explicit MidiPlayer(QObject *parent = 0);
     QStringList getPorts();

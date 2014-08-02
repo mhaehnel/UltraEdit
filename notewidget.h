@@ -45,6 +45,7 @@ protected:
 private:
     void paintEvent(QPaintEvent *);
     void calculate();
+    void transpose(int steps);
     bool keepLine = false;
     bool keepSylabel = false;
     Ui::NoteWidget *ui;
@@ -53,6 +54,8 @@ private:
     Sylabel* currentNote;
     int currentNoteIdx;
     QMap<int,QList<Sylabel*>> _notes;
+    QHash<QRectF,Sylabel*> noteGraphs;
+    QHash<QRectF,Sylabel*> texts;
     Sylabel::Clef currentClef;
     double notesStart;
     double lengthPerBeat;

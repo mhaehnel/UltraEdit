@@ -14,11 +14,11 @@ MidiThread::~MidiThread() {
     if (last_event != nullptr) delete last_event;
 }
 
-void MidiThread::setEvents(QList<SequencerEvent>& events) {
+void MidiThread::setEvents(QList<SequencerEvent*>& events) {
     QMutexLocker lock(&iteratorLock);
     this->events = events;
     if (iterator != nullptr) delete iterator;
-    iterator = new QMutableListIterator<SequencerEvent>(events);
+    iterator = new QMutableListIterator<SequencerEvent*>(events);
     _position = 0;
 }
 
@@ -33,7 +33,7 @@ void MidiThread::setPosition(unsigned int pos) {
     QMutexLocker lock(&iteratorLock);
     _position = pos;
     iterator->toFront();
-    while (iterator->hasNext() && iterator->next().getTick() < pos) {};
+    while (iterator->hasNext() && iterator->next()->getTick() < pos) {};
     if (iterator->hasPrevious()) iterator->previous();
 }
 
@@ -59,7 +59,7 @@ SequencerEvent* MidiThread::nextEvent() {
     if (last_event != nullptr)
         delete last_event; //TODO: Really?
     QMutexLocker lock(&iteratorLock);
-    last_event = iterator->next().clone();
+    last_event = iterator->next()->clone();
     return last_event;
 
 //    switch (last_event->getSequencerType()) {

@@ -89,9 +89,19 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             emit play();
             return;
         case Qt::Key_PageDown:
-            goToLine(currentLine+1);
+            transpose(-1);
+            calculate();
+            update();
             return;
         case Qt::Key_PageUp:
+            transpose(1);
+            calculate();
+            update();
+            return;
+        case Qt::Key_Down:
+            goToLine(currentLine+1);
+            return;
+        case Qt::Key_Up:
             goToLine(currentLine-1);
             return;
         case Qt::Key_Period:
@@ -156,7 +166,7 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     QSet<Sylabel::Note> sharpified;
     renderer.load(sharp);
     QSvgRenderer rnatural(natural,this);
-    for (const Sylabel* s : _notes[currentLine]) {
+    for (Sylabel* s : _notes[currentLine]) {
         double y = ycenter-lineHeight*(s->getLine(currentClef)-6)*0.5;
         double x = pos+(s->beat()-startBeat)*lengthPerBeat;
         double length = s->beats()*lengthPerBeat;
@@ -185,7 +195,9 @@ void NoteWidget::paintEvent(QPaintEvent *) {
                 rnatural.render(&painter,QRectF(x-0.9*lineHeight,y-1.5*lineHeight,0.8*lineHeight,2.5*lineHeight));
             }
         }
-        painter.drawRoundedRect(QRectF(x,y-0.4*lineHeight,length,0.8*lineHeight),1.2,1.2);
+        QRectF r(x,y-0.4*lineHeight,length,0.8*lineHeight);
+        painter.drawRoundedRect(r,1.2,1.2);
+        noteGraphs.insert(r,s);
     }
     pos = 1.5*lineHeight+width;
     double yfix = (currentClef == Sylabel::Clef::F)?lineHeight:0;
@@ -206,7 +218,7 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     textFont.setPointSize(21);
     painter.setFont(textFont);
 
-    for (const Sylabel* s : _notes[currentLine]) {
+    for (Sylabel* s : _notes[currentLine]) {
         double w = painter.fontMetrics().width(s->text());
         painter.save();
         if (s == currentNote) {
@@ -214,7 +226,9 @@ void NoteWidget::paintEvent(QPaintEvent *) {
             colPen.setColor(Qt::green);
             painter.setPen(colPen);
         }
-        painter.drawText(QRectF(lengthSoFar,ycenter+lineHeight*10,w,painter.fontMetrics().height()),s->text());
+        QRectF r(lengthSoFar,ycenter+lineHeight*10,w,painter.fontMetrics().height());
+        painter.drawText(r,s->text());
+        texts.insert(r,s);
         lengthSoFar+=w;
         painter.restore();
     }
@@ -302,22 +316,31 @@ void NoteWidget::setCurrentNote(Sylabel* s) {
     update();
 }
 
+void NoteWidget::transpose(int steps) {
+    for (QList<Sylabel*>& l : _notes) {
+        for (Sylabel* s : l) s->setKey(s->key()+steps);
+    }
+}
 
 void NoteWidget::mousePressEvent(QMouseEvent *event) {
-//    int ycenter = height()/2;
-//    int lineHeight = fontMetrics().height();
-    //Pos2line
-
-    int beat = std::floor(startBeat+(event->localPos().x() - notesStart)/lengthPerBeat);
-    qWarning() << "Clicked beat" << beat;
-    for (const Sylabel* _s : _notes[currentLine]) {
-        const Song* song = _s->song;
-        if (_s->beat() <= beat && _s->beat()+_s->beats() > beat) {
-            qWarning() << "Sylabel: " << _s->text();
-            qWarning() << "Emiting seek to: " << _s->time()+song->gap()/1000.0;
-            emit seek(_s->time()*1000.0+song->gap());
+    for (QRectF &r : texts.keys()) {
+        if (r.contains(event->pos())) {
+            setCurrentNote(texts[r]);
+            emit seek(texts[r]->time()*1000+texts[r]->song->gap());
+            return;
+        }
+    }
+    for (QRectF &r : noteGraphs.keys()) {
+        if (r.contains(event->pos())) {
+            setCurrentNote(noteGraphs[r]);
+            emit seek(noteGraphs[r]->time()*1000+noteGraphs[r]->song->gap());
             return;
         }
     }
     qWarning() << "You missed!";
+}
+
+uint qHash(const QRectF &r)
+{
+    return qHash(QString("%1,%2,%3,%4").arg(r.x()).arg(r.y()).arg(r.width()).arg(r.height()));
 }

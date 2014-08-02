@@ -123,7 +123,7 @@ void SongInfo::selectionUpdated() {
         connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
             if (!ui->playMP3->isChecked()) {
                 s->playing(pos);
-                qWarning() << "Seek to " << pos;
+                //qWarning() << "Seek to " << pos;
             }
         });
         for (QWidget* w : findChildren<QWidget*>())
