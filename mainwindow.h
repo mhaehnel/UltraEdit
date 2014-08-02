@@ -36,8 +36,11 @@ private slots:
     void on_actionChecker_Settings_triggered();
     void on_actionSources_triggered();
 
+    void on_actionMidi_Output_triggered();
+
 private:
     bool filter(const Song* song);
+    void playWelcome();
     QString getGroup(Song* song);
     void sortFrames(QList<SongFrame*> &sf);
 

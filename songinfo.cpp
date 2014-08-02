@@ -8,8 +8,14 @@ SongInfo::SongInfo(QWidget *parent) :
     ui(new Ui::SongInfo)
 {
     ui->setupUi(this);
-    connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
-    connect(ui->notes,&NoteWidget::pause,this,&SongInfo::pause);
+    connect(ui->notes,&NoteWidget::play,[this] {
+        if (ui->playMP3->isChecked()) emit play();
+        if (ui->playNotes->isChecked()) midiPlayer.play();
+    });
+    connect(ui->notes,&NoteWidget::pause,[this] {
+        if (ui->playMP3->isChecked()) emit pause();
+        if (ui->playNotes->isChecked()) midiPlayer.stop();
+    });
     connect(ui->nextLine,&QPushButton::clicked,[this] {
        ui->notes->goToLine(ui->notes->line()+1);
     });
@@ -40,11 +46,31 @@ SongInfo::SongInfo(QWidget *parent) :
         ui->maxLine->setText(QString::number(count));
         ui->maxLine->setReadOnly(true);
     });
+
+
+    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
+    connect(ui->notes,&NoteWidget::seek,[this] (quint64 pos) {
+        if (ui->playMP3->isChecked()) emit seek(pos);
+        if (ui->playNotes->isChecked()) midiPlayer.seek(pos);
+    });
+
+//    connect(this,&SongInfo::seek,&midiPlayer,&MidiPlayer::seek);
+//    connect(this,&SongInfo::play,&midiPlayer,&MidiPlayer::play);
+//    connect(this,&SongInfo::pause,&midiPlayer,&MidiPlayer::stop);
+
 }
 
 SongInfo::~SongInfo()
 {
     delete ui;
+}
+
+void SongInfo::setMidiPort(QString port) {
+    midiPlayer.connect(port);
+}
+
+QStringList SongInfo::getMidiPorts() {
+    return midiPlayer.getPorts();
 }
 
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
@@ -94,15 +120,17 @@ void SongInfo::selectionUpdated() {
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(const Sylabel&)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
+        connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
+            if (!ui->playMP3->isChecked()) {
+                s->playing(pos);
+                qWarning() << "Seek to " << pos;
+            }
+        });
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
-//        ui->notes->setNotes(s->sylabels());
         ui->notes->setSong(s);
+        midiPlayer.setSong(s);
     }
-
-    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
-    connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
-
 
     //TODO: Support mass edit!
 }

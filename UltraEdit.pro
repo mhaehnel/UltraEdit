@@ -6,6 +6,8 @@
 
 QT       += core gui concurrent multimedia svg
 
+LIBS += -ldrumstick-alsa
+
 CONFIG += c++11
 
 QMAKE_CXXFLAGS_DEBUG += -pg
@@ -15,7 +17,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = UltraEdit
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -29,7 +30,9 @@ SOURCES += main.cpp\
     validator.cpp \
     pathinstanceselector.cpp \
     sylabel.cpp \
-    notewidget.cpp
+    notewidget.cpp \
+    midiplayer.cpp \
+    midithread.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -42,7 +45,9 @@ HEADERS  += mainwindow.h \
     validator.h \
     pathinstanceselector.h \
     sylabel.h \
-    notewidget.h
+    notewidget.h \
+    midiplayer.h \
+    midithread.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

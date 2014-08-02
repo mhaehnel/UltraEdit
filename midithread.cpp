@@ -1,0 +1,77 @@
+#include "midithread.h"
+
+using namespace drumstick;
+
+MidiThread::MidiThread(MidiClient* seq, int portid) :
+    SequencerOutputThread(seq,portid),
+    iterator(nullptr), last_event(nullptr), _position(0),
+    _echoRes(96/12) //This is based on ppq = 96!
+{}
+
+MidiThread::~MidiThread() {
+    if (isRunning()) stop();
+    if (iterator != nullptr) delete iterator;
+    if (last_event != nullptr) delete last_event;
+}
+
+void MidiThread::setEvents(QList<SequencerEvent>& events) {
+    QMutexLocker lock(&iteratorLock);
+    this->events = events;
+    if (iterator != nullptr) delete iterator;
+    iterator = new QMutableListIterator<SequencerEvent>(events);
+    _position = 0;
+}
+
+void MidiThread::resetPosition() {
+    if (iterator != nullptr) {
+        iterator->toFront();
+        _position = 0;
+    }
+}
+
+void MidiThread::setPosition(unsigned int pos) {
+    QMutexLocker lock(&iteratorLock);
+    _position = pos;
+    iterator->toFront();
+    while (iterator->hasNext() && iterator->next().getTick() < pos) {};
+    if (iterator->hasPrevious()) iterator->previous();
+}
+
+bool MidiThread::hasNext() {
+    QMutexLocker lock(&iteratorLock);
+    return iterator->hasNext();
+}
+
+SequencerEvent* MidiThread::nextEvent() {
+    if (last_event != nullptr)
+        delete last_event; //TODO: Really?
+    QMutexLocker lock(&iteratorLock);
+    last_event = iterator->next().clone();
+    return last_event;
+
+//    switch (last_event->getSequencerType()) {
+//         case SND_SEQ_EVENT_NOTE:
+//         case SND_SEQ_EVENT_NOTEON:
+//         case SND_SEQ_EVENT_NOTEOFF:
+//         case SND_SEQ_EVENT_KEYPRESS: {
+//             KeyEvent* kev = static_cast<KeyEvent*>(last_event);
+//             if (kev->getChannel() != MIDI_GM_DRUM_CHANNEL)
+//                 kev->setKey(kev->getKey() + m_pitchShift);
+//         }
+//         break;
+//         case SND_SEQ_EVENT_CONTROLLER: {
+//             ControllerEvent *cev = static_cast<ControllerEvent*>(last_event);
+//             if (cev->getParam() == MIDI_CTL_MSB_MAIN_VOLUME) {
+//                 int chan = cev->getChannel();
+//                 int value = cev->getValue();
+//                 m_volume[chan] = value; TODO!
+//                 value = floor(value * m_volumeFactor / 100.0);
+//                 if (value < 0) value = 0;
+//                 if (value > 127) value = 127;
+//                 cev->setValue(value);
+//             }
+//         }
+//         break;
+//     }
+
+}

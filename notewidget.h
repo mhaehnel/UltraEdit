@@ -35,6 +35,9 @@ public slots:
     void setSong(Song* song);
     void goToLine(int line);
 
+protected slots:
+    void endPlay();
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
@@ -42,6 +45,8 @@ protected:
 private:
     void paintEvent(QPaintEvent *);
     void calculate();
+    bool keepLine = false;
+    bool keepSylabel = false;
     Ui::NoteWidget *ui;
     int maxKey, minKey, startBeat, totalBeats;
     QByteArray gclef, fclef, sharp, natural;

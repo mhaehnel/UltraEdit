@@ -53,6 +53,13 @@ void NoteWidget::goToLine(int line) {
     emit seek(_notes[line].first()->time()*1000+_notes.first().first()->song->gap());
 }
 
+void NoteWidget::endPlay() {
+    emit pause();
+    qApp->processEvents();
+    keepLine = false;
+    keepSylabel = false;
+}
+
 void NoteWidget::keyPressEvent(QKeyEvent *event) {
     double timeout;
     static QMutex mutex;
@@ -74,7 +81,8 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_Space: //Play only this line
             timeout = ln.last()->time()*1000+ln.last()->duration()*1000-
                       ln.first()->time()*1000;
-            QTimer::singleShot(timeout,this,SIGNAL(pause()));
+            QTimer::singleShot(timeout,this,SLOT(endPlay()));
+            keepLine = true;
         case Qt::Key_Return: //Play this line and then continue
             goToLine(currentLine);
             qWarning() << "Emitting play";
@@ -88,11 +96,13 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             return;
         case Qt::Key_Period:
             emit seek(currentNote->time()*1000+currentNote->song->gap());
-            QTimer::singleShot(currentNote->duration()*1000,this,SIGNAL(pause()));
+            QTimer::singleShot(currentNote->duration()*1000,this,SLOT(endPlay()));
+            keepSylabel = true;
             emit play();
             return;
         case Qt::Key_Right:
             mutex.lock();
+            if (currentNoteIdx == ln.size()-1) goToLine(currentLine+1);
             if (currentNoteIdx != ln.size()-1) {
                 setCurrentNote(*ln[currentNoteIdx+1]);
                 emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
@@ -101,6 +111,7 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             return;
         case Qt::Key_Left:
             mutex.lock();
+            if (currentNoteIdx == 0) goToLine(currentLine-1);
             if (currentNoteIdx != 0) {
                 setCurrentNote(*ln[currentNoteIdx-1]);
                 emit seek(ln[currentNoteIdx]->time()*1000+currentNote->song->gap());
@@ -264,6 +275,7 @@ void NoteWidget::calculate() {
 
 void NoteWidget::setLine(int line) {
     if (currentLine == line) return;
+    if (keepLine) return;
     const QList<Sylabel*>& notes = _notes[line];
     assert(notes.size() > 0);
     currentNote = notes.first();
@@ -276,6 +288,8 @@ void NoteWidget::setLine(int line) {
 
 void NoteWidget::setCurrentNote(Sylabel s) {
     if (s == *currentNote) return;
+    if (keepSylabel) return;
+
     int i = 0;
     for (Sylabel* _s : _notes[currentLine]) {
         if (*_s == s) {

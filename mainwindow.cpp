@@ -12,6 +12,7 @@
 #include <functional>
 #include <validator.h>
 #include <QProgressDialog>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
@@ -37,13 +38,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
     ui->artistFilter->setText("Lily");
     statusBar()->addPermanentWidget(&statusProgress);
-
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&AudioPlayer::play);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);
-
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
+    ui->songDetails->setMidiPort(config.value("midiPort","").toString());
+
 }
 
 
@@ -277,4 +278,18 @@ void MainWindow::on_actionSources_triggered()
     config.setValue("songdirs",ssd.getPaths());
     if (ssd.changed())
         rescanCollection();
+}
+
+void MainWindow::on_actionMidi_Output_triggered()
+{
+    QStringList items = ui->songDetails->getMidiPorts();
+    int current = items.indexOf(config.value("midiPort","").toString());
+    bool ok;
+    QString item = QInputDialog::getItem(this, "Player subscription",
+                                         "Output port:", items,
+                                         current, false, &ok);
+    if (ok && !item.isEmpty()) {
+        config.setValue("midiPort",item);
+        ui->songDetails->setMidiPort(item);
+    }
 }

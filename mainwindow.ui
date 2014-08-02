@@ -510,6 +510,7 @@
     </property>
     <addaction name="actionSources"/>
     <addaction name="actionChecker_Settings"/>
+    <addaction name="actionMidi_Output"/>
    </widget>
    <addaction name="menuFIle"/>
    <addaction name="menuSettings"/>
@@ -552,6 +553,11 @@
   <action name="actionChecker_Settings">
    <property name="text">
     <string>Validator ...</string>
+   </property>
+  </action>
+  <action name="actionMidi_Output">
+   <property name="text">
+    <string>Midi Output ...</string>
    </property>
   </action>
  </widget>
