@@ -9,6 +9,7 @@
 #include <song.h>
 #include <QTimer>
 #include <QMutex>
+#include <QInputDialog>
 
 NoteWidget::NoteWidget(QWidget *parent) :
     QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0), currentLine(0)
@@ -85,16 +86,16 @@ void NoteWidget::keyPressEvent(QKeyEvent *event) {
             keepLine = true;
         case Qt::Key_Return: //Play this line and then continue
             goToLine(currentLine);
-            qWarning() << "Emitting play";
+            //qWarning() << "Emitting play";
             emit play();
             return;
         case Qt::Key_PageDown:
-            transpose(-1);
+            transpose((event->modifiers()&Qt::ShiftModifier)?-12:-1);
             calculate();
             update();
             return;
         case Qt::Key_PageUp:
-            transpose(1);
+            transpose((event->modifiers()&Qt::ShiftModifier)?12:1);
             calculate();
             update();
             return;
@@ -262,7 +263,7 @@ void NoteWidget::calculate() {
     maxKey = std::numeric_limits<int>::min();
     startBeat = notes.first()->beat();
     totalBeats = notes.last()->beat()+notes.last()->beats()-startBeat;
-    qWarning() << "Line:" << currentLine << "Beats: " << startBeat << "-" << startBeat+totalBeats;
+//    qWarning() << "Line:" << currentLine << "Beats: " << startBeat << "-" << startBeat+totalBeats;
     for (const Sylabel* s : notes) {
         Sylabel::Note n = s->note();
         if (!someSharpies.contains(n)) {
@@ -319,6 +320,26 @@ void NoteWidget::setCurrentNote(Sylabel* s) {
 void NoteWidget::transpose(int steps) {
     for (QList<Sylabel*>& l : _notes) {
         for (Sylabel* s : l) s->setKey(s->key()+steps);
+    }
+}
+
+void NoteWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+    for (QRectF &r : texts.keys()) {
+        if (r.contains(event->pos())) {
+            bool ok;
+            QString newText = QInputDialog::getText(this,"Change Sylabel","Update sylabel text",QLineEdit::Normal,texts[r]->text(),&ok);
+            if (ok) {
+                texts[r]->setText(newText);
+            }
+            return;
+        }
+    }
+}
+
+void NoteWidget::wheelEvent(QWheelEvent *event) {
+    int steps = -event->delta()/8/15;
+    if (event->orientation() ==Qt::Vertical) {
+        setLine(std::min(std::max(0,currentLine+steps),_notes.size()-1));
     }
 }
 

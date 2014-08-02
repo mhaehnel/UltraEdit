@@ -41,6 +41,8 @@ protected slots:
 protected:
     void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent* event);
 
 private:
     void paintEvent(QPaintEvent *);

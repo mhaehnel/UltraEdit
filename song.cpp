@@ -6,10 +6,14 @@
 #include "validator.h"
 #include <pathinstanceselector.h>
 #include <cassert>
+#include <QMessageBox>
 
 QStringList Song::seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
+
+bool Song::answeredToAll = false;
+bool Song::yesToAll;
 
 Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _basePath(basePath),  _txt(source), validator(val)
 {
@@ -86,6 +90,46 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
         return s1->beat() < s2->beat();
     });
     initialized = true;
+    int avg = 0;
+    for (Sylabel* s : musicAndLyrics) {
+        avg += static_cast<signed char>(s->key());
+    }
+    avg/=musicAndLyrics.size();
+    qWarning() << title() << avg;
+    if (avg < 30) {
+        bool answer = false;
+        if (!answeredToAll) {
+            int res = QMessageBox::question(nullptr,"Wrong base pitch",
+                          QString("The song <b>%1</b> by <b>%2</b> seems to be set at a way too low average key of %3.\n"
+                                  "The usual cause for this is that the song creator assumed that 0 equals to C-1 instead of C4."
+                                  "Should I automatically transpose the song for 5 octaves?\n"
+                                  "You can always do this manually in the notes view, but until you do this view may look broken!")
+                          .arg(title()).arg(artist()).arg(avg),
+                    QMessageBox::Yes | QMessageBox::No | QMessageBox::YesAll | QMessageBox::NoAll);
+            switch (res) {
+                case QMessageBox::YesAll:
+                    answeredToAll = true;
+                    yesToAll = true;
+                case QMessageBox::Yes:
+                    answer = true;
+                    break;
+                case QMessageBox::NoAll:
+                    answeredToAll = true;
+                    yesToAll = false;
+                case QMessageBox::No:
+                    answer = false;
+                    break;
+                default:
+                    answer = false;
+            }
+        } else {
+            answer = yesToAll;
+        }
+        if (answer) {
+            for (Sylabel* s : musicAndLyrics)
+                s->setKey(s->key()+60);
+        }
+    }
 }
 
 //This may fail when moving in Filesystem atm!
@@ -176,7 +220,6 @@ bool Song::setTag(const QString &tag, const QString &value) {
 QString Song::rawLyrics() {
     if (_rawTextCache.isEmpty()) {
         for (const Sylabel* s : musicAndLyrics) {
-            qWarning() << s->time() << s->text();
             if (s->type() == Sylabel::Type::LineBreak) {
                 _rawTextCache.append("\n");
             } else {

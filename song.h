@@ -13,6 +13,7 @@ class Song : public QObject
 
 Q_OBJECT
 private:
+    static bool yesToAll, answeredToAll;
     bool wellFormed = true;
     bool initialized = false;
     bool valid = true;

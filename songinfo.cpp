@@ -41,8 +41,7 @@ SongInfo::SongInfo(QWidget *parent) :
     });
 
     connect(ui->notes,&NoteWidget::lineCount,[this] (int count) {
-        qWarning() << "Counting " << count;
-        ui->maxLine->setReadOnly(false);
+         ui->maxLine->setReadOnly(false);
         ui->maxLine->setText(QString::number(count));
         ui->maxLine->setReadOnly(true);
     });

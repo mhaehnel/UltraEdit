@@ -46,7 +46,7 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  _beats(-
     if (!ok) return;
     //TODO: is this really the best way? The 60 offset kind of sucks..
     if (t != Type::LineBreak)
-        _event = new drumstick::NoteEvent(0,60+pitch,100,_beats*ppq/4);
+        _event = new drumstick::NoteEvent(0,pitch,100,_beats*ppq/4);
     //Get pure text ...
     _text = data[2];
     QRegExp re("\\s(\\s*"+QRegExp::escape(data[2])+"\\s*)$");

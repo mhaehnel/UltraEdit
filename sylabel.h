@@ -28,6 +28,7 @@ public:
     Sylabel(QString source, int players, Song * song);
     Type type() const { return _t; }
     QString text() const { return _text; }
+    void setText(QString text) { _text = text; }
     int beat() const { return _beat; }
     int beats() const { return _beats; } //This is 'show next line hint' for line break!
     double time() const;
@@ -41,7 +42,7 @@ public:
     Sylabel::Note note() const;
 
     int getLine(Clef c) const;
-    drumstick::NoteEvent* getEvent() const { qWarning() << _event; return _event; }
+    drumstick::NoteEvent* getEvent() const { return _event; }
     bool operator==(const Sylabel& other) const;
 private:
     static int ppq;

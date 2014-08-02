@@ -53,7 +53,7 @@ void MidiPlayer::setTempo(double bpm) {
     //tempo.setTempo(500000); //1bps
     tempo.setPPQ(96);
     tempo.setNominalBPM(bpm);
-    qWarning() << "Tempo = " << bpm;
+    //qWarning() << "Tempo = " << bpm;
     queue->setTempo(tempo);
 }
 
@@ -73,15 +73,15 @@ void MidiPlayer::setSong(Song *song) {
     for (const Sylabel* s : song->sylabels()) {
         if (s->type() == Sylabel::Type::LineBreak) continue;
         //NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
-        qWarning() << "Getting ...";
+//        qWarning() << "Getting ...";
         NoteEvent* ev = s->getEvent();
-        qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
+//        qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
         ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
-        qWarning() << "Subscribe";
+//        qWarning() << "Subscribe";
         ev->setSubscribers();
-        qWarning() << "Append";
+//        qWarning() << "Append";
         events.append(ev);
     }
-    qWarning() << "DONE! Setting ..";
+//    qWarning() << "DONE! Setting ..";
     seq->setEvents(events);
 }
