@@ -13,18 +13,14 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
     connect(ui->volume,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
     connect(ui->mute,&QPushButton::clicked,&player,&QMediaPlayer::setMuted);
     connect(ui->mute,&QPushButton::clicked,[this](bool checked) {
-        if (checked) {
-            ui->mute->setIcon(QIcon::fromTheme("audio-volume-muted"));
-        } else {
-            ui->mute->setIcon(QIcon::fromTheme("audio-volume-high"));
-        }
+        ui->mute->setIcon(QIcon::fromTheme(checked?"audio-volume-muted":"audio-volume-high"));
     });
     connect(ui->songPause,&QPushButton::clicked,[this] {
         switch (player.state()) {
             case QMediaPlayer::PausedState:
+            case QMediaPlayer::StoppedState:
                 player.play();
                 break;
-            case QMediaPlayer::StoppedState:
             case QMediaPlayer::PlayingState:
                 player.pause();
                 break;
@@ -51,7 +47,7 @@ void AudioPlayer::seek(quint64 pos) {
 }
 
 void AudioPlayer::stop() { player.stop(); }
-void AudioPlayer::play() { qWarning() << "PLAY!"; player.play(); }
+void AudioPlayer::play() { player.play(); }
 void AudioPlayer::pause() { player.pause(); }
 
 void AudioPlayer::updateSongData() {
@@ -71,6 +67,5 @@ void AudioPlayer::setSong(Song *song) {
     connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
     connect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
-    player.setNotifyInterval(15/song->bpm()*1000);
-    qWarning() << "Should play. Notify: " << 15/(song->bpm())*1000;
+    player.setNotifyInterval(1/song->bpm()*1000); //60*bpm This should be tuneable for low powered systems
 }
