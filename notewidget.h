@@ -34,9 +34,7 @@ public slots:
     void setLine(int line);
     void setSong(Song* song);
     void goToLine(int line);
-
-protected slots:
-    void endPlay();
+    void refreshData();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -45,26 +43,24 @@ protected:
     void wheelEvent(QWheelEvent* event);
 
 private:
-    static QByteArray loadSVG(QString file);
+    static void loadSVG(QString file, QByteArray& target);
+    static QByteArray gclef, fclef, sharp, natural;
     void paintEvent(QPaintEvent *);
     void calculate();
     void transpose(int steps);
     bool keepLine = false;
     bool keepSylabel = false;
     Ui::NoteWidget *ui;
-    int maxKey, minKey, startBeat, totalBeats;
-    QByteArray gclef, fclef, sharp, natural;
+    unsigned char maxKey, minKey;
+    int startBeat, totalBeats;
     Sylabel* currentNote;
     int currentNoteIdx;
     QMap<int,QList<Sylabel*>> _notes;
     QHash<QRectF,Sylabel*> noteGraphs;
     QHash<QRectF,Sylabel*> texts;
-    Sylabel::Clef currentClef;
-    double notesStart;
-    double lengthPerBeat;
     int currentLine;
+    QTimer breaker;
     QSet<Sylabel::Note> sharpies;
-    QSet<Sylabel::Note> nonSharpies;
     QSet<Sylabel::Note> someSharpies;
 };
 

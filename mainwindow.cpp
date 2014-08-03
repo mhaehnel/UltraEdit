@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
     ui->artistFilter->setText("Lily");
     statusBar()->addPermanentWidget(&statusProgress);
-    connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionUpdated);
+    connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionChanged);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&AudioPlayer::play);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);

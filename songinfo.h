@@ -21,6 +21,7 @@ public:
 public slots:
     void setSelection(QList<SongFrame*> *selected);
     void selectionUpdated();
+    void selectionChanged();
     void setMidiPort(QString port);
 
 private slots:

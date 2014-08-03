@@ -8,14 +8,23 @@ SongInfo::SongInfo(QWidget *parent) :
     ui(new Ui::SongInfo)
 {
     ui->setupUi(this);
+
     connect(ui->notes,&NoteWidget::play,[this] {
         if (ui->playMP3->isChecked()) emit play();
         if (ui->playNotes->isChecked()) midiPlayer.play();
     });
+
     connect(ui->notes,&NoteWidget::pause,[this] {
         if (ui->playMP3->isChecked()) emit pause();
         if (ui->playNotes->isChecked()) midiPlayer.stop();
     });
+    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
+    connect(ui->notes,&NoteWidget::seek,[this] (quint64 pos) {
+        if (ui->playMP3->isChecked()) emit seek(pos);
+        if (ui->playNotes->isChecked()) midiPlayer.seek(pos);
+    });
+
+
     connect(ui->nextLine,&QPushButton::clicked,[this] {
        ui->notes->goToLine(ui->notes->line()+1);
     });
@@ -41,22 +50,8 @@ SongInfo::SongInfo(QWidget *parent) :
     });
 
     connect(ui->notes,&NoteWidget::lineCount,[this] (int count) {
-         ui->maxLine->setReadOnly(false);
         ui->maxLine->setText(QString::number(count));
-        ui->maxLine->setReadOnly(true);
     });
-
-
-    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
-    connect(ui->notes,&NoteWidget::seek,[this] (quint64 pos) {
-        if (ui->playMP3->isChecked()) emit seek(pos);
-        if (ui->playNotes->isChecked()) midiPlayer.seek(pos);
-    });
-
-//    connect(this,&SongInfo::seek,&midiPlayer,&MidiPlayer::seek);
-//    connect(this,&SongInfo::play,&midiPlayer,&MidiPlayer::play);
-//    connect(this,&SongInfo::pause,&midiPlayer,&MidiPlayer::stop);
-
 }
 
 SongInfo::~SongInfo()
@@ -74,29 +69,49 @@ QStringList SongInfo::getMidiPorts() {
 
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
     selection = selected;
-    selectionUpdated();
+    selectionChanged();
 }
 
-void SongInfo::selectionUpdated() {
-    ui->filesGroup->setEnabled(selection->size() == 1);
-    ui->settingsGroup->setEnabled(selection->size() == 1);
-    ui->title->setEnabled(selection->size() == 1);
-    ui->titleLabel->setEnabled(selection->size() == 1);
+void SongInfo::selectionChanged() {
+    bool singleSelect = (selection->size() == 1);
+
+    ui->filesGroup->setEnabled(singleSelect);
+    ui->settingsGroup->setEnabled(singleSelect);
+    ui->title->setEnabled(singleSelect);
+    ui->titleLabel->setEnabled(singleSelect);
+    ui->lyricsTab->setDisabled(!singleSelect);
+    ui->tonesTab->setDisabled(!singleSelect);
+    ui->mediaTab->setDisabled(!singleSelect);
+
     ui->artist->setEnabled(selection->size() > 0);
     ui->artistLabel->setEnabled(selection->size() > 0);
     ui->genre->setEnabled(selection->size() > 0);
     ui->genreLabel->setEnabled(selection->size() > 0);
     ui->edition->setEnabled(selection->size() >0);
     ui->editionLabel->setEnabled(selection->size() >0);
-    ui->lyricsTab->setDisabled(selection->size() != 1);
-    ui->tonesTab->setDisabled(selection->size() != 1);
-    ui->mediaTab->setDisabled(selection->size() != 1);
+
+    for (auto i : {conSylText, conSylLine, conSyl})
+        this->disconnect(i);
+
+    if (selection->size() == 1) { //TODO: Support mass edit
+        Song* s = selection->first()->song;
+        ui->notes->setSong(s);
+        midiPlayer.setSong(s);
+        conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
+        conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
+        conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
+        connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
+            if (!ui->playMP3->isChecked())
+                s->playing(pos);
+        });
+    }
+    selectionUpdated();
+}
+
+void SongInfo::selectionUpdated() {
     //Title
-    this->disconnect(conSylText);
-    this->disconnect(conSylLine);
-    this->disconnect(conSyl);
     if (selection->size() == 1) {
-        //If we don't do this we will get update signals. Thats not usefull
+        //If we don't do this we will get update signals. Thats not usefull as we are changing it and not the user
         for (QWidget* w : this->findChildren<QWidget*>())
             w->blockSignals(true);
 
@@ -116,39 +131,22 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
-        conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
-        conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
-        conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
-        connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
-            if (!ui->playMP3->isChecked()) {
-                s->playing(pos);
-                //qWarning() << "Seek to " << pos;
-            }
-        });
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
-        ui->notes->setSong(s);
-        midiPlayer.setSong(s);
     }
-
     //TODO: Support mass edit!
 }
 
 void SongInfo::on_title_textChanged(const QString &arg1)
 {
-    //This function only makes sense for single songs!
-    assert(selection->size() == 1);
     Song* s = selection->first()->song;
-    if (!s->updateTag("TITLE",arg1)) {
-        //TODO
+    if (!s->updateTag("TITLE",arg1))
         qWarning() << "Updating title failed!";
-    }
 }
 
 void SongInfo::highlightText(int from, int to) {
     QTextCursor c = ui->rawLyrics->textCursor();
     if (c.anchor() == from && c.position() == to) return;
-//    qWarning()  << "Cursor -> " << from << "-" << to;
     c.setPosition(from);
     c.setPosition(to,QTextCursor::KeepAnchor);
     ui->rawLyrics->setTextCursor(c);
@@ -157,11 +155,8 @@ void SongInfo::highlightText(int from, int to) {
 void SongInfo::on_artist_textChanged(const QString &arg1)
 {
     for (SongFrame* sf : *selection) {
-        Song* s = sf->song;
-        if (!s->updateTag("ARTIST",arg1)) {
-            //TODO
-            qWarning() << "Updating title failed!";
-        }
+        if (!sf->song->updateTag("ARTIST",arg1))
+            qWarning() << "Updating artist failed!";
     }
 }
 
