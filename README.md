@@ -31,7 +31,9 @@ Building
 ========
 
 cd build/
+
 qmake ../
+
 make
 
 That should leave you with a working binary. Have fun :)
