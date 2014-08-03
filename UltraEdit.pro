@@ -18,6 +18,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = UltraEdit
 TEMPLATE = app
 
+VPATH=ui/ src/ include/
+INCLUDEPATH=include/
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     songinfo.cpp \
