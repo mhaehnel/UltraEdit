@@ -1,11 +1,6 @@
 #include "song.h"
-#include <QTextStream>
-#include <QDebug>
-#include <QPixmap>
-#include <QDir>
 #include "validator.h"
 #include <pathinstanceselector.h>
-#include <cassert>
 #include <QMessageBox>
 
 QStringList Song::seenTags;
@@ -15,7 +10,8 @@ QPixmap* Song::_coverMissing = nullptr;
 bool Song::answeredToAll = false;
 bool Song::yesToAll;
 
-Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _basePath(basePath),  _txt(source), validator(val)
+Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
+    _bpm(0), _gap(0), _basePath(basePath),  _txt(source), validator(val)
 {
     if (!source.exists()) {
         qWarning() << "Tried to load non-existing song" << source.filePath() << "! Unable to determine canonical path";
@@ -134,6 +130,25 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) : _b
     }
 }
 
+bool Song::setFile(QFileInfo &info,const QString& path) {
+    info.setFile(_txt.dir(),path);
+    if (!info.exists()) {
+        qWarning() << QString("[%1]: File %2 not found!").arg(_txt.filePath(),path);
+        wellFormed = false;
+    }
+    return info.exists();
+}
+
+bool Song::toDouble(const QString &value, double& target) {
+    bool ok;
+    target = QString(value).replace(",",".").toDouble(&ok);
+    if (!ok) {
+        qWarning() << QString("[%1]: %2 is not a double!").arg(_txt.filePath(),value);
+        valid =false;
+    }
+    return ok;
+}
+
 //This may fail when moving in Filesystem atm!
 bool Song::setTag(const QString &tag, const QString &value) {
     if (value.trimmed().isEmpty()) {
@@ -142,54 +157,13 @@ bool Song::setTag(const QString &tag, const QString &value) {
         return false;
     }
     tags[tag] = value;
-//    if (tag == "TITLE") _title = value;
-//    if (tag == "ARTIST") _artist = value;
-    if (tag == "MP3") {
-        _mp3.setFile(_txt.dir(),value);
-        if (!_mp3.exists()) {
-//                    qWarning() << QString("[%1:%2]: MP3 File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-            wellFormed = false;
-        }
-    }
-    if (tag == "COVER") {
-        _cov.setFile(_txt.dir(),value);
-        if (!_cov.exists()) {
-//                    qWarning() << QString("[%1:%2]: COVER File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-            wellFormed = false;
-        }
-    }
-    if (tag == "BACKGROUND") {
-        _bg.setFile(_txt.dir(),value);
-        if (!_bg.exists()) {
-//                    qWarning() << QString("[%1:%2]: BACKGROUND File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-            wellFormed = false;
-        }
-    }
-    if (tag == "VIDEO") {
-        _vid.setFile(_txt.dir(),value);
-        if (!_vid.exists()) {
-//                    qWarning() << QString("[%1:%2]: VIDEO File %3 not found!").arg(source.filePath()).arg(lineNo).arg(value);
-            wellFormed = false;
-        }
-    }
-    bool ok;
-    if (tag == "BPM") {
-        _bpm = QString(value).replace(",",".").toDouble(&ok);
-        if (!ok) {
-            qWarning() << QString("[%1]: BPM is not a double!").arg(_txt.filePath());
-            valid =false;
-            return false;
-        }
-    }
-    if (tag == "GAP") {
-        _gap = QString(value).replace(",",".").toDouble(&ok);
-        if (!ok) {
-            qWarning() << QString("[%1]: GAP is not a double!").arg(_txt.filePath());
-            valid =false;
-            return false;
-        }
-    }
-    //TODO: qWarning() << "Unknown Tag " << tag;
+    if (tag == "MP3")        if (!setFile(_mp3,value)) return false;
+    if (tag == "COVER")      if (!setFile(_cov,value)) return false;
+    if (tag == "BACKGROUND") if (!setFile(_bg,value))  return false;
+    if (tag == "VIDEO")      if (!setFile(_vid,value)) return false;
+    if (tag == "BPM")        if (!toDouble(value,_bpm)) return false;
+    if (tag == "GAP")        if (!toDouble(value,_gap)) return false;
+
     emit updated();
     if (initialized) {
         if (validator->isPathTag(tag)) {
@@ -251,60 +225,16 @@ bool Song::updateTag(const QString &tag, const QString &value) {
     return setTag(_tag,value);
 }
 
-bool Song::hasBG() const {
-    return !tag("BACKGROUND").isNull();
-}
-
 bool Song::missingBG() const {
     return hasBG() && !_bg.exists();
-}
-
-bool Song::hasVideo() const {
-    return !tag("VIDEO").isNull();
 }
 
 bool Song::missingVideo() const {
     return hasVideo() && !_vid.exists();
 }
 
-bool Song::hasCover() const {
-    return !tag("COVER").isNull();
-}
-
 bool Song::missingCover() const {
     return hasCover() && !_cov.exists();
-}
-
-bool Song::isWellFormed() const {
-    return valid && wellFormed;
-}
-
-bool Song::isValid() const {
-    return valid;
-}
-
-const QFileInfo& Song::txt() const {
-    return _txt;
-}
-
-const QFileInfo& Song::cov() const {
-    return _cov;
-}
-
-const QFileInfo& Song::mp3() const {
-    return _mp3;
-}
-
-const QFileInfo& Song::vid() const {
-    return _vid;
-}
-
-const QFileInfo& Song::bg() const {
-    return _bg;
-}
-
-QList<Sylabel*>& Song::sylabels() {
-    return musicAndLyrics;
 }
 
 QString Song::title() const
@@ -316,14 +246,13 @@ QString Song::artist() const {
     return tags["ARTIST"];
 }
 
-QString Song::basePath() const {
-    return _basePath;
-}
-
 QString Song::tag(const QString &tag) const {
-//    qWarning() << tags;
     if (tags.contains(tag.toUpper()))  return tags[tag.toUpper()];
     return QString::null;
+}
+
+bool Song::hasTag(const QString &tag) const {
+    return tags.contains(tag.toUpper());
 }
 
 QPixmap Song::cover() {
@@ -349,17 +278,13 @@ QPixmap Song::cover() {
 void Song::playing(int ms) {
     //ms to from / to
     int line = 0;
-    int lineStart = 0;
     static int last_line = -1;
     int from = 0;
     ms -= _gap;
     if (ms/1000.0 < musicAndLyrics.first()->time()) return;
-    for (int i = 0; i < musicAndLyrics.size(); i++) {
-        Sylabel* s = musicAndLyrics[i];
+    for (Sylabel* s : musicAndLyrics) {
         if (s->type() == Sylabel::Type::LineBreak) {
-            line++;
-            lineStart = i+1;
-            from++;
+            line++; from++; //Accounts for newline
             continue;
         }
         if (s->time() <= ms/1000.0 && s->time()+s->duration() >= ms/1000.0) {
@@ -374,5 +299,3 @@ void Song::playing(int ms) {
         from += s->text().length();
     }
 }
-
-//Todo: Whatever needs to be constructed on copy
