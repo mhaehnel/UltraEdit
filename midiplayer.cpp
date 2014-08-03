@@ -51,7 +51,7 @@ void MidiPlayer::setTempo(double bpm) {
     //Setting tempo (this is fiddly :()
     QueueTempo& tempo = queue->getTempo();
     //tempo.setTempo(500000); //1bps
-    tempo.setPPQ(96);
+    tempo.setPPQ(ppq);
     tempo.setNominalBPM(bpm);
     //qWarning() << "Tempo = " << bpm;
     queue->setTempo(tempo);
