@@ -31,7 +31,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="generalTab">
         <attribute name="title">
@@ -437,10 +437,25 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="rawData">
+       <widget class="QWidget" name="rawDataWidget">
         <attribute name="title">
          <string>Raw Data</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QTextEdit" name="rawData">
+           <property name="styleSheet">
+            <string notr="true">background-color: palette(mid)</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="acceptRichText">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>

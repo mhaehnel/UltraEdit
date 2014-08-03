@@ -13,7 +13,7 @@ class Sylabel : public QObject
     Q_OBJECT
 public:
     enum class Type {
-        Regular, Freestyle, Golden, LineBreak, Bad
+        Regular, Freestyle, Golden, SimpleLineBreak, LineBreak, Bad
     };
 
     enum class Clef {
@@ -42,6 +42,7 @@ public:
 
     int beats() const;
     double duration() const;
+    bool isLineBreak() const { return _t == Type::SimpleLineBreak || _t == Type::LineBreak; }
     bool isSharp() const;
     unsigned char key() const;
     int line(Clef c) const; //note line

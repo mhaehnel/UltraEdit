@@ -227,7 +227,7 @@ void NoteWidget::setSong(Song* song) {
     int line = 0;
     _notes.clear();
     for (Sylabel* s : song->sylabels()) { //TODO: This does not handle linebreak timings!
-        if (s->type() == Sylabel::Type::LineBreak)
+        if (s->isLineBreak())
             line++;
         else
             _notes[line].append(s);

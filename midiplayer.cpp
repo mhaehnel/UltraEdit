@@ -11,7 +11,7 @@ MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
     queue = client.createQueue();
     seq = new MidiThread(&client,port->getPortId());
     setTempo(120);
-    QObject::connect(&client,&MidiClient::eventReceived,[this] (SequencerEvent* ev) {
+    QObject::connect(&client,&MidiClient::eventReceived,[this] (SequencerEvent* ) {
         snd_seq_tick_time_t time = queue->getStatus().getTickTime();
         emit positionChanged((time*60000.0)/(ppq*queue->getTempo().getNominalBPM()));
     });
@@ -71,7 +71,7 @@ void MidiPlayer::setSong(Song *song) {
     seq->stop();
     events.clear();
     for (const Sylabel* s : song->sylabels()) {
-        if (s->type() == Sylabel::Type::LineBreak) continue;
+        if (s->isLineBreak()) continue;
         //NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
 //        qWarning() << "Getting ...";
         NoteEvent* ev = s->event();

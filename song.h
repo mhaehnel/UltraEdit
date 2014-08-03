@@ -16,6 +16,7 @@ private:
     bool setFile(QFileInfo& info, const QString& path);
     bool setTag(const QString& tag, const QString& value);
     bool toDouble(const QString& value, double& target);
+    void updateDataCache();
 
     static bool yesToAll, answeredToAll;
 
@@ -26,7 +27,7 @@ private:
     bool _freestyle = false;  //has freestyle notes
     int _players = 0;         //stays 0 for simple file (TODO! This is not really implemented ATM!)
     double _bpm, _gap;
-    QString _basePath, _rawTextCache;
+    QString _basePath, _rawTextCache, _rawDataCache;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
     QPixmap _covPM;
     QMap<QString,QString> tags;
@@ -73,6 +74,7 @@ public:
     inline QList<Sylabel*>& sylabels() { return musicAndLyrics; }
 
     QString rawLyrics();
+    QString rawData(); //will be const once updateDataCache is done automatically
     QString artist() const;
     QString title() const;
     QPixmap cover();

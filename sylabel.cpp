@@ -16,7 +16,7 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
         case ':': t = Type::Regular; break;
         case '*': t = Type::Golden; break;
         case 'F': t = Type::Freestyle; break;
-        case '-': t = Type::LineBreak; break;
+        case '-': t = Type::SimpleLineBreak; break;
         default: return;
     }
 
@@ -28,12 +28,15 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
     _beat = data[0].toInt(&ok);
     if (!ok) return;
     data.removeFirst();
-    if (t == Type::LineBreak) {
-        if (data.size() == 1) { //TODO: Check that this is represented in the editor somehow!
-//            qWarning() << "Edge case found! Please check manually! Not tested";
-            //_beats = data[0].toInt(&ok);
+    if (t == Type::SimpleLineBreak) {
+        if (data.size() == 1) {
+            int beats = data[0].toInt(&ok);
             if (!ok) return;
+            //Hacky, but should work. This note is a dummy and only holds the duration
+            //of the newline. Due to the low pitch it should not be hearable.
+            _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
             data.removeFirst();
+            t = Type::LineBreak;
         }
         if (data.size() != 0) return;
         _t = t;
@@ -93,7 +96,7 @@ unsigned char Sylabel::key() const {
 }
 
 void Sylabel::transpose(char lvl) {
-    if (_t == Type::LineBreak) return;
+    if (isLineBreak()) return;
     _event->setKey(std::max(0,_event->getKey()+lvl));
     emit updated();
 }

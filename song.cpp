@@ -2,6 +2,7 @@
 #include "validator.h"
 #include <pathinstanceselector.h>
 #include <QMessageBox>
+#include "sylabel.h"
 
 QStringList Song::seenTags;
 QPixmap* Song::_noCover = nullptr;
@@ -84,7 +85,13 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
             wellFormed = false;
         }
     }
-    std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[] (const Sylabel* s1, const Sylabel* s2) {
+    std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
+        if (s1->beat() == s2->beat()) {
+            if (s1->isLineBreak()) return true;
+            if (s2->isLineBreak()) return false;
+            qWarning() << "This can not be. Two notes share the same beat";
+            wellFormed = false;
+        }
         return s1->beat() < s2->beat();
     });
     initialized = true;
@@ -196,7 +203,7 @@ bool Song::setTag(const QString &tag, const QString &value) {
 QString Song::rawLyrics() {
     if (_rawTextCache.isEmpty()) {
         for (const Sylabel* s : musicAndLyrics) {
-            if (s->type() == Sylabel::Type::LineBreak) {
+            if (s->isLineBreak()) {
                 _rawTextCache.append("\n");
             } else {
                 _rawTextCache.append(s->text());
@@ -204,6 +211,44 @@ QString Song::rawLyrics() {
         }
     }
     return _rawTextCache;
+}
+
+void Song::updateDataCache() {
+    //TODO: THis produces garbage on invalid / not well formed data. Check!
+    //We need windows newlines here (as microsoft obviously still believes we live in the age of typewriters)
+    _rawDataCache.clear();
+    qWarning() << "Building";
+    for (const QString& key : tags.keys()) {
+        _rawDataCache += QString("#%1: %2\r\n").arg(key,tags[key]);
+    }
+    for (const Sylabel* s: musicAndLyrics) {
+        switch (s->type()) {
+            case Sylabel::Type::Bad:        _rawDataCache.append("!"); break;
+            case Sylabel::Type::Freestyle:  _rawDataCache.append("F"); break;
+            case Sylabel::Type::Golden:     _rawDataCache.append("*"); break;
+            case Sylabel::Type::SimpleLineBreak:
+            case Sylabel::Type::LineBreak:  _rawDataCache.append("-"); break;
+            case Sylabel::Type::Regular:    _rawDataCache.append(":"); break;
+        }
+        _rawDataCache += QString(" %1").arg(s->beat());
+        if (s->isLineBreak()) {
+            if (s->type() == Sylabel::Type::LineBreak) {
+                _rawDataCache.append(QString(" %1").arg(s->beats()));
+            }
+            _rawDataCache.append("\r\n");
+            continue; //This breaks 2 data line breaks!
+        }
+        _rawDataCache += QString(" %1 %2 %3\r\n").arg(s->beats()).arg(s->key()).arg(s->text());
+    }
+}
+
+//WARNING! THis will fail horribly on multiplayer songs atm!
+
+
+QString Song::rawData() {
+    //The cache will be updated by the song itself when it changes (at least in the future ;) )
+    updateDataCache();
+    return _rawDataCache;
 }
 
 bool Song::addTag(const QString &tag, const QString &value) {
@@ -283,7 +328,7 @@ void Song::playing(int ms) {
     ms -= _gap;
     if (ms/1000.0 < musicAndLyrics.first()->time()) return;
     for (Sylabel* s : musicAndLyrics) {
-        if (s->type() == Sylabel::Type::LineBreak) {
+        if (s->isLineBreak()) {
             line++; from++; //Accounts for newline
             continue;
         }

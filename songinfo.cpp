@@ -131,6 +131,7 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
+        ui->rawData->setText(s->rawData());
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
     }

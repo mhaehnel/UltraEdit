@@ -258,7 +258,7 @@ void MainWindow::addSong(Song *song) {
     sf->hide();
     songFrames.append(sf);
     sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
-    sf->connect(sf,&SongFrame::playSong,[this,sf] (Song* song) { if (!selectedFrames.contains(sf)) selectFrame(sf); ui->musicPlayer->play(); });
+    sf->connect(sf,&SongFrame::playSong,[this,sf] (Song* ) { if (!selectedFrames.contains(sf)) selectFrame(sf); ui->musicPlayer->play(); });
     if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));

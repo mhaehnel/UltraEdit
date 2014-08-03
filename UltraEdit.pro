@@ -10,7 +10,7 @@ LIBS += -ldrumstick-alsa
 
 CONFIG += c++11
 
-QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_CXXFLAGS_DEBUG += -pg -Wall -pedantic -Werror -Wextra
 QMAKE_LFLAGS_DEBUG += -pg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -44,10 +44,10 @@ HEADERS  += mainwindow.h \
     validatorsettings.h \
     validator.h \
     pathinstanceselector.h \
-    sylabel.h \
     notewidget.h \
     midiplayer.h \
-    midithread.h
+    midithread.h \
+    sylabel.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
