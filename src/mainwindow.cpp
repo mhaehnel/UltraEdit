@@ -40,8 +40,11 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(&statusProgress);
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionChanged);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
+    connect(ui->musicPlayer,&AudioPlayer::seeking, ui->songDetails, &SongInfo::seekTo);
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&AudioPlayer::play);
+    connect(ui->musicPlayer,&AudioPlayer::started, ui->songDetails, &SongInfo::startPlayback);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);
+    connect(ui->musicPlayer,&AudioPlayer::paused, ui->songDetails, &SongInfo::pausePlayback);
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
     ui->songDetails->setMidiPort(config.value("midiPort","").toString());
 

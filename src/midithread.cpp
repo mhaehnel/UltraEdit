@@ -31,10 +31,14 @@ void MidiThread::resetPosition() {
 
 void MidiThread::setPosition(unsigned int pos) {
     QMutexLocker lock(&iteratorLock);
+    bool wasRunning = isRunning();
+    if (wasRunning) stop();
+    allNotesOff();
     _position = pos;
     iterator->toFront();
     while (iterator->hasNext() && iterator->next()->getTick() < pos) {};
     if (iterator->hasPrevious()) iterator->previous();
+    if (wasRunning) start();
 }
 
 bool MidiThread::hasNext() {

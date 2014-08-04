@@ -9,7 +9,19 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
     ui->setupUi(this);
     ui->songTimePassed->display("00:00");
     ui->songTimeRemaining->display("00:00");
+    connect(&player,&QMediaPlayer::stateChanged, [this] (QMediaPlayer::State state) {
+       switch (state) {
+           case QMediaPlayer::State::PlayingState:
+               emit seeking(player.position());
+               emit started();
+               break;
+           case QMediaPlayer::State::StoppedState: emit stopped(); break;
+           case QMediaPlayer::State::PausedState:  emit paused(); break;
+           default: break;
+       }
+    });
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
+    connect(ui->songPos,&QSlider::valueChanged,this,&AudioPlayer::seeking);
     connect(ui->volume,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
     connect(ui->mute,&QPushButton::clicked,&player,&QMediaPlayer::setMuted);
     connect(ui->mute,&QPushButton::clicked,[this](bool checked) {

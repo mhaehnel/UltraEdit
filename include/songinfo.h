@@ -22,12 +22,17 @@ public slots:
     void setSelection(QList<SongFrame*> *selected);
     void selectionUpdated();
     void selectionChanged();
+    void pausePlayback();
+    void startPlayback();
+    void seekTo(quint64 time);
     void setMidiPort(QString port);
 
 private slots:
     void on_title_textChanged(const QString &arg1);
     void on_artist_textChanged(const QString &arg1);
     void highlightText(int from, int to);
+
+    void on_playNotes_toggled(bool checked);
 
 signals:
     void seek(quint64 pos);

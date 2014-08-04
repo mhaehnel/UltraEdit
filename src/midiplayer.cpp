@@ -10,23 +10,19 @@ MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
     port->setPortType(SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
     queue = client.createQueue();
     seq = new MidiThread(&client,port->getPortId());
-    setTempo(120);
-    QObject::connect(&client,&MidiClient::eventReceived,[this] (SequencerEvent* ) {
-        snd_seq_tick_time_t time = queue->getStatus().getTickTime();
-        emit positionChanged((time*60000.0)/(ppq*queue->getTempo().getNominalBPM()));
-    });
 }
 
 void MidiPlayer::play() {
     client.startSequencerInput();
     seq->start();
+    queue->clear();
 }
 
 void MidiPlayer::stop() {
     client.stopSequencerInput();
     seq->allNotesOff();
     seq->stop();
-    //seq->allNotesOff();
+    queue->clear();
 }
 
 void MidiPlayer::connect(QString portName) {
@@ -50,16 +46,14 @@ QStringList MidiPlayer::getPorts() {
 void MidiPlayer::setTempo(double bpm) {
     //Setting tempo (this is fiddly :()
     QueueTempo& tempo = queue->getTempo();
-    //tempo.setTempo(500000); //1bps
     tempo.setPPQ(ppq);
     tempo.setNominalBPM(bpm);
-    //qWarning() << "Tempo = " << bpm;
     queue->setTempo(tempo);
 }
 
 //This is in ms ... calculate ticks ..
 void MidiPlayer::seek(quint64 pos) {
-    //qWarning() << "Seeking to " << pos << "ms => " <<pos/60000.0*ppq*queue->getTempo().getNominalBPM() ;
+    if (_song == nullptr) return;
     seq->setPosition(pos/60000.0*ppq*queue->getTempo().getNominalBPM());
 }
 
@@ -72,16 +66,10 @@ void MidiPlayer::setSong(Song *song) {
     events.clear();
     for (const Sylabel* s : song->sylabels()) {
         if (s->isLineBreak()) continue;
-        //NoteEvent ev(0,60+s->key(),100,s->beats()*ppq/4);
-//        qWarning() << "Getting ...";
         NoteEvent* ev = s->event();
-//        qWarning() << "Creating event" << s->key() << "[" << s->beats()*ppq/4 << "] @" << s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM();
         ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
-//        qWarning() << "Subscribe";
         ev->setSubscribers();
-//        qWarning() << "Append";
         events.append(ev);
     }
-//    qWarning() << "DONE! Setting ..";
     seq->setEvents(events);
 }

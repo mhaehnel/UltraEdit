@@ -4,25 +4,13 @@
 #include <QDebug>
 
 SongInfo::SongInfo(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SongInfo)
+    QWidget(parent), ui(new Ui::SongInfo)
 {
     ui->setupUi(this);
-
-    connect(ui->notes,&NoteWidget::play,[this] {
-        if (ui->playMP3->isChecked()) emit play();
-        if (ui->playNotes->isChecked()) midiPlayer.play();
-    });
-
-    connect(ui->notes,&NoteWidget::pause,[this] {
-        if (ui->playMP3->isChecked()) emit pause();
-        if (ui->playNotes->isChecked()) midiPlayer.stop();
-    });
-    //TODO: THis breaks if the notewidget edits another song than the one currently playing!
-    connect(ui->notes,&NoteWidget::seek,[this] (quint64 pos) {
-        if (ui->playMP3->isChecked()) emit seek(pos);
-        if (ui->playNotes->isChecked()) midiPlayer.seek(pos);
-    });
+    connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
+    connect(ui->notes,&NoteWidget::pause,this,&SongInfo::pause);
+    connect(ui->notes,&NoteWidget::seek,&midiPlayer, &MidiPlayer::seek);
+    connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
 
 
     connect(ui->nextLine,&QPushButton::clicked,[this] {
@@ -100,10 +88,6 @@ void SongInfo::selectionChanged() {
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
-        connect(&midiPlayer,&MidiPlayer::positionChanged,[this,s] (quint64 pos) {
-            if (!ui->playMP3->isChecked())
-                s->playing(pos);
-        });
     }
     selectionUpdated();
 }
@@ -161,3 +145,26 @@ void SongInfo::on_artist_textChanged(const QString &arg1)
     }
 }
 
+void SongInfo::seekTo(quint64 time) {
+    midiPlayer.seek(time);
+}
+
+void SongInfo::pausePlayback() {
+    if (ui->playNotes->isChecked())
+        midiPlayer.stop();
+}
+
+void SongInfo::startPlayback() {
+    if (ui->playNotes->isChecked())
+        midiPlayer.play();
+}
+
+void SongInfo::on_playNotes_toggled(bool checked)
+{
+    if (!checked) {
+        midiPlayer.stop();
+    } else {
+        emit pause();
+        emit play();
+    }
+}

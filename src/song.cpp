@@ -217,7 +217,6 @@ void Song::updateDataCache() {
     //TODO: THis produces garbage on invalid / not well formed data. Check!
     //We need windows newlines here (as microsoft obviously still believes we live in the age of typewriters)
     _rawDataCache.clear();
-    qWarning() << "Building";
     for (const QString& key : tags.keys()) {
         _rawDataCache += QString("#%1: %2\r\n").arg(key,tags[key]);
     }

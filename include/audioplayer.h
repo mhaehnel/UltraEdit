@@ -18,6 +18,12 @@ public:
     explicit AudioPlayer(QWidget *parent = 0);
     ~AudioPlayer();
 
+signals:
+    void started();
+    void stopped();
+    void paused();
+    void seeking(quint64 pos);
+
 public slots:
     void setSong(Song* song);
     void seek(quint64 pos);
