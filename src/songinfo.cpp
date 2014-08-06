@@ -12,7 +12,6 @@ SongInfo::SongInfo(QWidget *parent) :
     connect(ui->notes,&NoteWidget::seek,&midiPlayer, &MidiPlayer::seek);
     connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
 
-
     connect(ui->nextLine,&QPushButton::clicked,[this] {
        ui->notes->goToLine(ui->notes->line()+1);
     });
@@ -40,6 +39,10 @@ SongInfo::SongInfo(QWidget *parent) :
     connect(ui->notes,&NoteWidget::lineCount,[this] (int count) {
         ui->maxLine->setText(QString::number(count));
     });
+
+    videoPlayer.setVideoOutput(ui->videoWidget);
+    videoPlayer.setMuted(ui->muteSong);
+    //ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
 }
 
 SongInfo::~SongInfo()
@@ -85,6 +88,7 @@ void SongInfo::selectionChanged() {
         Song* s = selection->first()->song;
         ui->notes->setSong(s);
         midiPlayer.setSong(s);
+        videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
@@ -147,16 +151,19 @@ void SongInfo::on_artist_textChanged(const QString &arg1)
 
 void SongInfo::seekTo(quint64 time) {
     midiPlayer.seek(time);
+    videoPlayer.setPosition(time);
 }
 
 void SongInfo::pausePlayback() {
     if (ui->playNotes->isChecked())
         midiPlayer.stop();
+    videoPlayer.stop();
 }
 
 void SongInfo::startPlayback() {
     if (ui->playNotes->isChecked())
         midiPlayer.play();
+    videoPlayer.play();
 }
 
 void SongInfo::on_playNotes_toggled(bool checked)
@@ -167,4 +174,9 @@ void SongInfo::on_playNotes_toggled(bool checked)
         emit pause();
         emit play();
     }
+}
+
+void SongInfo::on_checkBox_2_toggled(bool checked)
+{
+    videoPlayer.setMuted(checked);
 }

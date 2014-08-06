@@ -4,6 +4,7 @@
 #include "songframe.h"
 #include "midiplayer.h"
 #include <QWidget>
+#include <QMediaPlayer>
 
 namespace Ui {
 class SongInfo;
@@ -34,6 +35,8 @@ private slots:
 
     void on_playNotes_toggled(bool checked);
 
+    void on_checkBox_2_toggled(bool checked);
+
 signals:
     void seek(quint64 pos);
     void play();
@@ -42,6 +45,7 @@ signals:
 private:
     Ui::SongInfo *ui;
     MidiPlayer midiPlayer;
+    QMediaPlayer videoPlayer;
     QMetaObject::Connection conSylText;
     QMetaObject::Connection conSylLine;
     QMetaObject::Connection conSyl;

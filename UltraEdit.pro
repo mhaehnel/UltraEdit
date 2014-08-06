@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui concurrent multimedia svg
+QT       += core gui concurrent multimedia svg multimediawidgets
 
 LIBS += -ldrumstick-alsa
 
@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     sylabel.cpp \
     notewidget.cpp \
     midiplayer.cpp \
-    midithread.cpp
+    midithread.cpp \
+    videowidget.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -50,7 +51,8 @@ HEADERS  += mainwindow.h \
     notewidget.h \
     midiplayer.h \
     midithread.h \
-    sylabel.h
+    sylabel.h \
+    videowidget.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
