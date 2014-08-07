@@ -319,8 +319,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>292</width>
-              <height>43</height>
+              <width>294</width>
+              <height>285</height>
              </rect>
             </property>
             <attribute name="label">
@@ -422,22 +422,11 @@
            <property name="checked">
             <bool>true</bool>
            </property>
-           <widget class="QRadioButton" name="groupArtist">
-            <property name="geometry">
-             <rect>
-              <x>40</x>
-              <y>40</y>
-              <width>102</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Artist</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QComboBox" name="groupBy"/>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -568,12 +557,29 @@
    <extends>QWidget</extends>
    <header>songinfo.h</header>
    <container>1</container>
+   <slots>
+    <signal>seek(quint64)</signal>
+    <signal>play()</signal>
+    <signal>pause()</signal>
+    <slot>selectionChanged()</slot>
+    <slot>seekTo(quint64)</slot>
+    <slot>startPlayback()</slot>
+    <slot>pausePlayback()</slot>
+   </slots>
   </customwidget>
   <customwidget>
    <class>AudioPlayer</class>
    <extends>QWidget</extends>
    <header>audioplayer.h</header>
    <container>1</container>
+   <slots>
+    <signal>seeking(quint64)</signal>
+    <signal>started()</signal>
+    <signal>paused()</signal>
+    <slot>seek(quint64)</slot>
+    <slot>play()</slot>
+    <slot>pause()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -931,22 +937,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>groupArtist</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>regroupList()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>130</x>
-     <y>291</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>325</x>
-     <y>288</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>groupList</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -975,6 +965,22 @@
     <hint type="destinationlabel">
      <x>428</x>
      <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupBy</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>regroupList()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>86</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>8</x>
+     <y>363</y>
     </hint>
    </hints>
   </connection>

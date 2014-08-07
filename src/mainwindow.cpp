@@ -74,8 +74,16 @@ void MainWindow::rescanCollection() {
         };
     }
     ((QBoxLayout*)ui->songList->layout())->addStretch(1);
-    regroupList();
+    ui->groupBy->clear();
+    ui->groupBy->addItems(Song::seenTags());
+    if (Song::seenTags().contains("ARTIST"))  {
+        ui->groupBy->setCurrentIndex(Song::seenTags().indexOf("ARTIST"));
+    } else {
+        ui->groupBy->setCurrentIndex(0);
+    }
+    //regroupList();
     selectedFrames.clear();
+
     emit selectionChanged();
 }
 
@@ -110,16 +118,19 @@ bool MainWindow::filter(const Song *song) {
 QString MainWindow::getGroup(Song *song) {
     if (!ui->groupList->isChecked()) return "*";
     //we need to group
-    if (ui->groupArtist->isChecked()) return song->artist();
-    //if we group, we must have selected a criterion!
-    __builtin_unreachable();
+    QString tag = ui->groupBy->currentText();
+    if (song->hasTag(tag))
+        return song->tag(tag);
+    else
+        return "*";
 }
 
 //This does currently not support rapid regroups! Lock it to make it work!
 void MainWindow::regroupList() {
-    qDebug() << "regroupList";
+    static QMutex mutex(QMutex::Recursive);
+    mutex.lock();
     groupedFrames.clear();  //Frames are only once instanciated. Do not delete!
-    for (SongGroup* sg : songGroups) delete sg; //We govern these. Must be deleted!
+    for (SongGroup* sg : songGroups) sg->deleteLater();
     songGroups.clear();
 
     for (SongFrame* sf : songFrames) {
@@ -130,17 +141,16 @@ void MainWindow::regroupList() {
     }
     for (SongGroup* sg : songGroups) ui->songList->layout()->addWidget(sg);
     //Sort in group
-    qDebug() << "Starting sort ..";
     resortList();
-    qDebug() << "Starting filter ...";
     //hide filtered frames / empty groups
     filterList();
-    qDebug() << "Finished!";
+    mutex.unlock();
 }
 
 //This is expensive since it has to readd all layouts! For all groups ... kinde sucks ... so ... regroup is costly!
 void MainWindow::resortList() {
-    qDebug() << "resortList";
+    static bool done;
+    done = false;
     QList<QString> keys = groupedFrames.keys();
     QFuture<void> fut = QtConcurrent::map(keys,[this] (QString const& k) { sortFrames(groupedFrames[k]); });
     fut.waitForFinished();
@@ -157,62 +167,41 @@ void MainWindow::resortList() {
         }
         for (SongFrame* f : groupedFrames[g]) {
             qApp->processEvents();
+            if (done) return;
             songGroups[g]->layout().addWidget(f);
         }
         songGroups[g]->setVisible(old);
         statusProgress.setValue(++sp);
     }
+    done = true;
 }
 
 void MainWindow::filterList() {
-    qDebug() << "filterList";
-    static std::atomic<bool> running(false);
-    static QMutex mutex(QMutex::Recursive);
-    static bool redo = false;
-    mutex.lock();
-    if (running.exchange(true)) {
-        //Someone was running ... too bad ;) We signal redo and return
-        qWarning() << "Redo!";
-        redo = true;
-        return;
-    }
-    mutex.unlock();
+    static bool done;
+    done = false;
 
-    do {
-        redo = false;
-        //Filter
-        statusProgress.setRange(0,songFrames.count());
-        int sp = 0;
+    //Filter
+    statusProgress.setRange(0,songFrames.count());
+    int sp = 0;
 
-        for (QString group : songGroups.keys()) {
-            QList<SongFrame*> sl = groupedFrames[group];
-            int cnt = 0;
-            for (SongFrame* sf : sl) {
-                qApp->processEvents();
-                statusProgress.setValue(++sp);
-                bool flt = filter(sf->song);
-                sf->setVisible(flt);
-                if (flt) {
-                    cnt++;
-                    sf->deselect();
-                    selectedFrames.removeAll(sf);
-                }
-                if (redo) break;
+    for (QString group : songGroups.keys()) {
+        QList<SongFrame*> sl = groupedFrames[group];
+        int cnt = 0;
+        for (SongFrame* sf : sl) {
+            qApp->processEvents();
+            if (done) return;
+            statusProgress.setValue(++sp);
+            bool flt = filter(sf->song);
+            sf->setVisible(flt);
+            if (flt) {
+                cnt++;
+                sf->deselect();
+                selectedFrames.removeAll(sf);
             }
-            if (redo) break;
-            songGroups[group]->setVisible(cnt != 0);
         }
-
-
-        mutex.lock();
-        if (!redo) {
-            if (!running.exchange(false)) qFatal("Broken lock state! This can not happen");
-            mutex.unlock();
-            return;
-        }
-        mutex.unlock(); //Redo :/
-    } while (redo); //could also be while true!
-    __builtin_unreachable();
+        songGroups[group]->setVisible(cnt != 0);
+    }
+    done = true;
 }
 
 void MainWindow::sortFrames(QList<SongFrame*> &sf) {
@@ -235,6 +224,7 @@ void MainWindow::selectFrame(SongFrame *sf) {
         disconnect(sf->song,&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         selectedFrames.removeAll(sf);
         ui->musicPlayer->stop();
+        ui->songDetails->pausePlayback();
     } else {
         //Enforce single selection for now!
         if (selectedFrames.size() == 1) {
