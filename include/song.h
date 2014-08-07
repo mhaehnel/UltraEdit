@@ -34,7 +34,7 @@ private:
     QMap<QString,int> components;
     QMap<QString,int> agreedComponentCount;
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
-    static QStringList seenTags; //Static overview of all tags seen in all files
+    static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
     Validator* validator;
 public:
@@ -68,9 +68,11 @@ public:
     bool missingBG() const;
     bool missingCover() const;
     bool isMultiplayer() const;
+    bool relativeSource() const;
     int players() const;
 
     inline QString basePath() const { return _basePath; }
+    static inline const QStringList& seenTags() { return _seenTags; }
     inline QList<Sylabel*>& sylabels() { return musicAndLyrics; }
 
     QString rawLyrics();

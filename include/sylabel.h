@@ -48,6 +48,7 @@ public:
     int line(Clef c) const; //note line
     double time() const;
 
+    void move(int beats);
     void setText(QString text);
     void transpose(char lvl);
     Sylabel::Note note() const;

@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include "sylabel.h"
 
-QStringList Song::seenTags;
+QStringList Song::_seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
 
@@ -14,6 +14,7 @@ bool Song::yesToAll;
 Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
     _bpm(0), _gap(0), _basePath(basePath),  _txt(source), validator(val)
 {
+    connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
     if (!source.exists()) {
         qWarning() << "Tried to load non-existing song" << source.filePath() << "! Unable to determine canonical path";
         valid = false;
@@ -28,6 +29,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
     bool endOfTags = false;
     int lineNo = 0;
     int curPlayer = 1;
+    int relative_last = 0;
     while (!in.atEnd()) {
         lineNo++;
         QString line = in.readLine();
@@ -58,8 +60,20 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
                 return;
             }
             Sylabel* syl = new Sylabel(line,curPlayer,this);
+            if (relativeSource()) {
+                syl->move(relative_last);
+                if (syl->isLineBreak()) {
+                    assert(syl->type() == Sylabel::Type::LineBreak);
+                    relative_last += syl->beats();
+                    qWarning() << "Moving for" << relative_last;
+                }
+            }
             connect(syl,&Sylabel::updated,this,&Song::updated);
             musicAndLyrics.append(syl);
+            if (syl->isBad()) {
+                wellFormed = false;
+                valid = false;
+            }
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
                 qWarning() << QString("[%1]: Data beyond end of file!").arg(source.filePath());
@@ -83,6 +97,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
         } else {
             qWarning() << QString("[%1]: Line \"%2\" could not be interpreted!").arg(source.filePath(),line);
             wellFormed = false;
+            valid = false;
         }
     }
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
@@ -95,12 +110,13 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
         return s1->beat() < s2->beat();
     });
     initialized = true;
+    if (!valid) return;
     int avg = 0;
     for (Sylabel* s : musicAndLyrics) {
         avg += static_cast<signed char>(s->key());
     }
     avg/=musicAndLyrics.size();
-    qWarning() << title() << avg;
+    //qWarning() << title() << avg;
     if (avg < 30) {
         bool answer = false;
         if (!answeredToAll) {
@@ -135,6 +151,10 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
                 s->transpose(60);
         }
     }
+}
+
+bool Song::relativeSource() const { //We will never write relative files.
+    return tags.contains("RELATIVE") && tags["RELATIVE"].toUpper().trimmed() == "YES";
 }
 
 bool Song::setFile(QFileInfo &info,const QString& path) {
@@ -237,6 +257,7 @@ void Song::updateDataCache() {
             _rawDataCache.append("\r\n");
             continue; //This breaks 2 data line breaks!
         }
+        if (s->isBad()) continue;
         _rawDataCache += QString(" %1 %2 %3\r\n").arg(s->beats()).arg(s->key()).arg(s->text());
     }
 }
@@ -252,7 +273,7 @@ QString Song::rawData() {
 
 bool Song::addTag(const QString &tag, const QString &value) {
     QString _tag = tag.toUpper();
-    if (!seenTags.contains(_tag)) seenTags.append(_tag);
+    if (!_seenTags.contains(_tag)) _seenTags.append(_tag);
     if (tags.contains(_tag)) {
         qWarning() << "The tag" << tag << "already exists in" << _txt.canonicalFilePath() <<". Ignoring!";
         return false;

@@ -65,7 +65,7 @@ void MidiPlayer::setSong(Song *song) {
     seq->stop();
     events.clear();
     for (const Sylabel* s : song->sylabels()) {
-        if (s->isLineBreak()) continue;
+        if (s->isLineBreak() || s->isBad()) continue;
         NoteEvent* ev = s->event();
         ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
         ev->setSubscribers();

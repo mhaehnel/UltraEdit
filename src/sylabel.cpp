@@ -51,8 +51,12 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
     _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
     _t = t;
     _text = data[2]; //Pure text
+    if (data.size() > 3) {
+        for (int i = 3; i < data.size(); i++)
+            _text += " "+data[i];
+    }
     //Get text with trailing spaces (but not with leading seperators!)
-    QRegExp re("\\s(\\s*"+QRegExp::escape(data[2])+"\\s*)$");
+    QRegExp re("\\s(\\s*"+QRegExp::escape(_text)+"\\s*)$");
     re.indexIn(source);
     assert(re.captureCount() == 1 || "This can not fail!");
     _text = re.cap(1);
@@ -60,6 +64,11 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
 
 Sylabel::~Sylabel() {
     delete _event;
+}
+
+void Sylabel::move(int beats) {
+    _beat += beats;
+    emit updated();
 }
 
 bool Sylabel::operator ==(const Sylabel& other) const {
@@ -96,7 +105,7 @@ unsigned char Sylabel::key() const {
 }
 
 void Sylabel::transpose(char lvl) {
-    if (isLineBreak()) return;
+    if (isLineBreak() || _t == Type::Bad) return;
     _event->setKey(std::max(0,_event->getKey()+lvl));
     emit updated();
 }
