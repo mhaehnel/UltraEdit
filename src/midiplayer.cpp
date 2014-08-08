@@ -1,5 +1,7 @@
 #include "midiplayer.h"
 
+using namespace drumstick;
+
 MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
 {
     client.open();

@@ -6,28 +6,28 @@
 #include <drumstick.h>
 #include <midithread.h>
 
-namespace drumstick {
-    class QSmf;
-    class QWrk;
-    class QOve;
-    class MidiClient;
-    class MidiPort;
-    class MidiQueue;
-    class SequencerEvent;
-}
+//namespace drumstick {
+//    class QSmf;
+//    class QWrk;
+//    class QOve;
+//    class MidiClient;
+//    class MidiPort;
+//    class MidiQueue;
+//    class SequencerEvent;
+//}
 
-using namespace drumstick;
+//using namespace drumstick;
 
 class MidiPlayer : public QObject
 {
     Q_OBJECT
-    MidiClient client;
-    MidiPort* port;
-    MidiQueue* queue;
+    drumstick::MidiClient client;
+    drumstick::MidiPort* port;
+    drumstick::MidiQueue* queue;
     Song* _song;
     MidiThread* seq;
     int ppq = 96;
-    QList<SequencerEvent*> events;
+    QList<drumstick::SequencerEvent*> events;
 public:
     explicit MidiPlayer(QObject *parent = 0);
     QStringList getPorts();
