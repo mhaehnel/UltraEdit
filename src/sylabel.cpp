@@ -92,6 +92,7 @@ double Sylabel::time() const {
 }
 
 int Sylabel::beats() const {
+    if (isBad()) return 0;
  return _event->getDuration()*4/ppq;
 }
 

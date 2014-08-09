@@ -16,13 +16,14 @@ private:
     bool setFile(QFileInfo& info, const QString& path);
     bool setTag(const QString& tag, const QString& value);
     bool toDouble(const QString& value, double& target);
+    void adjustRelative(Sylabel* syl);
     void updateDataCache();
 
     static bool yesToAll, answeredToAll;
 
-    bool wellFormed = true;   //has no minor errors
+    //bool wellFormed = true;   //has no minor errors
     bool initialized = false; //has been initialized. Internal state!
-    bool valid = true;        //has no major errors
+    //bool valid = true;        //has no major errors that prevent playback (only ignorable ones)
     bool _golden = false;     //has golden notes
     bool _freestyle = false;  //has freestyle notes
     int _players = 0;         //stays 0 for simple file (TODO! This is not really implemented ATM!)
@@ -32,6 +33,7 @@ private:
     QPixmap _covPM;
     QMap<QString,QString> tags;
     QMap<QString,int> components;
+    QStringList errors, warnings, fatals;
     QMap<QString,int> agreedComponentCount;
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
     static QStringList _seenTags; //Static overview of all tags seen in all files
@@ -58,8 +60,8 @@ public:
     inline bool hasBG() const          { return hasTag("BACKGROUND"); }
     inline bool hasGoldenNotes() const { return _golden; }
     inline bool hasFreestyle() const   { return _freestyle; }
-    inline bool isValid() const        { return valid; }
-    inline bool isWellFormed() const   { return valid && wellFormed; }
+    inline bool isValid() const        { return fatals.size() == 0; }
+    inline bool isWellFormed() const   { return isValid() && warnings.size() == 0 && errors.size() == 0; }
 
     inline double bpm() const { return _bpm; }
     inline double gap() const { return _gap; }
