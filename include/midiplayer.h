@@ -6,18 +6,6 @@
 #include <drumstick.h>
 #include <midithread.h>
 
-//namespace drumstick {
-//    class QSmf;
-//    class QWrk;
-//    class QOve;
-//    class MidiClient;
-//    class MidiPort;
-//    class MidiQueue;
-//    class SequencerEvent;
-//}
-
-//using namespace drumstick;
-
 class MidiPlayer : public QObject
 {
     Q_OBJECT
