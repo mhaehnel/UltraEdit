@@ -33,7 +33,7 @@ private:
     QPixmap _covPM;
     QMap<QString,QString> tags;
     QMap<QString,int> components;
-    QStringList errors, warnings, fatals;
+    QStringList _errors, _warnings, _fatals;
     QMap<QString,int> agreedComponentCount;
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
     static QStringList _seenTags; //Static overview of all tags seen in all files
@@ -54,14 +54,17 @@ public:
     inline const QFileInfo& vid() const { return _vid; }
     inline const QFileInfo& cov() const { return _cov; }
     inline const QFileInfo& bg() const  { return _bg;  }
+    inline const QStringList& errors() const { return _errors; }
+    inline const QStringList& warnings() const { return _warnings; }
+    inline const QStringList& fatals() const { return _fatals; }
 
     inline bool hasVideo() const       { return hasTag("VIDEO"); }
     inline bool hasCover() const       { return hasTag("COVER"); }
     inline bool hasBG() const          { return hasTag("BACKGROUND"); }
     inline bool hasGoldenNotes() const { return _golden; }
     inline bool hasFreestyle() const   { return _freestyle; }
-    inline bool isValid() const        { return fatals.size() == 0; }
-    inline bool isWellFormed() const   { return isValid() && warnings.size() == 0 && errors.size() == 0; }
+    inline bool isValid() const        { return _fatals.size() == 0; }
+    inline bool isWellFormed() const   { return isValid() && _warnings.size() == 0 && _errors.size() == 0; }
 
     inline double bpm() const { return _bpm; }
     inline double gap() const { return _gap; }

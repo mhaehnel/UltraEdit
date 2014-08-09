@@ -16,12 +16,12 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
 {
     connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
     if (!source.exists()) {
-        fatals << "File" << source.filePath() << " does not exist! Unable to determine canonical path. Broken symlink?";
+        _fatals << "File" << source.filePath() << " does not exist! Unable to determine canonical path. Broken symlink?";
         return;
     }
     QFile ifile(source.canonicalFilePath());
     if (!ifile.open(QIODevice::ReadOnly)) {
-        fatals << "Could not open " << source.canonicalFilePath() << " for reading! Please check permissions.";
+        _fatals << "Could not open " << source.canonicalFilePath() << " for reading! Please check permissions.";
         return;
     }
     QTextStream in(&ifile);
@@ -34,7 +34,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
         if (line.trimmed().isEmpty()) continue;
         if (line.startsWith('#')) {
             if (endOfTags) {
-                errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
+                _errors << QString("%1 Tags after end of tags section. Discarding tag!").arg(lineNo);
                 continue;
             }
             line.remove(0,1);
@@ -44,7 +44,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
         } else if (line.contains(QRegExp("^[F*:-]"))) {
             endOfTags = true;
             if (_bpm == -1) {
-                fatals << "Contains no BPM!";
+                _fatals << "Contains no BPM!";
                 return;
             }
             Sylabel* syl = new Sylabel(line,curPlayer,this);
@@ -53,10 +53,10 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
             if (relativeSource()) adjustRelative(syl);
             connect(syl,&Sylabel::updated,this,&Song::updated);
             musicAndLyrics.append(syl);
-            if (syl->isBad()) errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
+            if (syl->isBad()) _errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
-                warnings << "Data beyond end of file!";
+                _warnings << "Data beyond end of file!";
                 break;
             }
         } else if (line.startsWith('P')) { //TODO: This is completely broken ATM.
@@ -74,21 +74,21 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
             curPlayer = newPlayer;
             _players = newPlayer;
         } else {
-           errors << QString("[%1] Line could not be interpreted!").arg(lineNo);
+           _errors << QString("[%1] Line could not be interpreted!").arg(lineNo);
         }
     }
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {
             if (s1->isLineBreak()) return true;
             if (s2->isLineBreak()) return false;
-            warnings << "This can not be. Two notes share the same beat";
+            _warnings << "This can not be. Two notes share the same beat";
         }
         return s1->beat() < s2->beat();
     });
     //Verify overlapping notes ...
     int last = 0;
     for (Sylabel* s : musicAndLyrics) {
-        if (s->beat() < last) warnings << QString("Sylabel at %1 overlaps with previous!").arg(s->beat());
+        if (s->beat() < last) _warnings << QString("Sylabel at %1 overlaps with previous!").arg(s->beat());
         last = s->beat();
         if (!s->isLineBreak())
             last += s->beats();
@@ -138,7 +138,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
             for (Sylabel* s : musicAndLyrics)
                 s->transpose(60);
         } else {
-            warnings << "This song seems very low!";
+            _warnings << "This song seems very low!";
         }
     }
 }
@@ -148,10 +148,10 @@ void Song::adjustRelative(Sylabel *syl) {
     syl->move(base);
     if (syl->isLineBreak()) {
         if (syl->type() != Sylabel::Type::LineBreak) {
-            fatals << "Can not convert relative file with single number linebreaks!";
+            _fatals << "Can not convert relative file with single number linebreaks!";
             return;
         }
-        if (base == 0) warnings << "Deprecated relative file converted.";
+        if (base == 0) _warnings << "Deprecated relative file converted.";
         base += syl->beats();
     }
 }
@@ -162,21 +162,21 @@ bool Song::relativeSource() const { //We will never write relative files.
 
 bool Song::setFile(QFileInfo &info,const QString& path) {
     info.setFile(_txt.dir(),path);
-    if (!info.exists()) warnings << QString("File %1 not found!").arg(path);
+    if (!info.exists()) _warnings << QString("File %1 not found!").arg(path);
     return info.exists();
 }
 
 bool Song::toDouble(const QString &value, double& target) {
     bool ok;
     target = QString(value).replace(",",".").toDouble(&ok);
-    if (!ok) errors << QString("%2 is not a double!").arg(value);
+    if (!ok) _errors << QString("%2 is not a double!").arg(value);
     return ok;
 }
 
 //This may fail when moving in Filesystem atm!
 bool Song::setTag(const QString &tag, const QString &value) {
     if (value.trimmed().isEmpty()) {
-        warnings << QString("Tag (\"%1\") without value! Skipping.").arg(tag);
+        _warnings << QString("Tag (\"%1\") without value! Skipping.").arg(tag);
         return false;
     }
     tags[tag] = value;

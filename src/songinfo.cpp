@@ -122,6 +122,13 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setText(s->tag("COVER"));
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
+        ui->songMessages->clear();
+        for (QString m : s->fatals())
+            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-error"),m));
+        for (QString m : s->errors())
+            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-warning"),m));
+        for (QString m : s->warnings())
+            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-information"),m));
         ui->rawData->setText(s->rawData());
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);

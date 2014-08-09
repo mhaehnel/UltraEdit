@@ -299,12 +299,22 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Messages</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QListWidget" name="songMessages"/>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="mediaTab">
         <attribute name="title">
          <string>Media</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
+        <layout class="QFormLayout" name="formLayout_4">
+         <item row="0" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <item>
             <widget class="QCheckBox" name="muteVideo">
@@ -318,7 +328,7 @@
            </item>
           </layout>
          </item>
-         <item>
+         <item row="1" column="0">
           <widget class="VideoWidget" name="videoWidget" native="true"/>
          </item>
         </layout>
