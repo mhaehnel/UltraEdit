@@ -88,7 +88,10 @@ void SongInfo::selectionChanged() {
         Song* s = selection->first()->song;
         ui->notes->setSong(s);
         midiPlayer.setSong(s);
-        videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
+        if (s->hasVideo())
+            videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
+        else
+            videoPlayer.setMedia(QMediaContent());
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
