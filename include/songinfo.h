@@ -35,7 +35,7 @@ private slots:
 
     void on_playNotes_toggled(bool checked);
 
-    void on_checkBox_2_toggled(bool checked);
+    void on_muteVideo_toggled(bool checked);
 
 signals:
     void seek(quint64 pos);

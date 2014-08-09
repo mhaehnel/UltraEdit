@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    ui->songDetails->pausePlayback();
     delete ui;
 }
 

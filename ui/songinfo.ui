@@ -307,7 +307,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_10">
            <item>
-            <widget class="QCheckBox" name="muteSong">
+            <widget class="QCheckBox" name="muteVideo">
              <property name="text">
               <string>Mute Video</string>
              </property>

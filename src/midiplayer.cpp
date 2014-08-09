@@ -15,14 +15,19 @@ MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
 }
 
 void MidiPlayer::play() {
+    ProgramChangeEvent ev(0,0);
+    ev.setSource(port->getPortId());
+    ev.setSubscribers();
+    ev.setDirect();
+    client.outputDirect(&ev);
     client.startSequencerInput();
     seq->start();
     queue->clear();
 }
 
 void MidiPlayer::stop() {
-    client.stopSequencerInput();
     seq->allNotesOff();
+    client.stopSequencerInput();
     seq->stop();
     queue->clear();
 }

@@ -41,7 +41,7 @@ SongInfo::SongInfo(QWidget *parent) :
     });
 
     videoPlayer.setVideoOutput(ui->videoWidget);
-    videoPlayer.setMuted(ui->muteSong);
+    videoPlayer.setMuted(ui->muteVideo);
     //ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
 }
 
@@ -176,7 +176,7 @@ void SongInfo::on_playNotes_toggled(bool checked)
     }
 }
 
-void SongInfo::on_checkBox_2_toggled(bool checked)
+void SongInfo::on_muteVideo_toggled(bool checked)
 {
     videoPlayer.setMuted(checked);
 }
