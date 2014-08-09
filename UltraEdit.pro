@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     notewidget.cpp \
     midiplayer.cpp \
     midithread.cpp \
-    videowidget.cpp
+    videowidget.cpp \
+    metronome.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -52,7 +53,8 @@ HEADERS  += mainwindow.h \
     midiplayer.h \
     midithread.h \
     sylabel.h \
-    videowidget.h
+    videowidget.h \
+    metronome.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

@@ -341,10 +341,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_4">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
+            <widget class="QCheckBox" name="playMetronome">
              <property name="text">
               <string>Play Metronome</string>
              </property>

@@ -52,6 +52,7 @@ SongInfo::~SongInfo()
 
 void SongInfo::setMidiPort(QString port) {
     midiPlayer.connect(port);
+    metronome.connect(port);
 }
 
 QStringList SongInfo::getMidiPorts() {
@@ -88,6 +89,7 @@ void SongInfo::selectionChanged() {
         Song* s = selection->first()->song;
         ui->notes->setSong(s);
         midiPlayer.setSong(s);
+        metronome.setSong(s);
         videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
@@ -151,18 +153,23 @@ void SongInfo::on_artist_textChanged(const QString &arg1)
 
 void SongInfo::seekTo(quint64 time) {
     midiPlayer.seek(time);
+    metronome.seek(time);
     videoPlayer.setPosition(time);
 }
 
 void SongInfo::pausePlayback() {
     if (ui->playNotes->isChecked())
         midiPlayer.stop();
+    if (ui->playMetronome->isChecked())
+        metronome.stop();
     videoPlayer.stop();
 }
 
 void SongInfo::startPlayback() {
     if (ui->playNotes->isChecked())
         midiPlayer.play();
+    if (ui->playMetronome->isChecked())
+        metronome.play();
     videoPlayer.play();
 }
 
@@ -170,6 +177,16 @@ void SongInfo::on_playNotes_toggled(bool checked)
 {
     if (!checked) {
         midiPlayer.stop();
+    } else {
+        emit pause();
+        emit play();
+    }
+}
+
+void SongInfo::on_playMetronome_toggled(bool checked)
+{
+    if (!checked) {
+        metronome.stop();
     } else {
         emit pause();
         emit play();

@@ -4,6 +4,7 @@
 #include "songframe.h"
 #include "midiplayer.h"
 #include <QWidget>
+#include <metronome.h>
 #include <QMediaPlayer>
 
 namespace Ui {
@@ -34,6 +35,7 @@ private slots:
     void highlightText(int from, int to);
 
     void on_playNotes_toggled(bool checked);
+    void on_playMetronome_toggled(bool checked);
 
     void on_muteVideo_toggled(bool checked);
 
@@ -45,6 +47,7 @@ signals:
 private:
     Ui::SongInfo *ui;
     MidiPlayer midiPlayer;
+    Metronome metronome;
     QMediaPlayer videoPlayer;
     QMetaObject::Connection conSylText;
     QMetaObject::Connection conSylLine;
