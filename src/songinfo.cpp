@@ -40,9 +40,10 @@ SongInfo::SongInfo(QWidget *parent) :
         ui->maxLine->setText(QString::number(count));
     });
 
+    ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
     videoPlayer.setVideoOutput(ui->videoWidget);
     videoPlayer.setMuted(ui->muteVideo);
-    //ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
+    ui->songChanged->hide();
 }
 
 SongInfo::~SongInfo()
@@ -81,7 +82,7 @@ void SongInfo::selectionChanged() {
     ui->edition->setEnabled(selection->size() >0);
     ui->editionLabel->setEnabled(selection->size() >0);
 
-    for (auto i : {conSylText, conSylLine, conSyl})
+    for (auto i : {conSylText, conSylLine, conSyl, conUpdate})
         this->disconnect(i);
 
     if (selection->size() == 1) { //TODO: Support mass edit
@@ -95,6 +96,10 @@ void SongInfo::selectionChanged() {
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
+        conUpdate = connect(s,&Song::updated,[this,s] {
+            ui->songChanged->setVisible(s->isModified());
+        });
+        ui->songChanged->setVisible(s->isModified());
     }
     selectionUpdated();
 }

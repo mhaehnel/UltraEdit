@@ -29,15 +29,16 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
     if (!ok) return;
     data.removeFirst();
     if (t == Type::SimpleLineBreak) {
+        int beats = 0;
         if (data.size() == 1) {
-            int beats = data[0].toInt(&ok);
+            beats = data[0].toInt(&ok);
             if (!ok) return;
             //Hacky, but should work. This note is a dummy and only holds the duration
             //of the newline. Due to the low pitch it should not be hearable.
-            _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
             data.removeFirst();
             t = Type::LineBreak;
         }
+        _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
         if (data.size() != 0) return;
         _t = t;
         return;
@@ -92,7 +93,7 @@ double Sylabel::time() const {
 }
 
 int Sylabel::beats() const {
-    if (isBad()) return 0;
+ if (isBad()) return 0;
  return _event->getDuration()*4/ppq;
 }
 

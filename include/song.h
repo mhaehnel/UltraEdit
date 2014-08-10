@@ -39,10 +39,13 @@ private:
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
     Validator* validator;
+    //No transform is used for internal comparison of files without checking for empty lines and so on
+    Song(const QFileInfo& source, Validator* val, const QString basePath, bool noTransform);
 public:
     Song(const QFileInfo& source, Validator* val, const QString basePath);
     Song(const Song&) = delete;
     Song operator=(const Song&) = delete;
+    bool operator==(const Song& rhs) const;
 
     bool addTag(const QString &tag, const QString& value);
     bool hasTag(const QString &tag) const;
@@ -72,6 +75,7 @@ public:
     bool missingVideo() const;
     bool missingBG() const;
     bool missingCover() const;
+    bool isModified() const;
     bool isMultiplayer() const;
     bool relativeSource() const;
     int players() const;

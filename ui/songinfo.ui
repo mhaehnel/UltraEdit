@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>700</width>
-    <height>509</height>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,46 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <widget class="QWidget" name="songChanged" native="true">
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: yellow</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;The song has been modified!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveSong">
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="revertSong">
+          <property name="text">
+           <string>Revert</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="enabled">
@@ -31,7 +70,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="generalTab">
         <attribute name="title">
@@ -313,22 +352,18 @@
         <attribute name="title">
          <string>Media</string>
         </attribute>
-        <layout class="QFormLayout" name="formLayout_4">
-         <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QCheckBox" name="muteVideo">
-             <property name="text">
-              <string>Mute Video</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QCheckBox" name="muteVideo">
+           <property name="text">
+            <string>Mute Video</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
-         <item row="1" column="0">
+         <item>
           <widget class="VideoWidget" name="videoWidget" native="true"/>
          </item>
         </layout>

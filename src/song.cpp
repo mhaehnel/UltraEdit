@@ -11,7 +11,13 @@ QPixmap* Song::_coverMissing = nullptr;
 bool Song::answeredToAll = false;
 bool Song::yesToAll;
 
-Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
+using namespace std::rel_ops;
+
+Song::Song(const QFileInfo &source, Validator *val, const QString basePath)
+    : Song(source,val,basePath,false)
+{}
+
+Song::Song(const QFileInfo& source, Validator* val, const QString basePath, bool noTransform) :
     _bpm(0), _gap(0), _basePath(basePath),  _txt(source), validator(val)
 {
     connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
@@ -50,7 +56,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
             Sylabel* syl = new Sylabel(line,curPlayer,this);
 
             //fix relative file ...
-            if (relativeSource()) adjustRelative(syl);
+            if (relativeSource() && !noTransform) adjustRelative(syl);
             connect(syl,&Sylabel::updated,this,&Song::updated);
             musicAndLyrics.append(syl);
             if (syl->isBad()) _errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
@@ -77,6 +83,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
            _errors << QString("[%1] Line could not be interpreted!").arg(lineNo);
         }
     }
+    if (relativeSource() && noTransform) return;
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {
             if (s1->isLineBreak()) return true;
@@ -107,7 +114,7 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
 
     if (avg < 30) {
         bool answer = false;
-        if (!answeredToAll) {
+        if (!answeredToAll && !noTransform) {
             int res = QMessageBox::question(nullptr,"Wrong base pitch",
                           QString("The song <b>%1</b> by <b>%2</b> seems to be set at a way too low average key of %3.\n"
                                   "The usual cause for this is that the song creator assumed that 0 equals to C-1 instead of C4."
@@ -132,9 +139,10 @@ Song::Song(const QFileInfo& source, Validator* val, const QString basePath) :
                     answer = false;
             }
         } else {
-            answer = yesToAll;
+            answer = (noTransform)?false:yesToAll;
         }
         if (answer) {
+            _warnings << "The song has been transposed by +5 octaves";
             for (Sylabel* s : musicAndLyrics)
                 s->transpose(60);
         } else {
@@ -179,16 +187,16 @@ bool Song::setTag(const QString &tag, const QString &value) {
         _warnings << QString("Tag (\"%1\") without value! Skipping.").arg(tag);
         return false;
     }
-    tags[tag] = value;
     if (tag == "MP3" && !setFile(_mp3,value)) return false;
     if (tag == "COVER" && !setFile(_cov,value)) return false;
     if (tag == "BACKGROUND" && !setFile(_bg,value))  return false;
     if (tag == "VIDEO" && !setFile(_vid,value)) return false;
     if (tag == "BPM" && !toDouble(value,_bpm)) return false;
     if (tag == "GAP" && !toDouble(value,_gap)) return false;
-    emit updated();
+    tags[tag] = value;
 
     if (initialized) {
+        emit updated();
         if (validator->isPathTag(tag)) {
             //We only do this if initialization went well!
             //check if we need reselection of path (due to changed variable tag)
@@ -362,4 +370,16 @@ void Song::playing(int ms) {
         }
         from += s->text().length();
     }
+}
+
+bool Song::isModified() const {
+    Song orig(_txt,validator,basePath(),true);
+    return (orig != *this);
+}
+
+bool Song::operator==(const Song& rhs) const {
+    if (rhs.musicAndLyrics.size() != musicAndLyrics.size()) return false;
+    for (int i = 0; i < rhs.musicAndLyrics.size(); i++)
+        if (*(rhs.musicAndLyrics[i]) != *(musicAndLyrics[i])) return false;
+    return rhs.tags == tags;
 }

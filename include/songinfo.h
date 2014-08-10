@@ -46,9 +46,7 @@ private:
     Ui::SongInfo *ui;
     MidiPlayer midiPlayer;
     QMediaPlayer videoPlayer;
-    QMetaObject::Connection conSylText;
-    QMetaObject::Connection conSylLine;
-    QMetaObject::Connection conSyl;
+    QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;
     QList<SongFrame*> *selection;
 };
 
