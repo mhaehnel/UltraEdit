@@ -4,7 +4,7 @@
 #include <QDebug>
 
 SongInfo::SongInfo(QWidget *parent) :
-    QWidget(parent), ui(new Ui::SongInfo)
+    QWidget(parent), ui(std::make_unique<Ui::SongInfo>())
 {
     ui->setupUi(this);
     connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
@@ -46,10 +46,7 @@ SongInfo::SongInfo(QWidget *parent) :
     ui->songChanged->hide();
 }
 
-SongInfo::~SongInfo()
-{
-    delete ui;
-}
+SongInfo::~SongInfo() {}
 
 void SongInfo::setMidiPort(QString port) {
     midiPlayer.connect(port);

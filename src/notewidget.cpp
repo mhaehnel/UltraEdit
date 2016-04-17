@@ -14,7 +14,7 @@
 QByteArray NoteWidget::gclef, NoteWidget::fclef, NoteWidget::sharp, NoteWidget::natural;
 
 NoteWidget::NoteWidget(QWidget *parent) :
-    QWidget(parent), ui(new Ui::NoteWidget), maxKey(0), minKey(0), currentLine(0)
+    QWidget(parent), ui(std::make_unique<Ui::NoteWidget>()), maxKey(0), minKey(0), currentLine(0)
 {
     loadSVG(":/images/gclef.svg",gclef);
     loadSVG(":/images/fclef.svg",fclef);
@@ -31,10 +31,7 @@ NoteWidget::NoteWidget(QWidget *parent) :
     });
 }
 
-NoteWidget::~NoteWidget()
-{
-    delete ui;
-}
+NoteWidget::~NoteWidget() {}
 
 void NoteWidget::loadSVG(QString file, QByteArray& target) {
     if (!target.isEmpty()) return;

@@ -5,7 +5,7 @@
 
 ValidatorSettings::ValidatorSettings(QSettings& settings, QList<Song*> *songs, QWidget *parent) :
     QDialog(parent), s(settings),
-    ui(new Ui::ValidatorSettings), songs(songs)
+    ui(std::make_unique<Ui::ValidatorSettings>()), songs(songs)
 {
     ui->setupUi(this);
     sample = new SongFrame(songs->at(qrand()%songs->size()));
@@ -16,7 +16,6 @@ ValidatorSettings::ValidatorSettings(QSettings& settings, QList<Song*> *songs, Q
 ValidatorSettings::~ValidatorSettings()
 {
     s.setValue("dirFormat",ui->dirFormat->text());
-    delete ui;
 }
 
 void ValidatorSettings::on_pushButton_clicked()

@@ -1,6 +1,7 @@
 #ifndef SONGFRAME_H
 #define SONGFRAME_H
 
+#include <memory>
 #include "song.h"
 #include <QFrame>
 #include <QMouseEvent>
@@ -17,7 +18,7 @@ public:
     Song *const song;
     explicit SongFrame(Song* song, QWidget *parent = 0);
 
-    ~SongFrame();
+    virtual ~SongFrame();
 
 protected:
     void mousePressEvent(QMouseEvent *ev);
@@ -34,7 +35,7 @@ private slots:
     void on_playMedia_clicked();
 
 private:
-    Ui::songframe *ui;
+    std::unique_ptr<Ui::songframe> ui;
     void markMissing(QPixmap &pm);
     void markNo(QPixmap &pm);
 };

@@ -8,7 +8,7 @@ QT       += core gui concurrent multimedia svg multimediawidgets
 
 LIBS += -ldrumstick-alsa
 
-CONFIG += c++11
+CONFIG += c++14
 
 QMAKE_CXXFLAGS_DEBUG += -pg -Wall -pedantic -Werror -Wextra
 QMAKE_LFLAGS_DEBUG += -pg

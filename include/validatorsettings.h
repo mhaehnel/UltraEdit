@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QSettings>
 #include "songframe.h"
+#include <memory>
 
 namespace Ui {
 class ValidatorSettings;
@@ -30,7 +31,7 @@ private slots:
     void on_comboBox_currentIndexChanged(int);
 
 private:
-    Ui::ValidatorSettings *ui;
+    std::unique_ptr<Ui::ValidatorSettings> ui;
     SongFrame *sample;
     QList<Song*> *songs;
 };

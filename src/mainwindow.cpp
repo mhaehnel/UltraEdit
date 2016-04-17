@@ -16,7 +16,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
-    ui(new Ui::MainWindow),
+    ui(std::make_unique<Ui::MainWindow>()),
   config("MH-Development","UltraEdit")
 {
     //Initialize
@@ -51,10 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     ui->songDetails->pausePlayback();
-    delete ui;
 }
 
 void MainWindow::rescanCollection() {

@@ -5,7 +5,7 @@
 
 PathInstanceSelector::PathInstanceSelector(QStringList& choice, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PathInstanceSelector)
+    ui(std::make_unique<Ui::PathInstanceSelector>())
 {
     ui->setupUi(this);
     assert(choice.size() != 0);
@@ -40,7 +40,6 @@ PathInstanceSelector::~PathInstanceSelector()
 {
     QLayoutItem* li;
     while ( (li = ui->fewChoices->itemAt(0)) != nullptr) delete li->widget();
-    delete ui;
 }
 
 void PathInstanceSelector::on_buttonBox_accepted()

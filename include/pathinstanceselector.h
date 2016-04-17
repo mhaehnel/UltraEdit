@@ -2,6 +2,7 @@
 #define PATHINSTANCESELECTOR_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui {
 class PathInstanceSelector;
@@ -14,14 +15,14 @@ class PathInstanceSelector : public QDialog
 public:
     explicit PathInstanceSelector(QStringList& choice, QWidget *parent = 0);
     const QString& getSelected() { return selectedText; }
-    ~PathInstanceSelector();
+    virtual ~PathInstanceSelector();
 
 private slots:
     void on_buttonBox_accepted();
 
 private:
     QString selectedText;
-    Ui::PathInstanceSelector *ui;
+    std::unique_ptr<Ui::PathInstanceSelector> ui;
 };
 
 #endif // PATHINSTANCESELECTOR_H

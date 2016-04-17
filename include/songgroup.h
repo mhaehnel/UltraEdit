@@ -1,6 +1,7 @@
 #ifndef SONGGROUP_H
 #define SONGGROUP_H
 
+#include <memory>
 #include <QFrame>
 
 namespace Ui {
@@ -16,7 +17,7 @@ public:
     ~SongGroup();
     QLayout& layout();
 private:
-    Ui::SongGroup *ui;
+    std::unique_ptr<Ui::SongGroup> ui;
 };
 
 #endif // SONGGROUP_H

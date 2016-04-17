@@ -5,6 +5,7 @@
 #include "midiplayer.h"
 #include <QWidget>
 #include <QMediaPlayer>
+#include <memory>
 
 namespace Ui {
 class SongInfo;
@@ -17,7 +18,7 @@ class SongInfo : public QWidget
 public:
     explicit SongInfo(QWidget *parent = 0);
     QStringList getMidiPorts();
-    ~SongInfo();
+    virtual ~SongInfo();
 
 public slots:
     void setSelection(QList<SongFrame*> *selected);
@@ -43,7 +44,7 @@ signals:
     void pause();
 
 private:
-    Ui::SongInfo *ui;
+    std::unique_ptr<Ui::SongInfo> ui;
     MidiPlayer midiPlayer;
     QMediaPlayer videoPlayer;
     QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;

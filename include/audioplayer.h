@@ -5,6 +5,7 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <song.h>
+#include <memory>
 
 namespace Ui {
 class AudioPlayer;
@@ -16,7 +17,7 @@ class AudioPlayer : public QFrame
 
 public:
     explicit AudioPlayer(QWidget *parent = 0);
-    ~AudioPlayer();
+    virtual ~AudioPlayer();
 
 signals:
     void started();
@@ -36,7 +37,7 @@ private slots:
 
 private:
     Song* _song;
-    Ui::AudioPlayer *ui;
+    std::unique_ptr<Ui::AudioPlayer> ui;
     QMediaPlayer player;
     QMediaPlaylist pl;
 };

@@ -4,7 +4,7 @@
 
 AudioPlayer::AudioPlayer(QWidget *parent) :
     QFrame(parent), _song(nullptr),
-    ui(new Ui::AudioPlayer), pl(&player)
+    ui(std::make_unique<Ui::AudioPlayer>()), pl(&player)
 {
     ui->setupUi(this);
     ui->songTimePassed->display("00:00");
@@ -49,14 +49,11 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
     connect(&player,&QMediaPlayer::durationChanged,[this] (qint64 dur) { ui->songPos->setRange(0,dur); });
 }
 
-AudioPlayer::~AudioPlayer()
-{
-    delete ui;
-}
-
 void AudioPlayer::seek(quint64 pos) {
     player.setPosition(pos);
 }
+
+AudioPlayer::~AudioPlayer() {}
 
 void AudioPlayer::stop() { player.stop(); }
 void AudioPlayer::play() { player.play(); }

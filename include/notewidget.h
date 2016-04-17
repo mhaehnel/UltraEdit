@@ -1,6 +1,7 @@
 #ifndef NOTEWIDGET_H
 #define NOTEWIDGET_H
 
+#include <memory>
 #include <QWidget>
 #include "sylabel.h"
 #include <QList>
@@ -20,7 +21,7 @@ public:
     explicit NoteWidget(QWidget *parent = 0);
     inline int line() const { return currentLine; }
     inline int lines() const { return _notes.size(); }
-    ~NoteWidget();
+    virtual ~NoteWidget();
 
 signals:
     void lineCount(int count);
@@ -50,7 +51,7 @@ private:
     void transpose(int steps);
     bool keepLine = false;
     bool keepSylabel = false;
-    Ui::NoteWidget *ui;
+    std::unique_ptr<Ui::NoteWidget> ui;
     unsigned char maxKey, minKey;
     int startBeat, totalBeats;
     Sylabel* currentNote;

@@ -8,6 +8,7 @@
 #include "songgroup.h"
 #include <QThread>
 #include <QProgressBar>
+#include <memory>
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    virtual ~MainWindow();
 
 signals:
     void selectionChanged();
@@ -49,7 +50,7 @@ private:
     QList<SongFrame*> selectedFrames, songFrames;
     QMap<QString,QList<SongFrame*>> groupedFrames;
     QMap<QString,SongGroup*> songGroups;
-    Ui::MainWindow *ui;
+    std::unique_ptr<Ui::MainWindow> ui;
     QSettings config;
     QProgressBar statusProgress;
 };

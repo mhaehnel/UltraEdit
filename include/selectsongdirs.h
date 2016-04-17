@@ -2,6 +2,7 @@
 #define SELECTSONGDIRS_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui {
 class SelectSongDirs;
@@ -13,7 +14,7 @@ class SelectSongDirs : public QDialog
 
 public:
     explicit SelectSongDirs(QWidget *parent = 0);
-    ~SelectSongDirs();
+    virtual ~SelectSongDirs();
 
     void setPaths(QStringList paths);
     QStringList getPaths() const;
@@ -24,7 +25,7 @@ private slots:
     void on_pushButton_2_clicked();
 
 private:
-    Ui::SelectSongDirs *ui;
+    std::unique_ptr<Ui::SelectSongDirs> ui;
     bool _changed;
 };
 
