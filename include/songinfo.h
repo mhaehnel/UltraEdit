@@ -1,6 +1,4 @@
-#ifndef SONGINFO_H
-#define SONGINFO_H
-
+#pragma once
 #include "songframe.h"
 #include "midiplayer.h"
 #include <QWidget>
@@ -50,5 +48,3 @@ private:
     QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;
     QList<SongFrame*> *selection;
 };
-
-#endif // SONGINFO_H

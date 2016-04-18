@@ -1,6 +1,4 @@
-#ifndef NOTEWIDGET_H
-#define NOTEWIDGET_H
-
+#pragma once
 #include <memory>
 #include <QWidget>
 #include "sylabel.h"
@@ -64,5 +62,3 @@ private:
     QSet<Sylabel::Note> sharpies;
     QSet<Sylabel::Note> someSharpies;
 };
-
-#endif // NOTEWIDGET_H

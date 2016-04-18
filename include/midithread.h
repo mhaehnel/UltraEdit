@@ -1,6 +1,4 @@
-#ifndef MIDITHREAD_H
-#define MIDITHREAD_H
-
+#pragma once
 #include <drumstick/playthread.h>
 #include <QMutex>
 
@@ -33,5 +31,3 @@ signals:
 public slots:
 
 };
-
-#endif // MIDITHREAD_H

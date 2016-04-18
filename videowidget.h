@@ -1,6 +1,4 @@
-#ifndef VIDEOWIDGET_H
-#define VIDEOWIDGET_H
-
+#pragma once
 #include <QVideoWidget>
 
 class VideoWidget : public QVideoWidget
@@ -15,5 +13,3 @@ signals:
 public slots:
 
 };
-
-#endif // VIDEOWIDGET_H

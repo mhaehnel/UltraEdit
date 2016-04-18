@@ -1,6 +1,4 @@
-#ifndef SONG_H
-#define SONG_H
-
+#pragma once
 #include <QFileInfo>
 #include <QMap>
 #include <QPixmap>
@@ -100,5 +98,3 @@ signals:
 public slots:
     void playing(int ms);
 };
-
-#endif // SONG_H

@@ -1,6 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QMainWindow>
 #include <QSettings>
 #include "song.h"
@@ -54,5 +52,3 @@ private:
     QSettings config;
     QProgressBar statusProgress;
 };
-
-#endif // MAINWINDOW_H

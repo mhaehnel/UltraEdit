@@ -1,6 +1,4 @@
-#ifndef PATHINSTANCESELECTOR_H
-#define PATHINSTANCESELECTOR_H
-
+#pragma once
 #include <QDialog>
 #include <memory>
 
@@ -24,5 +22,3 @@ private:
     QString selectedText;
     std::unique_ptr<Ui::PathInstanceSelector> ui;
 };
-
-#endif // PATHINSTANCESELECTOR_H

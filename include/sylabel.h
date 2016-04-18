@@ -1,6 +1,4 @@
-#ifndef SYLABEL_H
-#define SYLABEL_H
-
+#pragma once
 #include <QObject>
 #include <QString>
 #include <QHash>
@@ -70,5 +68,3 @@ private:
 inline uint qHash(const Sylabel::Note &n) {
     return qHash(static_cast<std::underlying_type<Sylabel::Note>::type>(n));
 }
-
-#endif // SYLABEL_H

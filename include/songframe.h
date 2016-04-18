@@ -1,6 +1,4 @@
-#ifndef SONGFRAME_H
-#define SONGFRAME_H
-
+#pragma once
 #include <memory>
 #include "song.h"
 #include <QFrame>
@@ -39,5 +37,3 @@ private:
     void markMissing(QPixmap &pm);
     void markNo(QPixmap &pm);
 };
-
-#endif // SONGFRAME_H

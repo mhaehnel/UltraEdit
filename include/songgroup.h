@@ -1,6 +1,4 @@
-#ifndef SONGGROUP_H
-#define SONGGROUP_H
-
+#pragma once
 #include <memory>
 #include <QFrame>
 
@@ -19,5 +17,3 @@ public:
 private:
     std::unique_ptr<Ui::SongGroup> ui;
 };
-
-#endif // SONGGROUP_H

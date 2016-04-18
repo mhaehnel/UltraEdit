@@ -1,6 +1,4 @@
-#ifndef VALIDATORSETTINGS_H
-#define VALIDATORSETTINGS_H
-
+#pragma once
 #include <QDialog>
 #include <QSettings>
 #include "songframe.h"
@@ -35,5 +33,3 @@ private:
     SongFrame *sample;
     QList<Song*> *songs;
 };
-
-#endif // VALIDATORSETTINGS_H

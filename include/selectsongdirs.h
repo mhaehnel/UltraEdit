@@ -1,6 +1,4 @@
-#ifndef SELECTSONGDIRS_H
-#define SELECTSONGDIRS_H
-
+#pragma once
 #include <QDialog>
 #include <memory>
 
@@ -28,5 +26,3 @@ private:
     std::unique_ptr<Ui::SelectSongDirs> ui;
     bool _changed;
 };
-
-#endif // SELECTSONGDIRS_H

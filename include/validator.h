@@ -1,6 +1,4 @@
-#ifndef VALIDATOR_H
-#define VALIDATOR_H
-
+#pragma once
 #include <QSettings>
 #include <QString>
 #include "song.h"
@@ -36,5 +34,3 @@ private:
 
     friend class ValidatorSettings;
 };
-
-#endif // VALIDATOR_H

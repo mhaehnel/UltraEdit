@@ -1,6 +1,4 @@
-#ifndef AUDIOPLAYER_H
-#define AUDIOPLAYER_H
-
+#pragma once
 #include <QFrame>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
@@ -41,5 +39,3 @@ private:
     QMediaPlayer player;
     QMediaPlaylist pl;
 };
-
-#endif // AUDIOPLAYER_H

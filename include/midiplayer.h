@@ -1,6 +1,4 @@
-#ifndef MIDIPLAYER_H
-#define MIDIPLAYER_H
-
+#pragma once
 #include <QObject>
 #include "song.h"
 #include <drumstick.h>
@@ -31,5 +29,3 @@ public slots:
     void stop();
 
 };
-
-#endif // MIDIPLAYER_H
