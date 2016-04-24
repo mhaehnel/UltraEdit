@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     notewidget.cpp \
     midiplayer.cpp \
     midithread.cpp \
-    src/videowidget.cpp
+    src/videowidget.cpp \
+    src/exceptions/songparseexception.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -48,7 +49,9 @@ HEADERS  += mainwindow.h \
     midiplayer.h \
     midithread.h \
     sylabel.h \
-    include/videowidget.h
+    include/videowidget.h \
+    include/exceptions/songparseexception.h \
+    include/actions/action.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
