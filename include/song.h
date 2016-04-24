@@ -40,8 +40,9 @@ private:
     Song(const QFileInfo& source, const QString basePath, bool noTransform);
 public:
     Song(const QFileInfo& source, const QString basePath);
-    Song(const Song&) = delete;
-    Song operator=(const Song&) = delete;
+    Song(const Song&) = delete; //Songs should not be copyable
+
+    Song& operator=(const Song&) = delete;
     bool operator==(const Song& rhs) const;
 
     bool addTag(const QString &tag, const QString& value);
