@@ -2,7 +2,6 @@
 #include <QSemaphore>
 #include "mainwindow.h"
 #include "selectsongdirs.h"
-#include "validatorsettings.h"
 #include "ui_mainwindow.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
@@ -10,7 +9,6 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
-#include <validator.h>
 #include <QProgressDialog>
 #include <QInputDialog>
 
@@ -104,7 +102,7 @@ bool MainWindow::filter(const Song *song) {
     if (!filterState(ui->hasBackground,std::bind(&Song::hasBG,song))) return false;
     if (!filterState(ui->hasVideo,std::bind(&Song::hasVideo,song))) return false;
     if (!filterState(ui->wellFormed,std::bind(&Song::isWellFormed,song))) return false;
-    if (!filterState(ui->isValid,std::bind(&Song::isValid,song))) return false;
+//TODO:    if (!filterState(ui->isValid,std::bind(&Song::isValid,song))) return false;
     if (!filterState(ui->missingMP3File,[&song] { return !song->mp3().exists(); })) return false;
 
     if (!ui->titleFilter->text().isEmpty() && !song->title().contains(ui->titleFilter->text(),Qt::CaseInsensitive)) return false;
@@ -250,15 +248,9 @@ void MainWindow::addSong(Song *song) {
     songFrames.append(sf);
     sf->connect(sf,&SongFrame::clicked,this,&MainWindow::selectFrame);
     sf->connect(sf,&SongFrame::playSong,[this,sf] (Song* ) { if (!selectedFrames.contains(sf)) selectFrame(sf); ui->musicPlayer->play(); });
-    if (!song->isValid()) invalidCount++;
-    if (!song->isWellFormed() && song->isValid()) notWellFormedCount++;
+    //TODO: if (!song->isValid()) invalidCount++;
+    if (!song->isWellFormed()) notWellFormedCount++;
     statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));
-}
-
-void MainWindow::on_actionChecker_Settings_triggered()
-{
-    ValidatorSettings val(config,&songList);
-    val.exec();
 }
 
 void MainWindow::on_actionSources_triggered()

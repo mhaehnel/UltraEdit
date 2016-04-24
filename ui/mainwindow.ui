@@ -69,8 +69,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>293</width>
-              <height>184</height>
+              <width>282</width>
+              <height>220</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -204,8 +204,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>198</width>
-              <height>272</height>
+              <width>189</width>
+              <height>286</height>
              </rect>
             </property>
             <attribute name="label">
@@ -319,8 +319,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>294</width>
-              <height>285</height>
+              <width>281</width>
+              <height>252</height>
              </rect>
             </property>
             <attribute name="label">
@@ -411,7 +411,7 @@
          <item>
           <widget class="QGroupBox" name="groupList">
            <property name="title">
-            <string>Group by</string>
+            <string>&amp;Group by</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -450,8 +450,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>368</width>
-          <height>389</height>
+          <width>387</width>
+          <height>384</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -483,22 +483,21 @@
      <x>0</x>
      <y>0</y>
      <width>836</width>
-     <height>19</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
     <property name="title">
-     <string>FIle</string>
+     <string>Fi&amp;le</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>Settings</string>
+     <string>Setti&amp;ngs</string>
     </property>
     <addaction name="actionSources"/>
-    <addaction name="actionChecker_Settings"/>
     <addaction name="actionMidi_Output"/>
    </widget>
    <addaction name="menuFIle"/>
@@ -516,11 +515,10 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset theme="application-exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -529,24 +527,18 @@
   <action name="actionSources">
    <property name="icon">
     <iconset theme="folder">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Songdirs ...</string>
+    <string>&amp;Songdirs ...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionChecker_Settings">
-   <property name="text">
-    <string>Validator ...</string>
-   </property>
-  </action>
   <action name="actionMidi_Output">
    <property name="text">
-    <string>Midi Output ...</string>
+    <string>&amp;Midi Output ...</string>
    </property>
   </action>
  </widget>

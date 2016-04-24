@@ -32,7 +32,6 @@ private slots:
     void resortList();
     void selectFrame(SongFrame* sf);
 
-    void on_actionChecker_Settings_triggered();
     void on_actionSources_triggered();
 
     void on_actionMidi_Output_triggered();

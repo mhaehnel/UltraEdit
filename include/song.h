@@ -31,13 +31,13 @@ private:
     QPixmap _covPM;
     QMap<QString,QString> tags;
     QMap<QString,int> components;
-    QStringList _errors, _warnings, _fatals;
+    QStringList _errors, _warnings; //, _fatals;
     QMap<QString,int> agreedComponentCount;
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
     //No transform is used for internal comparison of files without checking for empty lines and so on
-    Song(const QFileInfo& source, const QString basePath, bool noTransform);
+//    Song(const QFileInfo& source, const QString basePath, bool noTransform);
 public:
     Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete; //Songs should not be copyable
@@ -57,15 +57,13 @@ public:
     inline const QFileInfo& bg() const  { return _bg;  }
     inline const QStringList& errors() const { return _errors; }
     inline const QStringList& warnings() const { return _warnings; }
-    inline const QStringList& fatals() const { return _fatals; }
 
     inline bool hasVideo() const       { return hasTag("VIDEO"); }
     inline bool hasCover() const       { return hasTag("COVER"); }
     inline bool hasBG() const          { return hasTag("BACKGROUND"); }
     inline bool hasGoldenNotes() const { return _golden; }
     inline bool hasFreestyle() const   { return _freestyle; }
-    inline bool isValid() const        { return _fatals.size() == 0; }
-    inline bool isWellFormed() const   { return isValid() && _warnings.size() == 0 && _errors.size() == 0; }
+    inline bool isWellFormed() const   { return _warnings.isEmpty() && _errors.isEmpty(); }
 
     inline double bpm() const { return _bpm; }
     inline double gap() const { return _gap; }
@@ -73,7 +71,7 @@ public:
     bool missingVideo() const;
     bool missingBG() const;
     bool missingCover() const;
-    bool isModified() const;
+ //   bool isModified() const;
     bool isMultiplayer() const;
     bool relativeSource() const;
     int players() const;

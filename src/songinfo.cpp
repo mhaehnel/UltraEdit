@@ -93,10 +93,11 @@ void SongInfo::selectionChanged() {
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
-        conUpdate = connect(s,&Song::updated,[this,s] {
+/*TODO: FIx this
+          conUpdate = connect(s,&Song::updated,[this,s] {
             ui->songChanged->setVisible(s->isModified());
         });
-        ui->songChanged->setVisible(s->isModified());
+        ui->songChanged->setVisible(s->isModified());*/
     }
     selectionUpdated();
 }
@@ -125,8 +126,8 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
         ui->songMessages->clear();
-        for (QString m : s->fatals())
-            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-error"),m));
+//TODO:        for (QString m : s->fatals())
+//            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-error"),m));
         for (QString m : s->errors())
             ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-warning"),m));
         for (QString m : s->warnings())

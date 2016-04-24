@@ -1,8 +1,10 @@
 #include "song.h"
-#include "validator.h"
 #include <pathinstanceselector.h>
 #include <QMessageBox>
 #include "sylabel.h"
+
+
+#include <exceptions/songparseexception.h>
 
 QStringList Song::_seenTags;
 QPixmap* Song::_noCover = nullptr;
@@ -13,23 +15,20 @@ bool Song::yesToAll;
 
 using namespace std::rel_ops;
 
-Song::Song(const QFileInfo &source, const QString basePath)
-    : Song(source,basePath,false)
-{}
-
-Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
+Song::Song(const QFileInfo& source,const QString basePath) :
     _bpm(0), _gap(0), _basePath(basePath),  _txt(source)
 {
-    connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
-    if (!source.exists()) {
-        _fatals << "File" << source.filePath() << " does not exist! Unable to determine canonical path. Broken symlink?";
-        return;
-    }
+    using Reason = SongParseException::Reason;
+
+    if (!source.exists())
+        throw SongParseException(source.fileName(),Reason::FileDoesNotExist);
+
     QFile ifile(source.canonicalFilePath());
-    if (!ifile.open(QIODevice::ReadOnly)) {
-        _fatals << "Could not open " << source.canonicalFilePath() << " for reading! Please check permissions.";
-        return;
-    }
+    if (!ifile.open(QIODevice::ReadOnly))
+        throw SongParseException(source.fileName(),Reason::PermissionDenied);
+
+    connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
+
     QTextStream in(&ifile);
     bool endOfTags = false;
     int lineNo = 0;
@@ -50,13 +49,15 @@ Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
         } else if (line.contains(QRegExp("^[F*:-]"))) {
             endOfTags = true;
             if (_bpm == -1) {
-                _fatals << "Contains no BPM!";
-                return;
+                _errors << "Contains no BPM!";
+                //TODO: does this have implications? We should check in the users if
+                //this is -1 and then say that its unplayable maybe? Or use an unplayable member
+                //return;
             }
             Sylabel* syl = new Sylabel(line,curPlayer,this);
 
             //fix relative file ...
-            if (relativeSource() && !noTransform) adjustRelative(syl);
+            //TODO: write actionItem if (relativeSource() && !noTransform) adjustRelative(syl);
             connect(syl,&Sylabel::updated,this,&Song::updated);
             musicAndLyrics.append(syl);
             if (syl->isBad()) _errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
@@ -83,7 +84,7 @@ Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
            _errors << QString("[%1] Line could not be interpreted!").arg(lineNo);
         }
     }
-    if (relativeSource() && noTransform) return;
+    //if (relativeSource() && noTransform) return;
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {
             if (s1->isLineBreak()) return true;
@@ -102,16 +103,12 @@ Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
     }
     //we fixed it, which can be seen by the warning. So it's no longer relative
     if (relativeSource()) tags.remove("RELATIVE");
-
-    initialized = true;
-    if (!isValid()) return;
-
     int avg = 0;
     for (Sylabel* s : musicAndLyrics)
         if (!s->isLineBreak())
             avg += static_cast<signed char>(s->key());
     avg/=musicAndLyrics.size();
-
+/*TODO: Move to actionItem
     if (avg < 30) {
         bool answer = false;
         if (!answeredToAll && !noTransform) {
@@ -148,9 +145,9 @@ Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
         } else {
             _warnings << "This song seems very low!";
         }
-    }
+    }*/
 }
-
+/*TODO: This will move to the fix action
 void Song::adjustRelative(Sylabel *syl) {
     static int base = 0;
     syl->move(base);
@@ -163,6 +160,7 @@ void Song::adjustRelative(Sylabel *syl) {
         base += syl->beats();
     }
 }
+*/
 
 bool Song::relativeSource() const { //We will never write relative files.
     return tags.contains("RELATIVE") && tags["RELATIVE"].toUpper().trimmed() == "YES";
@@ -288,7 +286,6 @@ bool Song::missingCover() const {
 
 QString Song::title() const
 {
-    if (!isValid()) return _txt.path();
     return tags["TITLE"];
 }
 QString Song::artist() const {
@@ -349,10 +346,11 @@ void Song::playing(int ms) {
     }
 }
 
+/*TODO: Fix this?
 bool Song::isModified() const {
     Song orig(_txt,basePath(),true);
     return (orig != *this);
-}
+}*/
 
 bool Song::operator==(const Song& rhs) const {
     if (rhs.musicAndLyrics.size() != musicAndLyrics.size()) return false;
