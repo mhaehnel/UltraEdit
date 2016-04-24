@@ -13,12 +13,12 @@ bool Song::yesToAll;
 
 using namespace std::rel_ops;
 
-Song::Song(const QFileInfo &source, Validator *val, const QString basePath)
-    : Song(source,val,basePath,false)
+Song::Song(const QFileInfo &source, const QString basePath)
+    : Song(source,basePath,false)
 {}
 
-Song::Song(const QFileInfo& source, Validator* val, const QString basePath, bool noTransform) :
-    _bpm(0), _gap(0), _basePath(basePath),  _txt(source), validator(val)
+Song::Song(const QFileInfo& source,const QString basePath, bool noTransform) :
+    _bpm(0), _gap(0), _basePath(basePath),  _txt(source)
 {
     connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
     if (!source.exists()) {
@@ -197,29 +197,6 @@ bool Song::setTag(const QString &tag, const QString &value) {
 
     if (initialized) {
         emit updated();
-        if (validator->isPathTag(tag)) {
-            //We only do this if initialization went well!
-            //check if we need reselection of path (due to changed variable tag)
-            //Moving is tbd ...TODO!
-            if (0 && validator->isVariable(tag)) {
-                qWarning() << "Current TXT path: " << _txt.absoluteFilePath().remove(0,_basePath.length());
-                QStringList choice = validator->possiblePaths(this,Validator::Type::TXT);
-                qWarning() << "Updated TXT path: " << choice;
-                assert(choice.size() >= 1);
-                QString sel;
-                if (choice.size() == 1) {
-                    sel = choice.first();
-                } else {
-                    PathInstanceSelector pis(choice);
-                    if (pis.exec() == QDialog::Accepted) {
-                        sel = pis.getSelected();
-                        qWarning() << "Chosen path: " << pis.getSelected();
-                    } else {
-                        qWarning() << "Abort not possible at the moment!"; //TODO
-                    }
-                }
-            }
-        }
     }
     return true;
 }
@@ -373,7 +350,7 @@ void Song::playing(int ms) {
 }
 
 bool Song::isModified() const {
-    Song orig(_txt,validator,basePath(),true);
+    Song orig(_txt,basePath(),true);
     return (orig != *this);
 }
 

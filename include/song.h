@@ -36,11 +36,10 @@ private:
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
-    Validator* validator;
     //No transform is used for internal comparison of files without checking for empty lines and so on
-    Song(const QFileInfo& source, Validator* val, const QString basePath, bool noTransform);
+    Song(const QFileInfo& source, const QString basePath, bool noTransform);
 public:
-    Song(const QFileInfo& source, Validator* val, const QString basePath);
+    Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete;
     Song operator=(const Song&) = delete;
     bool operator==(const Song& rhs) const;

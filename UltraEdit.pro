@@ -29,14 +29,12 @@ SOURCES += main.cpp\
     songframe.cpp \
     songgroup.cpp \
     audioplayer.cpp \
-    validatorsettings.cpp \
-    validator.cpp \
     pathinstanceselector.cpp \
     sylabel.cpp \
     notewidget.cpp \
     midiplayer.cpp \
     midithread.cpp \
-    videowidget.cpp
+    src/videowidget.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -45,14 +43,12 @@ HEADERS  += mainwindow.h \
     songframe.h \
     songgroup.h \
     audioplayer.h \
-    validatorsettings.h \
-    validator.h \
     pathinstanceselector.h \
     notewidget.h \
     midiplayer.h \
     midithread.h \
     sylabel.h \
-    videowidget.h
+    include/videowidget.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

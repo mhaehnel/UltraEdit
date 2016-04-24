@@ -17,7 +17,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
     ui(std::make_unique<Ui::MainWindow>()),
-  config("MH-Development","UltraEdit")
+    config("MH-Development","UltraEdit")
 {
     //Initialize
     ui->setupUi(this);
@@ -62,13 +62,12 @@ void MainWindow::rescanCollection() {
     qDebug() << "Go ahead :)";
     for (QString d : paths) {
         //TODO: This is leaking on rescan!
-        Validator* val = new Validator(config,Validator::Mode::ReadOnly,d);
         qDebug() << "Scannning:"  << d;
         QDirIterator di(d,QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
-            addSong(new Song(fi,val, d));
+            addSong(new Song(fi,d));
             qApp->processEvents();
         };
     }
