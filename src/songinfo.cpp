@@ -3,6 +3,8 @@
 #include <cassert>
 #include <QDebug>
 
+#include <actions/modifytag.h>
+
 SongInfo::SongInfo(QWidget *parent) :
     QWidget(parent), ui(std::make_unique<Ui::SongInfo>())
 {
@@ -93,11 +95,10 @@ void SongInfo::selectionChanged() {
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
-/*TODO: FIx this
-          conUpdate = connect(s,&Song::updated,[this,s] {
+        conUpdate = connect(s,&Song::updated,[this,s] {
             ui->songChanged->setVisible(s->isModified());
         });
-        ui->songChanged->setVisible(s->isModified());*/
+        ui->songChanged->setVisible(s->isModified());
     }
     selectionUpdated();
 }
@@ -126,6 +127,8 @@ void SongInfo::selectionUpdated() {
         ui->covFile->setStyleSheet((s->hasCover() && !s->cov().exists())?"background-color: red":"");
         ui->rawLyrics->setText(s->rawLyrics());
         ui->songMessages->clear();
+        ui->undoList->clear();
+        ui->redoList->clear();
 //TODO:        for (QString m : s->fatals())
 //            ui->songMessages->addItem(new QListWidgetItem(QIcon::fromTheme("dialog-error"),m));
         for (QString m : s->errors())
@@ -135,6 +138,19 @@ void SongInfo::selectionUpdated() {
         ui->rawData->setText(s->rawData());
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
+        for (QString m : s->performedActions()) {
+            ui->undoList->addItem(new QListWidgetItem(QIcon::fromTheme("edit-undo"),m));
+        }
+        for (QString m : s->undoneActions()) {
+            ui->redoList->addItem(new QListWidgetItem(QIcon::fromTheme("edit-redo"),m));
+        }
+        ui->undoButton->setDisabled(ui->undoList->count() == 0);
+        ui->redoButton->setDisabled(ui->redoList->count() == 0);
+        static QMetaObject::Connection undoCon, redoCon;
+        QObject::disconnect(undoCon);
+        QObject::disconnect(redoCon);
+        undoCon = connect(ui->undoButton,&QPushButton::clicked,[this] { selection->first()->song->undo(1); } );
+        redoCon = connect(ui->redoButton,&QPushButton::clicked,[this] { selection->first()->song->redo(1); } );
     }
     //TODO: Support mass edit!
 }
@@ -142,7 +158,7 @@ void SongInfo::selectionUpdated() {
 void SongInfo::on_title_textChanged(const QString &arg1)
 {
     Song* s = selection->first()->song;
-    if (!s->updateTag("TITLE",arg1))
+    if (!s->performAction(std::make_unique<Song::ModifyTag>("TITLE",Song::ModifyTag::Op::Modify,arg1)))
         qWarning() << "Updating title failed!";
 }
 
@@ -157,7 +173,7 @@ void SongInfo::highlightText(int from, int to) {
 void SongInfo::on_artist_textChanged(const QString &arg1)
 {
     for (SongFrame* sf : *selection) {
-        if (!sf->song->updateTag("ARTIST",arg1))
+        if (!sf->song->performAction(std::make_unique<Song::ModifyTag>("ARTIST",Song::ModifyTag::Op::Modify,arg1)))
             qWarning() << "Updating artist failed!";
     }
 }

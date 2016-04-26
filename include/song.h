@@ -1,14 +1,13 @@
 #pragma once
+#include <memory>
 #include <QFileInfo>
 #include <QMap>
 #include <QPixmap>
 #include <sylabel.h>
-
-class Validator;
+#include <actions/action.h>
 
 class Song : public QObject
 {
-
 Q_OBJECT
 private:
     bool setFile(QFileInfo& info, const QString& path);
@@ -17,10 +16,12 @@ private:
     void adjustRelative(Sylabel* syl);
     void updateDataCache();
 
-    static bool yesToAll, answeredToAll;
+    std::list<std::unique_ptr<Action>> performedActions_;
+    std::list<std::unique_ptr<Action>> undoneActions_;
+    std::list<std::shared_ptr<ActionItem>> actionItems;
 
     //bool wellFormed = true;   //has no minor errors
-    bool initialized = false; //has been initialized. Internal state!
+    //bool initialized = false; //has been initialized. Internal state!
     //bool valid = true;        //has no major errors that prevent playback (only ignorable ones)
     bool _golden = false;     //has golden notes
     bool _freestyle = false;  //has freestyle notes
@@ -36,51 +37,72 @@ private:
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
-    //No transform is used for internal comparison of files without checking for empty lines and so on
-//    Song(const QFileInfo& source, const QString basePath, bool noTransform);
+
+/*    bool removeTag(const QString &tag);
+    bool updateTag(const QString& tag, const QString& value);
+*/
+    bool addTag(const QString &tag, const QString& value);
+private slots:
+    //Cache updates
+    void updateRawLyrics();
+
+
 public:
+    //TheActions
+    class ConvertRelative;
+    class TransposeSong;
+    class ModifyTag;
+
     Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete; //Songs should not be copyable
-
     Song& operator=(const Song&) = delete;
-    bool operator==(const Song& rhs) const;
+//    bool operator==(const Song& rhs) const;
 
-    bool addTag(const QString &tag, const QString& value);
+    QStringList performedActions() const;
+    QStringList undoneActions() const;
+
+    //These 3 *must* be the only functions allowed to modify Song
+    //This enforces undoability and usage of the action scheme
+    bool undo(unsigned num);
+    bool redo(unsigned num);
+    bool performAction(std::unique_ptr<Action> action);
+
+
     bool hasTag(const QString &tag) const;
     QString tag(const QString &tag) const;
-    bool updateTag(const QString& tag, const QString& value);
 
-    inline const QFileInfo& txt() const { return _txt; }
-    inline const QFileInfo& mp3() const { return _mp3; }
-    inline const QFileInfo& vid() const { return _vid; }
-    inline const QFileInfo& cov() const { return _cov; }
-    inline const QFileInfo& bg() const  { return _bg;  }
-    inline const QStringList& errors() const { return _errors; }
-    inline const QStringList& warnings() const { return _warnings; }
+    const QFileInfo& txt() const { return _txt; }
+    const QFileInfo& mp3() const { return _mp3; }
+    const QFileInfo& vid() const { return _vid; }
+    const QFileInfo& cov() const { return _cov; }
+    const QFileInfo& bg() const  { return _bg;  }
+    const QStringList& errors() const { return _errors; }
+    const QStringList& warnings() const { return _warnings; }
 
-    inline bool hasVideo() const       { return hasTag("VIDEO"); }
-    inline bool hasCover() const       { return hasTag("COVER"); }
-    inline bool hasBG() const          { return hasTag("BACKGROUND"); }
-    inline bool hasGoldenNotes() const { return _golden; }
-    inline bool hasFreestyle() const   { return _freestyle; }
-    inline bool isWellFormed() const   { return _warnings.isEmpty() && _errors.isEmpty(); }
+    bool hasVideo() const       { return hasTag("VIDEO"); }
+    bool hasCover() const       { return hasTag("COVER"); }
+    bool hasBG() const          { return hasTag("BACKGROUND"); }
+    bool hasGoldenNotes() const { return _golden; }
+    bool hasFreestyle() const   { return _freestyle; }
+    bool isWellFormed() const   { return _warnings.isEmpty() && _errors.isEmpty(); }
 
-    inline double bpm() const { return _bpm; }
-    inline double gap() const { return _gap; }
+    double bpm() const { return _bpm; }
+    double gap() const { return _gap; }
 
     bool missingVideo() const;
     bool missingBG() const;
     bool missingCover() const;
- //   bool isModified() const;
+    bool isModified() const;
     bool isMultiplayer() const;
     bool relativeSource() const;
     int players() const;
 
-    inline QString basePath() const { return _basePath; }
-    static inline const QStringList& seenTags() { return _seenTags; }
-    inline QList<Sylabel*>& sylabels() { return musicAndLyrics; }
+    QString basePath() const { return _basePath; }
+    static const QStringList& seenTags() { return _seenTags; }
+    const QList<Sylabel*>& sylabels() const { return musicAndLyrics; }
 
-    QString rawLyrics();
+    //These will be const later once actions are better implemented ...
+    QString rawLyrics() const;
     QString rawData(); //will be const once updateDataCache is done automatically
     QString artist() const;
     QString title() const;
@@ -88,7 +110,7 @@ public:
     QPixmap background() const;
 
 signals:
-    void updated();
+    void updated() const;
     void playingSylabel(int from, int to);
     void playingSylabel(Sylabel* s);
     void lineChanged(int line);

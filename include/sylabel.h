@@ -11,7 +11,7 @@ class Sylabel : public QObject
     Q_OBJECT
 public:
     enum class Type {
-        Regular, Freestyle, Golden, SimpleLineBreak, LineBreak, Bad
+        Regular, Freestyle, Golden, SimpleLineBreak, LineBreak
     };
 
     enum class Clef {
@@ -33,7 +33,6 @@ public:
     inline int beat() const { return _beat; }
     drumstick::NoteEvent* event() const { return _event; }
     inline int forPlayers() const { return _players; } //This is unimplemented atm
-    inline bool isBad() const { return _t == Type::Bad; }
     inline bool isExtension() const { return _text.trimmed() == "~"; }
     inline QString text() const { return _text; }
     inline Type type() const { return _t; }

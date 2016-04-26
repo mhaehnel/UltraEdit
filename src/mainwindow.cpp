@@ -12,6 +12,9 @@
 #include <QProgressDialog>
 #include <QInputDialog>
 
+#include <exceptions/songparseexception.h>
+#include <exceptions/sylabelformatexception.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
     ui(std::make_unique<Ui::MainWindow>()),
@@ -65,7 +68,13 @@ void MainWindow::rescanCollection() {
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
-            addSong(new Song(fi,d));
+            try {
+                addSong(new Song(fi,d));
+            } catch (SongParseException& e) {
+                qDebug() << "Error: " << e.what();
+            } catch (SylabelFormatException& e) {
+                qDebug() << "Error: " << e.what();
+            }
             qApp->processEvents();
         };
     }

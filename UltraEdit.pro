@@ -35,7 +35,11 @@ SOURCES += main.cpp\
     midiplayer.cpp \
     midithread.cpp \
     src/videowidget.cpp \
-    src/exceptions/songparseexception.cpp
+    src/exceptions/songparseexception.cpp \
+    src/actions/convertrelative.cpp \
+    src/exceptions/sylabelformatexception.cpp \
+    src/actions/transposesong.cpp \
+    src/actions/modifytag.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -51,7 +55,11 @@ HEADERS  += mainwindow.h \
     sylabel.h \
     include/videowidget.h \
     include/exceptions/songparseexception.h \
-    include/actions/action.h
+    include/actions/action.h \
+    include/actions/convertrelative.h \
+    include/exceptions/sylabelformatexception.h \
+    include/actions/transposesong.h \
+    include/actions/modifytag.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

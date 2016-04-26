@@ -3,17 +3,16 @@
 #include <QMessageBox>
 #include "sylabel.h"
 
-
 #include <exceptions/songparseexception.h>
+#include <exceptions/sylabelformatexception.h>
+#include <actions/convertrelative.h>
+#include <actions/transposesong.h>
 
 QStringList Song::_seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
 
-bool Song::answeredToAll = false;
-bool Song::yesToAll;
-
-using namespace std::rel_ops;
+//using namespace std::rel_ops;
 
 Song::Song(const QFileInfo& source,const QString basePath) :
     _bpm(0), _gap(0), _basePath(basePath),  _txt(source)
@@ -27,7 +26,7 @@ Song::Song(const QFileInfo& source,const QString basePath) :
     if (!ifile.open(QIODevice::ReadOnly))
         throw SongParseException(source.fileName(),Reason::PermissionDenied);
 
-    connect(this,&Song::updated,[this] { _rawTextCache.clear(); });
+    connect(this,&Song::updated,this,&Song::updateRawLyrics);
 
     QTextStream in(&ifile);
     bool endOfTags = false;
@@ -54,37 +53,27 @@ Song::Song(const QFileInfo& source,const QString basePath) :
                 //this is -1 and then say that its unplayable maybe? Or use an unplayable member
                 //return;
             }
-            Sylabel* syl = new Sylabel(line,curPlayer,this);
 
-            //fix relative file ...
-            //TODO: write actionItem if (relativeSource() && !noTransform) adjustRelative(syl);
+            //This may throw upon parse error
+            Sylabel* syl = new Sylabel(line,curPlayer,this);
             connect(syl,&Sylabel::updated,this,&Song::updated);
             musicAndLyrics.append(syl);
-            if (syl->isBad()) _errors << QString("%1 Tags after end of tag section. Discarding Tag!").arg(lineNo);
         } else if (line.startsWith('E')) { //End of file
             if (!in.atEnd()) {
                 _warnings << "Data beyond end of file!";
                 break;
             }
-        } else if (line.startsWith('P')) { //TODO: This is completely broken ATM.
-            bool ok;
-            int newPlayer = line.trimmed().remove(0,1).toInt(&ok);
-//            if (!ok) {
-//                qWarning() << QString("[%1:%2]: Malformed playernumber!!").arg(source.filePath()).arg(lineNo);
-//                wellFormed = false;
-//            }
-//            if (_players+1 != newPlayer) {
-//                qWarning() << QString("[%1:%2]: Found player number %3 without having a number %4!!").
-//                              arg(source.filePath()).arg(lineNo).arg(newPlayer).arg(newPlayer-1);
-//                wellFormed = false;
-//            }
-            curPlayer = newPlayer;
-            _players = newPlayer;
+        } else if (line.startsWith('P')) {
+            _warnings << "Multiplayer files are not supported at the Moment.";
         } else {
-           _errors << QString("[%1] Line could not be interpreted!").arg(lineNo);
+            throw SongParseException(_txt.canonicalFilePath(),Reason::UnreadableLine);
         }
     }
-    //if (relativeSource() && noTransform) return;
+    if (relativeSource() && !performAction(std::make_unique<ConvertRelative>())) {
+        //Is this a failure? I think not ... even though some checks can't run now
+        return;
+    }
+
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {
             if (s1->isLineBreak()) return true;
@@ -101,68 +90,77 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         if (!s->isLineBreak())
             last += s->beats();
     }
-    //we fixed it, which can be seen by the warning. So it's no longer relative
-    if (relativeSource()) tags.remove("RELATIVE");
     int avg = 0;
     for (Sylabel* s : musicAndLyrics)
         if (!s->isLineBreak())
             avg += static_cast<signed char>(s->key());
     avg/=musicAndLyrics.size();
-/*TODO: Move to actionItem
-    if (avg < 30) {
-        bool answer = false;
-        if (!answeredToAll && !noTransform) {
-            int res = QMessageBox::question(nullptr,"Wrong base pitch",
-                          QString("The song <b>%1</b> by <b>%2</b> seems to be set at a way too low average key of %3.\n"
-                                  "The usual cause for this is that the song creator assumed that 0 equals to C-1 instead of C4."
-                                  "Should I automatically transpose the song for 5 octaves?\n"
-                                  "You can always do this manually in the notes view, but until you do this view may look broken!")
-                          .arg(title()).arg(artist()).arg(avg),
-                    QMessageBox::Yes | QMessageBox::No | QMessageBox::YesAll | QMessageBox::NoAll);
-            switch (res) {
-                case QMessageBox::YesAll:
-                    answeredToAll = true;
-                    yesToAll = true;
-                case QMessageBox::Yes:
-                    answer = true;
-                    break;
-                case QMessageBox::NoAll:
-                    answeredToAll = true;
-                    yesToAll = false;
-                case QMessageBox::No:
-                    answer = false;
-                    break;
-                default:
-                    answer = false;
-            }
-        } else {
-            answer = (noTransform)?false:yesToAll;
-        }
-        if (answer) {
-            _warnings << "The song has been transposed by +5 octaves";
-            for (Sylabel* s : musicAndLyrics)
-                s->transpose(60);
-        } else {
-            _warnings << "This song seems very low!";
-        }
-    }*/
-}
-/*TODO: This will move to the fix action
-void Song::adjustRelative(Sylabel *syl) {
-    static int base = 0;
-    syl->move(base);
-    if (syl->isLineBreak()) {
-        if (syl->type() != Sylabel::Type::LineBreak) {
-            _fatals << "Can not convert relative file with single number linebreaks!";
-            return;
-        }
-        if (base == 0) _warnings << "Deprecated relative file converted.";
-        base += syl->beats();
-    }
-}
-*/
+    if (avg < 30) performAction(std::make_unique<TransposeSong>(60));
 
-bool Song::relativeSource() const { //We will never write relative files.
+    emit updated(); //Trigger all actions after creation
+}
+
+bool Song::performAction(std::unique_ptr<Action> action) {
+    if (!action->perform(this)) return false;
+    undoneActions_.clear(); //no redo after new action!
+    performedActions_.push_back(std::move(action));
+    emit updated();
+    return true;
+}
+
+QStringList Song::undoneActions() const {
+    QStringList res;
+    for (auto& pa : undoneActions_) {
+        res.push_back(pa->description());
+    }
+    return res;
+}
+
+QStringList Song::performedActions() const {
+    QStringList res;
+    for (auto& pa : performedActions_) {
+        res.push_front(pa->description());
+    }
+    return res;
+}
+
+bool Song::undo(unsigned int num) {
+    Q_ASSERT(num <= performedActions_.size());
+    for (unsigned i = 0; i < num; i++) {
+        std::unique_ptr<Action> a = std::move(performedActions_.back());
+        if (a->undo(this)) {
+            performedActions_.pop_back();
+            undoneActions_.push_back(std::move(a));
+        } else {
+            performedActions_.push_back(std::move(a));
+            qDebug() << "UNDO Failed!";
+            emit updated();
+            return false;
+        }
+    }
+    emit updated();
+    return true;
+}
+
+bool Song::redo(unsigned int num) {
+    Q_ASSERT(num <= undoneActions_.size());
+    for (unsigned i = 0; i < num; i++) {
+        std::unique_ptr<Action> a = std::move(undoneActions_.back());
+        if (a->perform(this)) {
+            undoneActions_.pop_back();
+            performedActions_.push_back(std::move(a));
+        } else {
+            undoneActions_.push_back(std::move(a));
+            qDebug() << "REDO Failed!";
+            emit updated();
+            return false;
+        }
+    }
+    emit updated();
+    return true;
+}
+
+bool Song::relativeSource() const {
     return tags.contains("RELATIVE") && tags["RELATIVE"].toUpper().trimmed() == "YES";
 }
 
@@ -193,22 +191,21 @@ bool Song::setTag(const QString &tag, const QString &value) {
     if (tag == "GAP" && !toDouble(value,_gap)) return false;
     tags[tag] = value;
 
-    if (initialized) {
-        emit updated();
-    }
     return true;
 }
 
-QString Song::rawLyrics() {
-    if (_rawTextCache.isEmpty()) {
-        for (const Sylabel* s : musicAndLyrics) {
-            if (s->isLineBreak()) {
-                _rawTextCache.append("\n");
-            } else {
-                _rawTextCache.append(s->text());
-            }
+void Song::updateRawLyrics() {
+    _rawTextCache.clear();
+    for (const Sylabel* s : musicAndLyrics) {
+        if (s->isLineBreak()) {
+            _rawTextCache.append("\n");
+        } else {
+            _rawTextCache.append(s->text());
         }
     }
+}
+
+QString Song::rawLyrics() const  {
     return _rawTextCache;
 }
 
@@ -221,7 +218,6 @@ void Song::updateDataCache() {
     }
     for (const Sylabel* s: musicAndLyrics) {
         switch (s->type()) {
-            case Sylabel::Type::Bad:        _rawDataCache.append("!"); break;
             case Sylabel::Type::Freestyle:  _rawDataCache.append("F"); break;
             case Sylabel::Type::Golden:     _rawDataCache.append("*"); break;
             case Sylabel::Type::SimpleLineBreak:
@@ -234,10 +230,6 @@ void Song::updateDataCache() {
                 _rawDataCache.append(QString(" %1").arg(s->beats()));
             }
             _rawDataCache.append("\r\n");
-            continue;
-        }
-        if (s->isBad()) {
-            _rawDataCache += QString(" ? ? ?\r\n");
             continue;
         }
         _rawDataCache += QString(" %1 %2 %3\r\n").arg(s->beats()).arg(s->key()).arg(s->text());
@@ -256,13 +248,10 @@ QString Song::rawData() {
 bool Song::addTag(const QString &tag, const QString &value) {
     QString _tag = tag.toUpper();
     if (!_seenTags.contains(_tag)) _seenTags.append(_tag);
-    if (tags.contains(_tag)) {
-        qWarning() << "The tag" << tag << "already exists in" << _txt.canonicalFilePath() <<". Ignoring!";
-        return false;
-    }
+    if (tags.contains(_tag)) return false;
     return setTag(_tag,value);
 }
-
+/*
 bool Song::updateTag(const QString &tag, const QString &value) {
     QString _tag = tag.toUpper();
     if (!tags.contains(_tag)) {
@@ -271,6 +260,16 @@ bool Song::updateTag(const QString &tag, const QString &value) {
     }
     return setTag(_tag,value);
 }
+
+bool Song::removeTag(const QString &tag) {
+    auto _tag = tag.toUpper();
+    if (!tags.contains(_tag)) {
+        qWarning() << "The tag" << tag << "does not exist in " << _txt.canonicalFilePath() << " and can not be deleted. Ignoring!";
+        return false;
+    }
+    tags.remove(_tag);
+    return true;
+}*/
 
 bool Song::missingBG() const {
     return hasBG() && !_bg.exists();
@@ -346,15 +345,13 @@ void Song::playing(int ms) {
     }
 }
 
-/*TODO: Fix this?
 bool Song::isModified() const {
-    Song orig(_txt,basePath(),true);
-    return (orig != *this);
-}*/
-
-bool Song::operator==(const Song& rhs) const {
-    if (rhs.musicAndLyrics.size() != musicAndLyrics.size()) return false;
-    for (int i = 0; i < rhs.musicAndLyrics.size(); i++)
-        if (*(rhs.musicAndLyrics[i]) != *(musicAndLyrics[i])) return false;
-    return rhs.tags == tags;
+    return !performedActions_.empty();
 }
+
+//bool Song::operator==(const Song& rhs) const {
+//    if (rhs.musicAndLyrics.size() != musicAndLyrics.size()) return false;
+//    for (int i = 0; i < rhs.musicAndLyrics.size(); i++)
+//        if (*(rhs.musicAndLyrics[i]) != *(musicAndLyrics[i])) return false;
+//    return rhs.tags == tags;
+//}

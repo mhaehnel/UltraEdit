@@ -4,31 +4,34 @@
 #include <cassert>
 #include <song.h>
 
+#include <exceptions/sylabelformatexception.h>
+
 int Sylabel::ppq = 96;
 
-Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(song), _event(nullptr), _players(players)
+Sylabel::Sylabel(QString source, int players, Song* song)
+    : QObject(),  song(song), _event(nullptr), _players(players)
 {
-    _t = Type::Bad;
-    Type t = Type::Bad; //Internal (only set if error!) TODO: Add error messages for diagnosis!
-    if (source.isEmpty()) return;
+    using Reason = SylabelFormatException::Reason;
+    if (source.isEmpty()) throw new SylabelFormatException(source,Reason::EmptyLine);
 
     switch (source.at(0).toUpper().toLatin1()) {
-        case ':': t = Type::Regular; break;
-        case '*': t = Type::Golden; break;
-        case 'F': t = Type::Freestyle; break;
-        case '-': t = Type::SimpleLineBreak; break;
-        default: return;
+        case ':': _t = Type::Regular; break;
+        case '*': _t = Type::Golden; break;
+        case 'F': _t = Type::Freestyle; break;
+        case '-': _t = Type::SimpleLineBreak; break;
+        default: throw new SylabelFormatException(source,Reason::InvalidType);
     }
 
     source.remove(0,1);
     QStringList data = source.split(" ",QString::SkipEmptyParts);
     bool ok;
 
-    if (data.size() < 1) return;
+    if (data.size() < 1)
+        throw SylabelFormatException(source,Reason::NotEnoughData);
     _beat = data[0].toInt(&ok);
     if (!ok) return;
     data.removeFirst();
-    if (t == Type::SimpleLineBreak) {
+    if (_t == Type::SimpleLineBreak) {
         int beats = 0;
         if (data.size() == 1) {
             beats = data[0].toInt(&ok);
@@ -36,21 +39,22 @@ Sylabel::Sylabel(QString source, int players, Song* song) : QObject(),  song(son
             //Hacky, but should work. This note is a dummy and only holds the duration
             //of the newline. Due to the low pitch it should not be hearable.
             data.removeFirst();
-            t = Type::LineBreak;
+            _t = Type::LineBreak;
         }
         _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
         if (data.size() != 0) return;
-        _t = t;
         return;
     }
-    if (data.size() < 3) return; //Invalid line! (BEtter error handling needed? TODO!)
+    if (data.size() < 3) {
+         //Invalid line! (BEtter error handling needed? TODO! What if non-text sylabel?)
+        throw SylabelFormatException(source,Reason::NotEnoughData);
+    }
     int beats = data[0].toInt(&ok);
     if (!ok) return;
     int pitch = data[1].toInt(&ok);
     if (!ok) return;
 
     _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
-    _t = t;
     _text = data[2]; //Pure text
     if (data.size() > 3) {
         for (int i = 3; i < data.size(); i++)
@@ -93,7 +97,6 @@ double Sylabel::time() const {
 }
 
 int Sylabel::beats() const {
- if (isBad()) return 0;
  return _event->getDuration()*4/ppq;
 }
 
@@ -107,9 +110,8 @@ unsigned char Sylabel::key() const {
 }
 
 void Sylabel::transpose(char lvl) {
-    if (isLineBreak() || _t == Type::Bad) return;
+    if (isLineBreak()) return;
     _event->setKey(std::max(0,_event->getKey()+lvl));
-    emit updated();
 }
 
 Sylabel::Note Sylabel::note() const {
