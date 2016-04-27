@@ -360,7 +360,11 @@
           </spacer>
          </item>
          <item>
-          <widget class="QListWidget" name="redoList"/>
+          <widget class="QListWidget" name="redoList">
+           <property name="selectionMode">
+            <enum>QAbstractItemView::NoSelection</enum>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -389,7 +393,11 @@
           </layout>
          </item>
          <item>
-          <widget class="QListWidget" name="undoList"/>
+          <widget class="QListWidget" name="undoList">
+           <property name="selectionMode">
+            <enum>QAbstractItemView::NoSelection</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
