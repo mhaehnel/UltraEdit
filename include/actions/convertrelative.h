@@ -1,14 +1,11 @@
 #pragma once
 
-#include <actions/action.h>
-#include <memory>
 #include <song.h>
-
 
 class Song::ConvertRelative : public Action {
 public:
-    bool perform(Song* song) override;
-    bool undo(Song* song) override;
+    bool perform(Song& song) override;
+    bool undo(Song& song) override;
     QString shortName() const override {
         return "Convert";
     }

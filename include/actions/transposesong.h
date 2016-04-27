@@ -7,8 +7,8 @@ class Song::TransposeSong : public Action
     int level;
 public:
     TransposeSong(int lvl) : level(lvl) {}
-    bool perform(Song* song) override;
-    bool undo(Song* song) override;
+    bool perform(Song& song) override;
+    bool undo(Song& song) override;
     QString shortName() const override {
         return "Transpose";
     }

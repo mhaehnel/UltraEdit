@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QString>
-//#include <song.h>
 #include <list>
 #include <memory>
 
@@ -18,8 +17,8 @@ class Action  {
 public:
     virtual ~Action() = default;
 
-    virtual bool perform(Song* song) = 0;
-    virtual bool undo(Song* song) = 0;
+    virtual bool perform(Song& song) = 0;
+    virtual bool undo(Song& song) = 0;
     virtual QString shortName() const = 0;
     virtual QString description() const  = 0;
 };

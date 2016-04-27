@@ -1,6 +1,5 @@
 #pragma once
 
-#include <actions/action.h>
 #include <song.h>
 
 class Song::ModifyTag : public Action
@@ -10,8 +9,8 @@ public:
         Create, Modify, Delete
     };
     ModifyTag(QString tag, Op op, QString value = {});
-    bool perform(Song *song) override;
-    bool undo(Song *song) override;
+    bool perform(Song &song) override;
+    bool undo(Song &song) override;
     QString shortName() const override;
     QString description() const override;
 private:

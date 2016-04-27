@@ -101,7 +101,7 @@ Song::Song(const QFileInfo& source,const QString basePath) :
 }
 
 bool Song::performAction(std::unique_ptr<Action> action) {
-    if (!action->perform(this)) return false;
+    if (!action->perform(*this)) return false;
     undoneActions_.clear(); //no redo after new action!
     performedActions_.push_back(std::move(action));
     emit updated();
@@ -128,7 +128,7 @@ bool Song::undo(unsigned int num) {
     Q_ASSERT(num <= performedActions_.size());
     for (unsigned i = 0; i < num; i++) {
         std::unique_ptr<Action> a = std::move(performedActions_.back());
-        if (a->undo(this)) {
+        if (a->undo(*this)) {
             performedActions_.pop_back();
             undoneActions_.push_back(std::move(a));
         } else {
@@ -146,7 +146,7 @@ bool Song::redo(unsigned int num) {
     Q_ASSERT(num <= undoneActions_.size());
     for (unsigned i = 0; i < num; i++) {
         std::unique_ptr<Action> a = std::move(undoneActions_.back());
-        if (a->perform(this)) {
+        if (a->perform(*this)) {
             undoneActions_.pop_back();
             performedActions_.push_back(std::move(a));
         } else {
