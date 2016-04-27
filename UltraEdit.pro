@@ -39,7 +39,9 @@ SOURCES += main.cpp\
     src/actions/convertrelative.cpp \
     src/exceptions/sylabelformatexception.cpp \
     src/actions/transposesong.cpp \
-    src/actions/modifytag.cpp
+    src/actions/modifytag.cpp \
+    src/validators/lyricsinorder.cpp \
+    src/actions/orderlyrics.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -59,7 +61,10 @@ HEADERS  += mainwindow.h \
     include/actions/convertrelative.h \
     include/exceptions/sylabelformatexception.h \
     include/actions/transposesong.h \
-    include/actions/modifytag.h
+    include/actions/modifytag.h \
+    include/validators/validator.h \
+    include/validators/lyricsinorder.h \
+    include/actions/orderlyrics.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

@@ -8,6 +8,8 @@
 #include <actions/convertrelative.h>
 #include <actions/transposesong.h>
 
+#include <validators/lyricsinorder.h>
+
 QStringList Song::_seenTags;
 QPixmap* Song::_noCover = nullptr;
 QPixmap* Song::_coverMissing = nullptr;
@@ -73,7 +75,9 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         //Is this a failure? I think not ... even though some checks can't run now
         return;
     }
-
+    actionItems.splice(actionItems.end(),LyricsInOrder().validate(*this));
+    if (actionItems.size() > 0) _warnings << actionItems.front()->description();
+/*
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {
             if (s1->isLineBreak()) return true;
@@ -81,7 +85,7 @@ Song::Song(const QFileInfo& source,const QString basePath) :
             _warnings << "This can not be. Two notes share the same beat";
         }
         return s1->beat() < s2->beat();
-    });
+    });*/
     //Verify overlapping notes ...
     int last = 0;
     for (Sylabel* s : musicAndLyrics) {
@@ -95,7 +99,8 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         if (!s->isLineBreak())
             avg += static_cast<signed char>(s->key());
     avg/=musicAndLyrics.size();
-    if (avg < 30) performAction(std::make_unique<TransposeSong>(60));
+    if (avg < 30)
+        performAction(std::make_unique<TransposeSong>(60));
 
     emit updated(); //Trigger all actions after creation
 }

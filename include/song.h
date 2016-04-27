@@ -52,6 +52,7 @@ public:
     class ConvertRelative;
     class TransposeSong;
     class ModifyTag;
+    class OrderLyrics;
 
     Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete; //Songs should not be copyable
