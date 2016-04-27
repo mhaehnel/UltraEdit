@@ -40,5 +40,6 @@ public:
     };
 
     virtual QString description() const = 0;
-    virtual const std::list<std::shared_ptr<Action>>& actions() const = 0;
+    virtual Severity severity() const = 0;
+    virtual const std::list<std::unique_ptr<Action>>& actions() const = 0;
 };
