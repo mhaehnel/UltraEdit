@@ -103,7 +103,9 @@ Song::Song(const QFileInfo& source,const QString basePath) :
 bool Song::performAction(std::unique_ptr<Action> action) {
     if (!action->perform(*this)) return false;
     undoneActions_.clear(); //no redo after new action!
-    performedActions_.push_back(std::move(action));
+    if (performedActions_.empty() || !performedActions_.back()->merge(*action)) {
+        performedActions_.push_back(std::move(action));
+    }
     emit updated();
     return true;
 }

@@ -56,3 +56,20 @@ QString Song::ModifyTag::description() const {
     }
     return ""; //Stupid GCC
 }
+
+bool Song::ModifyTag::merge(const Action& other) {
+    try {
+        const Song::ModifyTag& o = dynamic_cast<const Song::ModifyTag&>(other);
+        //Only modifys can be merged
+        if (o.operation_ != Op::Modify && operation_ != Op::Modify)
+            return false;
+        //Only same tag changes can be merged
+        if (o.tag_ != tag_)
+            return false;
+        this->newVal_ = o.newVal_;
+        return true;
+    } catch (std::bad_cast& e) {
+        qWarning() << "Failed merging due to cast error!";
+        return false;
+    }
+}
