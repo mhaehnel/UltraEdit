@@ -27,7 +27,7 @@
        <property name="styleSheet">
         <string notr="true">background-color: yellow</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0,0,0">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="sizePolicy">
@@ -42,16 +42,58 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="saveSong">
+         <widget class="QPushButton" name="revertSong">
           <property name="text">
-           <string>Save</string>
+           <string>Revert</string>
+          </property>
+          <property name="icon">
+           <iconset theme="document-revert">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="revertSong">
+         <widget class="QPushButton" name="undoButton_2">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Undo</string>
+          </property>
           <property name="text">
-           <string>Revert</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="edit-undo">
+            <normaloff>.</normaloff>.</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="redoButton_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Redo</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="edit-redo">
+            <normaloff>.</normaloff>.</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveSong">
+          <property name="text">
+           <string>Save</string>
+          </property>
+          <property name="icon">
+           <iconset theme="document-save">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>
@@ -586,5 +628,38 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>undoButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>undoButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>537</x>
+     <y>33</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>444</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>redoButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>redoButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>589</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

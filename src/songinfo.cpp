@@ -145,12 +145,19 @@ void SongInfo::selectionUpdated() {
             ui->redoList->addItem(new QListWidgetItem(QIcon::fromTheme("edit-redo"),m));
         }
         ui->undoButton->setDisabled(ui->undoList->count() == 0);
+        ui->undoButton_2->setDisabled(ui->undoList->count() == 0);
         ui->redoButton->setDisabled(ui->redoList->count() == 0);
-        static QMetaObject::Connection undoCon, redoCon;
+        ui->redoButton_2->setDisabled(ui->redoList->count() == 0);
+
+        static QMetaObject::Connection undoCon, redoCon, resetCon;
         QObject::disconnect(undoCon);
         QObject::disconnect(redoCon);
+        QObject::disconnect(resetCon);
         undoCon = connect(ui->undoButton,&QPushButton::clicked,[this] { selection->first()->song->undo(1); } );
         redoCon = connect(ui->redoButton,&QPushButton::clicked,[this] { selection->first()->song->redo(1); } );
+        resetCon = connect(ui->revertSong,&QPushButton::clicked, [this] () {
+               selection->first()->song->undo(ui->undoList->count());
+        });
     }
     //TODO: Support mass edit!
 }
