@@ -76,7 +76,8 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         return;
     }
     actionItems_.splice(actionItems_.end(),LyricsInOrder().validate(*this));
-    if (actionItems.size() > 0) _warnings << actionItems.front()->description();
+    //if (actionItems.size() > 0) _warnings << actionItems.front()->description();
+
 /*
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {

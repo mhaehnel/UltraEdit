@@ -75,7 +75,7 @@ FORMS    += mainwindow.ui \
     validatorsettings.ui \
     pathinstanceselector.ui \
     noteview.ui \
-    notewidget.ui
+    notewidget.ui \
+    ui/actionitem.ui
 
-RESOURCES += \
-    ultraedit.qrc
+RESOURCES +=  ultraedit.qrc

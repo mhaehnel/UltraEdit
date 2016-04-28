@@ -1,5 +1,6 @@
 #include "songinfo.h"
 #include "ui_songinfo.h"
+#include "ui_actionitem.h"
 #include <cassert>
 #include <QDebug>
 
@@ -45,6 +46,8 @@ SongInfo::SongInfo(QWidget *parent) :
     ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
     videoPlayer.setVideoOutput(ui->videoWidget);
     videoPlayer.setMuted(ui->muteVideo);
+    ui->actionItemsScrollArea->hide();
+    ui->songMessages->hide();
     ui->songChanged->hide();
 }
 
@@ -138,6 +141,37 @@ void SongInfo::selectionUpdated() {
         ui->rawData->setText(s->rawData());
         for (QWidget* w : findChildren<QWidget*>())
             w->blockSignals(false);
+
+        ui->songMessages->setVisible(ui->songMessages->count() != 0);
+
+
+        auto aiLayout = dynamic_cast<QBoxLayout*>(ui->actionItems->layout());
+        Q_ASSERT(aiLayout != nullptr);
+
+        while (aiLayout->count() > 1)
+            aiLayout->takeAt(0)->widget()->deleteLater();
+
+        for (const auto& ai : s->actionItems()) {
+            QFrame* qw = new QFrame();
+            std::unique_ptr<Ui::ActionItem> aiui(std::make_unique<Ui::ActionItem>());
+            aiui->setupUi(qw);
+            aiui->actionText->setText(ai->description());
+            switch (ai->severity()) {
+                case ActionItem::Severity::Error:
+                    aiui->actionIcon->setPixmap(QIcon::fromTheme("dialog-error").pixmap(64));
+                    break;
+                case ActionItem::Severity::Warning:
+                    aiui->actionIcon->setPixmap(QIcon::fromTheme("dialog-warning").pixmap(64));
+                    break;
+                case ActionItem::Severity::Info:
+                    aiui->actionIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(64));
+                    break;
+            }
+
+            aiLayout->insertWidget(0,qw);
+        }
+        ui->actionItemsScrollArea->setVisible(!s->actionItems().empty());
+
         for (QString m : s->performedActions()) {
             ui->undoList->addItem(new QListWidgetItem(QIcon::fromTheme("edit-undo"),m));
         }
