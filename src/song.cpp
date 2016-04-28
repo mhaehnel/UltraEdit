@@ -75,7 +75,7 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         //Is this a failure? I think not ... even though some checks can't run now
         return;
     }
-    actionItems.splice(actionItems.end(),LyricsInOrder().validate(*this));
+    actionItems_.splice(actionItems_.end(),LyricsInOrder().validate(*this));
     if (actionItems.size() > 0) _warnings << actionItems.front()->description();
 /*
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
@@ -103,6 +103,10 @@ Song::Song(const QFileInfo& source,const QString basePath) :
         performAction(std::make_unique<TransposeSong>(60));
 
     emit updated(); //Trigger all actions after creation
+}
+
+const std::list<std::shared_ptr<ActionItem>>& Song::actionItems() const {
+    return actionItems_;
 }
 
 bool Song::performAction(std::unique_ptr<Action> action) {

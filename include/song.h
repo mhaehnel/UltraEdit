@@ -18,7 +18,7 @@ private:
 
     std::list<std::unique_ptr<Action>> performedActions_;
     std::list<std::unique_ptr<Action>> undoneActions_;
-    std::list<std::shared_ptr<ActionItem>> actionItems;
+    std::list<std::shared_ptr<ActionItem>> actionItems_;
 
     //bool wellFormed = true;   //has no minor errors
     //bool initialized = false; //has been initialized. Internal state!
@@ -61,6 +61,7 @@ public:
 
     QStringList performedActions() const;
     QStringList undoneActions() const;
+    const std::list<std::shared_ptr<ActionItem>>& actionItems() const;
 
     //These 3 *must* be the only functions allowed to modify Song
     //This enforces undoability and usage of the action scheme
