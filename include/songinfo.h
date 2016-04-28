@@ -40,6 +40,7 @@ signals:
     void seek(quint64 pos);
     void play();
     void pause();
+    void popOut();
 
 private:
     std::unique_ptr<Ui::SongInfo> ui;

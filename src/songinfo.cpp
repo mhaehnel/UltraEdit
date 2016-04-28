@@ -14,7 +14,10 @@ SongInfo::SongInfo(QWidget *parent) :
     connect(ui->notes,&NoteWidget::pause,this,&SongInfo::pause);
     connect(ui->notes,&NoteWidget::seek,&midiPlayer, &MidiPlayer::seek);
     connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
-
+    connect(ui->popoutVideo,&QPushButton::pressed,[this] {
+        ui->popoutVideo->setChecked(!ui->popoutVideo->isChecked());
+        emit popOut();
+    });
     connect(ui->nextLine,&QPushButton::clicked,[this] {
        ui->notes->goToLine(ui->notes->line()+1);
     });

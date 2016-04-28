@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->musicPlayer,&AudioPlayer::started, ui->songDetails, &SongInfo::startPlayback);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);
     connect(ui->musicPlayer,&AudioPlayer::paused, ui->songDetails, &SongInfo::pausePlayback);
+    connect(ui->songDetails,&SongInfo::popOut, [this] { popOut(2); });
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
     ui->songDetails->setMidiPort(config.value("midiPort","").toString());
 
@@ -128,6 +129,28 @@ QString MainWindow::getGroup(Song *song) {
         return song->tag(tag);
     else
         return "*";
+}
+
+void MainWindow::popOut(int idx) {
+    if (splitterState.isEmpty()) {
+        splitterState = ui->splitter->saveState();
+        QList<int> sizes;
+        for (int i = 0; i < ui->splitter->count(); i++)
+            sizes.push_back((i==idx));
+        ui->splitter->setSizes(sizes);
+        this->menuBar()->hide();
+        this->statusBar()->hide();
+        for (auto tb : this->findChildren<QToolBar *>())
+            tb->hide();
+    } else {
+        ui->splitter->restoreState(splitterState);
+        splitterState.clear();
+        this->menuBar()->show();
+        this->statusBar()->show();
+        for (auto tb : this->findChildren<QToolBar *>())
+            tb->show();
+    }
+
 }
 
 //This does currently not support rapid regroups! Lock it to make it work!

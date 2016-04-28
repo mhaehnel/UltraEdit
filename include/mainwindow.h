@@ -31,6 +31,7 @@ private slots:
     void rescanCollection();
     void resortList();
     void selectFrame(SongFrame* sf);
+    void popOut(int idx);
 
     void on_actionSources_triggered();
 
@@ -50,4 +51,5 @@ private:
     std::unique_ptr<Ui::MainWindow> ui;
     QSettings config;
     QProgressBar statusProgress;
+    QByteArray splitterState;
 };

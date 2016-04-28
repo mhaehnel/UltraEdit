@@ -15,5 +15,7 @@
         <file>images/fclef.svg</file>
         <file>images/sharp.svg</file>
         <file>images/natural.svg</file>
+        <file>images/popout.png</file>
+        <file>images/popin.png</file>
     </qresource>
 </RCC>
