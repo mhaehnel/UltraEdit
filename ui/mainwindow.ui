@@ -46,9 +46,9 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="tab">
+       <widget class="QWidget" name="filter">
         <attribute name="title">
          <string>Filter</string>
         </attribute>
@@ -64,13 +64,13 @@
            <property name="currentIndex">
             <number>2</number>
            </property>
-           <widget class="QWidget" name="page">
+           <widget class="QWidget" name="tagsFilter">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
               <width>282</width>
-              <height>220</height>
+              <height>252</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -199,12 +199,12 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="page_2">
+           <widget class="QWidget" name="validatorFilter">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>189</width>
+              <width>258</width>
               <height>286</height>
              </rect>
             </property>
@@ -314,7 +314,7 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="page_3">
+           <widget class="QWidget" name="propertiesFilter">
             <property name="geometry">
              <rect>
               <x>0</x>

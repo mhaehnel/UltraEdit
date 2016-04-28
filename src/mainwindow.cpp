@@ -20,21 +20,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(std::make_unique<Ui::MainWindow>()),
     config("MH-Development","UltraEdit")
 {
-    //Initialize
     ui->setupUi(this);
     qRegisterMetaType<Song*>();
-    ui->hasVideo->setCheckState(Qt::PartiallyChecked);
-    ui->hasBackground->setCheckState(Qt::PartiallyChecked);
-    ui->hasUnknownTags->setCheckState(Qt::PartiallyChecked);
-    ui->missingBackgroundFile->setCheckState(Qt::PartiallyChecked);
-    ui->missingCoverFile->setCheckState(Qt::PartiallyChecked);
-    ui->missingMandatoryTags->setCheckState(Qt::PartiallyChecked);
-    ui->missingMP3File->setCheckState(Qt::PartiallyChecked);
-    ui->missingSongtextFile->setCheckState(Qt::PartiallyChecked);
-    ui->missingVideoFile->setCheckState(Qt::PartiallyChecked);
-    ui->startsAt0->setCheckState(Qt::PartiallyChecked);
-    ui->wellFormed->setCheckState(Qt::PartiallyChecked);
-    ui->isValid->setCheckState(Qt::PartiallyChecked);
+    for (auto cb : ui->filter->findChildren<QCheckBox *>())
+        cb->setCheckState(Qt::PartiallyChecked);
     ui->songDetails->setSelection(&selectedFrames);
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
     ui->artistFilter->setText("Lily");
