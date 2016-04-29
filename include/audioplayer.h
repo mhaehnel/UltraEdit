@@ -16,7 +16,7 @@ class AudioPlayer : public QFrame
 public:
     explicit AudioPlayer(QWidget *parent = 0);
     virtual ~AudioPlayer();
-
+    QSize sizeHint() const;
 signals:
     void started();
     void stopped();

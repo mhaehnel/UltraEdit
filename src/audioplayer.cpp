@@ -12,11 +12,18 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
     connect(&player,&QMediaPlayer::stateChanged, [this] (QMediaPlayer::State state) {
        switch (state) {
            case QMediaPlayer::State::PlayingState:
+               ui->songPause->setIcon(QIcon::fromTheme("media-playback-pause"));
                emit seeking(player.position());
                emit started();
                break;
-           case QMediaPlayer::State::StoppedState: emit stopped(); break;
-           case QMediaPlayer::State::PausedState:  emit paused(); break;
+           case QMediaPlayer::State::StoppedState:
+               ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
+               emit stopped();
+               break;
+           case QMediaPlayer::State::PausedState:
+               ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
+               emit paused();
+               break;
            default: break;
        }
     });
@@ -58,6 +65,12 @@ AudioPlayer::~AudioPlayer() {}
 void AudioPlayer::stop() { player.stop(); }
 void AudioPlayer::play() { player.play(); }
 void AudioPlayer::pause() { player.pause(); }
+
+QSize AudioPlayer::sizeHint() const {
+    QSize sh = QWidget::sizeHint();
+    sh.setHeight(106);
+    return sh;
+}
 
 void AudioPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
