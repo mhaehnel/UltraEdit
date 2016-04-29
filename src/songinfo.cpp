@@ -16,6 +16,8 @@ SongInfo::SongInfo(QWidget *parent) :
     connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
     connect(ui->popoutVideo,&QPushButton::pressed,[this] {
         ui->popoutVideo->setChecked(!ui->popoutVideo->isChecked());
+        ui->tabWidget->tabBar()->setVisible(!ui->tabWidget->tabBar()->isVisible());
+        ui->songChanged->setVisible(!ui->songChanged->isVisible());
         emit popOut();
     });
     connect(ui->nextLine,&QPushButton::clicked,[this] {
