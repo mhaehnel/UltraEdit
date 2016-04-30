@@ -29,13 +29,13 @@ Sylabel::Sylabel(QString source, int players, Song* song)
     if (data.size() < 1)
         throw SylabelFormatException(source,Reason::NotEnoughData);
     _beat = data[0].toInt(&ok);
-    if (!ok) return;
+    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
     data.removeFirst();
     if (_t == Type::SimpleLineBreak) {
         int beats = 0;
         if (data.size() == 1) {
             beats = data[0].toInt(&ok);
-            if (!ok) return;
+            if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
             //Hacky, but should work. This note is a dummy and only holds the duration
             //of the newline. Due to the low pitch it should not be hearable.
             data.removeFirst();
@@ -50,9 +50,9 @@ Sylabel::Sylabel(QString source, int players, Song* song)
         throw SylabelFormatException(source,Reason::NotEnoughData);
     }
     int beats = data[0].toInt(&ok);
-    if (!ok) return;
+    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);
     int pitch = data[1].toInt(&ok);
-    if (!ok) return;
+    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
 
     _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
     _text = data[2]; //Pure text

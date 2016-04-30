@@ -6,7 +6,7 @@ class SylabelFormatException : public std::exception
 {
 public:
     enum class Reason {
-        EmptyLine, InvalidType, NotEnoughData,
+        EmptyLine, InvalidType, NotEnoughData, InvalidNumber
     };
 
     SylabelFormatException(QString sylabel, Reason reason);

@@ -13,6 +13,8 @@ SylabelFormatException::SylabelFormatException(QString sylabel, Reason reason)
         case Reason::NotEnoughData:
             message_ = QString("Sylabel '%1' contained not enough data").arg(sylabel).toStdString();
             break;
+        case Reason::InvalidNumber:
+            message_ = QString("Sylabel '%1' contained an invalid number").arg(sylabel).toStdString();
     }
 }
 
