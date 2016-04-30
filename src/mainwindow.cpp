@@ -12,6 +12,8 @@
 #include <QProgressDialog>
 #include <QInputDialog>
 
+#include <chrono>
+
 #include <exceptions/songparseexception.h>
 #include <exceptions/sylabelformatexception.h>
 
@@ -175,6 +177,7 @@ void MainWindow::resortList() {
     //add frames to group widgets (in sort order)
     statusProgress.setRange(0,songGroups.keys().count());
     int sp = 0;
+    auto start = std::chrono::steady_clock::now();
     for (QString g : songGroups.keys()) {
         QLayoutItem* li = nullptr;
         bool old = songGroups[g]->isVisible();
@@ -183,12 +186,17 @@ void MainWindow::resortList() {
             songGroups[g]->layout().removeItem(li);
         }
         for (SongFrame* f : groupedFrames[g]) {
-            qApp->processEvents();
             if (done) return;
             songGroups[g]->layout().addWidget(f);
         }
         songGroups[g]->setVisible(old);
         statusProgress.setValue(++sp);
+        auto cur = std::chrono::steady_clock::now();
+        if (cur - start == std::chrono::milliseconds(300)) {
+            start = cur;
+            qApp->processEvents();
+        }
+
     }
     done = true;
 }
@@ -201,11 +209,11 @@ void MainWindow::filterList() {
     statusProgress.setRange(0,songFrames.count());
     int sp = 0;
 
+    auto start = std::chrono::steady_clock::now();
     for (QString group : songGroups.keys()) {
         QList<SongFrame*> sl = groupedFrames[group];
         int cnt = 0;
         for (SongFrame* sf : sl) {
-            qApp->processEvents();
             if (done) return;
             statusProgress.setValue(++sp);
             bool flt = filter(sf->song);
@@ -215,6 +223,11 @@ void MainWindow::filterList() {
                 sf->deselect();
                 selectedFrames.removeAll(sf);
             }
+        }
+        auto cur = std::chrono::steady_clock::now();
+        if (cur - start == std::chrono::milliseconds(300)) {
+            start = cur;
+            qApp->processEvents();
         }
         songGroups[group]->setVisible(cnt != 0);
     }
