@@ -49,9 +49,8 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::rescanCollection() {
-    QProgressDialog progress("Scanning collection ..","Cancel",0,0,this);
-    progress.setWindowModality(Qt::WindowModal);
     QStringList paths = config.value("songdirs").toStringList();
+    auto start = std::chrono::steady_clock::now();
     qDebug() << "Go ahead :)";
     for (QString d : paths) {
         //TODO: This is leaking on rescan!
@@ -67,7 +66,11 @@ void MainWindow::rescanCollection() {
             } catch (SylabelFormatException& e) {
                 qDebug() << "Error: " << e.what();
             }
-            qApp->processEvents();
+            auto cur = std::chrono::steady_clock::now();
+            if (cur - start >= std::chrono::milliseconds(300)) {
+                start = cur;
+                qApp->processEvents();
+            }
         };
     }
     ((QBoxLayout*)ui->songList->layout())->addStretch(1);
@@ -192,7 +195,7 @@ void MainWindow::resortList() {
         songGroups[g]->setVisible(old);
         statusProgress.setValue(++sp);
         auto cur = std::chrono::steady_clock::now();
-        if (cur - start == std::chrono::milliseconds(300)) {
+        if (cur - start >= std::chrono::milliseconds(300)) {
             start = cur;
             qApp->processEvents();
         }
@@ -225,7 +228,7 @@ void MainWindow::filterList() {
             }
         }
         auto cur = std::chrono::steady_clock::now();
-        if (cur - start == std::chrono::milliseconds(300)) {
+        if (cur - start >= std::chrono::milliseconds(300)) {
             start = cur;
             qApp->processEvents();
         }
