@@ -48,10 +48,16 @@ MainWindow::~MainWindow() {
     ui->songDetails->pausePlayback();
 }
 
+
+template<typename T>
+auto seconds_since(T base) {
+    return std::chrono::duration<double>(T::clock::now() - base).count();
+}
+
 void MainWindow::rescanCollection() {
     QStringList paths = config.value("songdirs").toStringList();
     auto start = std::chrono::steady_clock::now();
-    qDebug() << "Go ahead :)";
+    auto begin = start;
     for (QString d : paths) {
         //TODO: This is leaking on rescan!
         qDebug() << "Scannning:"  << d;
@@ -74,13 +80,19 @@ void MainWindow::rescanCollection() {
         };
     }
     ((QBoxLayout*)ui->songList->layout())->addStretch(1);
+    qDebug() << "Scanned in " << seconds_since(begin) << "s";
+    begin = std::chrono::steady_clock::now();
     ui->groupBy->clear();
     ui->groupBy->addItems(Song::seenTags());
+    qDebug() << "Added in " << seconds_since(begin) << "s";
+    begin = std::chrono::steady_clock::now();
     if (Song::seenTags().contains("ARTIST"))  {
         ui->groupBy->setCurrentIndex(Song::seenTags().indexOf("ARTIST"));
     } else {
         ui->groupBy->setCurrentIndex(0);
     }
+    qDebug() << "Grouped in " << seconds_since(begin) << "s";
+    begin = std::chrono::steady_clock::now();
     //regroupList();
     selectedFrames.clear();
 
