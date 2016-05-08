@@ -5,6 +5,7 @@
 #include <song.h>
 
 #include <exceptions/sylabelformatexception.h>
+#include <QTextStream>
 
 int Sylabel::ppq = 96;
 
@@ -23,48 +24,46 @@ Sylabel::Sylabel(QString source, int players, Song* song)
     }
 
     source.remove(0,1);
-    QStringList data = source.split(" ",QString::SkipEmptyParts);
-    bool ok;
+    QTextStream data(&source);
+    data.skipWhiteSpace();
+    data >> _beat;
+    switch (data.status()) {
+        case QTextStream::ReadPastEnd:
+            throw SylabelFormatException(source,Reason::NotEnoughData);
+        case QTextStream::ReadCorruptData:
+            throw SylabelFormatException(source,Reason::InvalidNumber);;
+        default: ;
+    }
 
-    if (data.size() < 1)
-        throw SylabelFormatException(source,Reason::NotEnoughData);
-    _beat = data[0].toInt(&ok);
-    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
-    data.removeFirst();
+    int beats = 0, pitch = 0;
     if (_t == Type::SimpleLineBreak) {
-        int beats = 0;
-        if (data.size() == 1) {
-            beats = data[0].toInt(&ok);
-            if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
-            //Hacky, but should work. This note is a dummy and only holds the duration
-            //of the newline. Due to the low pitch it should not be hearable.
-            data.removeFirst();
-            _t = Type::LineBreak;
+        data >> beats;
+        switch (data.status()) {
+            case QTextStream::ReadCorruptData:
+                throw SylabelFormatException(source,Reason::InvalidNumber);
+            case QTextStream::Ok:
+                _t = Type::LineBreak; //Not simple
+            default: ;
         }
         _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
-        if (data.size() != 0) return;
+        if (!data.readAll().trimmed().isEmpty())
+            throw SylabelFormatException::Reason::ExtraData;
         return;
     }
-    if (data.size() < 3) {
-         //Invalid line! (BEtter error handling needed? TODO! What if non-text sylabel?)
-        throw SylabelFormatException(source,Reason::NotEnoughData);
+    for (auto d : {&beats,&pitch}) {
+        data >> *d;
+        switch (data.status()) {
+            case QTextStream::ReadPastEnd:
+                throw SylabelFormatException(source,Reason::NotEnoughData);
+            case QTextStream::ReadCorruptData:
+                throw SylabelFormatException(source,Reason::InvalidNumber);;
+            default: ;
+        }
     }
-    int beats = data[0].toInt(&ok);
-    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);
-    int pitch = data[1].toInt(&ok);
-    if (!ok) throw SylabelFormatException(source,Reason::InvalidNumber);;
-
     _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
-    _text = data[2]; //Pure text
-    if (data.size() > 3) {
-        for (int i = 3; i < data.size(); i++)
-            _text += " "+data[i];
-    }
-    //Get text with trailing spaces (but not with leading seperators!)
-    QRegExp re("\\s(\\s*"+QRegExp::escape(_text)+"\\s*)$");
-    re.indexIn(source);
-    assert(re.captureCount() == 1 || "This can not fail!");
-    _text = re.cap(1);
+    _text = data.readAll().remove(0,1); //Pure text
+    if (_text.trimmed().isEmpty())
+        throw SylabelFormatException(source,Reason::NotEnoughData);
 }
 
 Sylabel::~Sylabel() {

@@ -15,6 +15,8 @@ SylabelFormatException::SylabelFormatException(QString sylabel, Reason reason)
             break;
         case Reason::InvalidNumber:
             message_ = QString("Sylabel '%1' contained an invalid number").arg(sylabel).toStdString();
+        case Reason::ExtraData:
+            message_ = QString("Sylabel '%1' contained extra data").arg(sylabel).toStdString();
     }
 }
 
