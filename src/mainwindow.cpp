@@ -17,6 +17,8 @@
 #include <exceptions/songparseexception.h>
 #include <exceptions/sylabelformatexception.h>
 
+ using namespace std::chrono_literals;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
     ui(std::make_unique<Ui::MainWindow>()),
@@ -73,7 +75,7 @@ void MainWindow::rescanCollection() {
                 qDebug() << "Error: " << e.what();
             }
             auto cur = std::chrono::steady_clock::now();
-            if (cur - start >= std::chrono::milliseconds(300)) {
+            if (cur - start >= 300ms) {
                 start = cur;
                 qApp->processEvents();
             }
@@ -207,7 +209,7 @@ void MainWindow::resortList() {
         songGroups[g]->setVisible(old);
         statusProgress.setValue(++sp);
         auto cur = std::chrono::steady_clock::now();
-        if (cur - start >= std::chrono::milliseconds(300)) {
+        if (cur - start >= 300ms) {
             start = cur;
             qApp->processEvents();
         }
@@ -240,7 +242,7 @@ void MainWindow::filterList() {
             }
         }
         auto cur = std::chrono::steady_clock::now();
-        if (cur - start >= std::chrono::milliseconds(300)) {
+        if (cur - start >= 300ms) {
             start = cur;
             qApp->processEvents();
         }
