@@ -12,7 +12,6 @@ SongInfo::SongInfo(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
     connect(ui->notes,&NoteWidget::pause,this,&SongInfo::pause);
-    connect(ui->notes,&NoteWidget::seek,&midiPlayer, &MidiPlayer::seek);
     connect(ui->notes,&NoteWidget::seek,this,&SongInfo::seek);
     connect(ui->popoutVideo,&QPushButton::pressed,[this] {
         ui->popoutVideo->setChecked(!ui->popoutVideo->isChecked());
@@ -58,14 +57,6 @@ SongInfo::SongInfo(QWidget *parent) :
 
 SongInfo::~SongInfo() {}
 
-void SongInfo::setMidiPort(QString port) {
-    midiPlayer.connect(port);
-}
-
-QStringList SongInfo::getMidiPorts() {
-    return midiPlayer.getPorts();
-}
-
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
     selection = selected;
     selectionChanged();
@@ -95,7 +86,6 @@ void SongInfo::selectionChanged() {
     if (selection->size() == 1) { //TODO: Support mass edit
         Song* s = selection->first()->song;
         ui->notes->setSong(s);
-        midiPlayer.setSong(s);
         if (s->hasVideo())
             videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
         else
@@ -225,30 +215,15 @@ void SongInfo::on_artist_textChanged(const QString &arg1)
 }
 
 void SongInfo::seekTo(quint64 time) {
-    midiPlayer.seek(time);
     videoPlayer.setPosition(time);
 }
 
 void SongInfo::pausePlayback() {
-    if (ui->playNotes->isChecked())
-        midiPlayer.stop();
     videoPlayer.stop();
 }
 
 void SongInfo::startPlayback() {
-    if (ui->playNotes->isChecked())
-        midiPlayer.play();
     videoPlayer.play();
-}
-
-void SongInfo::on_playNotes_toggled(bool checked)
-{
-    if (!checked) {
-        midiPlayer.stop();
-    } else {
-        emit pause();
-        emit play();
-    }
 }
 
 void SongInfo::on_muteVideo_toggled(bool checked)

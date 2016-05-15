@@ -3,12 +3,13 @@
 #include <QDebug>
 
 AudioPlayer::AudioPlayer(QWidget *parent) :
-    QFrame(parent), _song(nullptr),
-    ui(std::make_unique<Ui::AudioPlayer>()), pl(&player)
+    QFrame(parent), ui(std::make_unique<Ui::AudioPlayer>()),
+    _song(nullptr), pl(&player)
 {
     ui->setupUi(this);
     ui->songTimePassed->display("00:00");
     ui->songTimeRemaining->display("00:00");
+
     connect(&player,&QMediaPlayer::stateChanged, [this] (QMediaPlayer::State state) {
        switch (state) {
            case QMediaPlayer::State::PlayingState:
@@ -38,10 +39,10 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
         switch (player.state()) {
             case QMediaPlayer::PausedState:
             case QMediaPlayer::StoppedState:
-                player.play();
+                play();
                 break;
             case QMediaPlayer::PlayingState:
-                player.pause();
+                pause();
                 break;
         }});
     connect(&player,&QMediaPlayer::positionChanged,[this] (qint64 pos) {
@@ -58,13 +59,28 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
 
 void AudioPlayer::seek(quint64 pos) {
     player.setPosition(pos);
+    midi.seek(pos);
 }
 
 AudioPlayer::~AudioPlayer() {}
 
-void AudioPlayer::stop() { player.stop(); }
-void AudioPlayer::play() { player.play(); }
-void AudioPlayer::pause() { player.pause(); }
+void AudioPlayer::stop() {
+    player.stop();
+    if (ui->playNotes->isChecked()) midi.stop();
+}
+
+void AudioPlayer::play() {
+    player.play();
+    if (ui->playNotes->isChecked()) {
+        midi.seek(player.position());
+        midi.play();
+    }
+}
+
+void AudioPlayer::pause() {
+    player.pause();
+    if (ui->playNotes->isChecked()) midi.stop();
+}
 
 QSize AudioPlayer::sizeHint() const {
     QSize sh = QWidget::sizeHint();
@@ -75,6 +91,7 @@ QSize AudioPlayer::sizeHint() const {
 void AudioPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
     ui->playerTitle->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(_song->artist(),_song->title()));
+    midi.setTempo(_song->bpm());
 }
 
 void AudioPlayer::setSong(Song *song) {
@@ -84,10 +101,22 @@ void AudioPlayer::setSong(Song *song) {
         player.stop();
     }
     _song = song;
+    midi.setSong(_song);
     if (!song->mp3().exists()) return;
     updateSongData();
     connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
     connect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
+
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
     player.setNotifyInterval(1/song->bpm()*1000); //60*bpm This should be tuneable for low powered systems
+}
+
+void AudioPlayer::on_playNotes_toggled(bool checked)
+{
+    if (checked) {
+        midi.play();
+        midi.seek(player.position());
+    } else {
+        midi.stop();
+    }
 }

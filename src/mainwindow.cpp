@@ -41,8 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->musicPlayer,&AudioPlayer::paused, ui->songDetails, &SongInfo::pausePlayback);
     connect(ui->songDetails,&SongInfo::popOut, [this] { popOut(2); });
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
-    ui->songDetails->setMidiPort(config.value("midiPort","").toString());
-
+    ui->musicPlayer->midi.connect(config.value("midiPort","").toString());
 }
 
 
@@ -316,7 +315,7 @@ void MainWindow::on_actionSources_triggered()
 
 void MainWindow::on_actionMidi_Output_triggered()
 {
-    QStringList items = ui->songDetails->getMidiPorts();
+    QStringList items = ui->musicPlayer->midi.getPorts();
     int current = items.indexOf(config.value("midiPort","").toString());
     bool ok;
     QString item = QInputDialog::getItem(this, "Player subscription",
@@ -324,6 +323,6 @@ void MainWindow::on_actionMidi_Output_triggered()
                                          current, false, &ok);
     if (ok && !item.isEmpty()) {
         config.setValue("midiPort",item);
-        ui->songDetails->setMidiPort(item);
+        ui->musicPlayer->midi.connect(item);
     }
 }

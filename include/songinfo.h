@@ -1,6 +1,5 @@
 #pragma once
 #include "songframe.h"
-#include "midiplayer.h"
 #include <QWidget>
 #include <QMediaPlayer>
 #include <memory>
@@ -15,7 +14,6 @@ class SongInfo : public QWidget
 
 public:
     explicit SongInfo(QWidget *parent = 0);
-    QStringList getMidiPorts();
     virtual ~SongInfo();
 
 public slots:
@@ -25,14 +23,11 @@ public slots:
     void pausePlayback();
     void startPlayback();
     void seekTo(quint64 time);
-    void setMidiPort(QString port);
 
 private slots:
     void on_title_textChanged(const QString &arg1);
     void on_artist_textChanged(const QString &arg1);
     void highlightText(int from, int to);
-
-    void on_playNotes_toggled(bool checked);
 
     void on_muteVideo_toggled(bool checked);
 
@@ -44,7 +39,6 @@ signals:
 
 private:
     std::unique_ptr<Ui::SongInfo> ui;
-    MidiPlayer midiPlayer;
     QMediaPlayer videoPlayer;
     QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;
     QList<SongFrame*> *selection;

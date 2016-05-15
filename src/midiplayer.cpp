@@ -15,6 +15,7 @@ MidiPlayer::MidiPlayer(QObject *parent) :QObject(parent)
 }
 
 void MidiPlayer::play() {
+    if (_song == nullptr) return;
     ProgramChangeEvent ev(0,0);
     ev.setSource(port->getPortId());
     ev.setSubscribers();

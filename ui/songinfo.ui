@@ -112,7 +112,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="generalTab">
         <attribute name="title">
@@ -129,8 +129,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>635</width>
-              <height>574</height>
+              <width>632</width>
+              <height>572</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -427,8 +427,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>635</width>
-              <height>294</height>
+              <width>632</width>
+              <height>320</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -589,16 +589,6 @@
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_9">
-           <item>
-            <widget class="QCheckBox" name="playNotes">
-             <property name="text">
-              <string>Play Notes</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item>
             <widget class="QCheckBox" name="checkBox_4">
              <property name="enabled">

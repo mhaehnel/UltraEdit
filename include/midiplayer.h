@@ -17,8 +17,6 @@ class MidiPlayer : public QObject
 public:
     explicit MidiPlayer(QObject *parent = 0);
     QStringList getPorts();
-signals:
-    void positionChanged(quint64 pos);
 
 public slots:
     void connect(QString portName);

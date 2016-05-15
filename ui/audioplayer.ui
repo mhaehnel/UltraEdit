@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>116</height>
+    <width>752</width>
+    <height>151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -143,6 +143,20 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QPushButton" name="playNotes">
+           <property name="text">
+            <string>Play Notes</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </item>
      <item>
@@ -223,7 +237,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="audio-volume-medium"/>
+            <iconset theme="audio-volume-medium">
+             <normaloff>.</normaloff>.</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>

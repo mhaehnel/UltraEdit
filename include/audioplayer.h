@@ -3,6 +3,8 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <song.h>
+#include <drumstick.h>
+#include <midiplayer.h>
 #include <memory>
 
 namespace Ui {
@@ -17,6 +19,8 @@ public:
     explicit AudioPlayer(QWidget *parent = 0);
     virtual ~AudioPlayer();
     QSize sizeHint() const;
+    MidiPlayer midi;
+
 signals:
     void started();
     void stopped();
@@ -29,13 +33,17 @@ public slots:
     void stop();
     void play();
     void pause();
+    void on_playNotes_toggled(bool toggled);
 
 private slots:
     void updateSongData();
 
 private:
-    Song* _song;
     std::unique_ptr<Ui::AudioPlayer> ui;
+
+    Song* _song; //TODO: Ownership?
+
+    //MP3 Player
     QMediaPlayer player;
     QMediaPlaylist pl;
 };
