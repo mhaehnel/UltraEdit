@@ -19,33 +19,6 @@ SongInfo::SongInfo(QWidget *parent) :
         ui->songChanged->setVisible(!ui->popoutVideo->isChecked() && selection->first()->song->isModified());
         emit popOut();
     });
-    connect(ui->nextLine,&QPushButton::clicked,[this] {
-       ui->notes->goToLine(ui->notes->line()+1);
-    });
-
-    connect(ui->prevLine,&QPushButton::clicked,[this] {
-       ui->notes->goToLine(ui->notes->line()-1);
-    });
-
-    connect(ui->firstLine,&QPushButton::clicked,[this] {
-       ui->notes->goToLine(0);
-    });
-
-    connect(ui->lastLine,&QPushButton::clicked,[this] {
-       ui->notes->goToLine(ui->notes->lines()-1);
-    });
-
-    connect(ui->notes,&NoteWidget::lineChanged,[this] (int line) {
-        ui->curLine->setText(QString::number(line));
-    });
-
-    connect(ui->curLine,&QLineEdit::editingFinished, [this] {
-        ui->notes->goToLine(ui->curLine->text().toInt());
-    });
-
-    connect(ui->notes,&NoteWidget::lineCount,[this] (int count) {
-        ui->maxLine->setText(QString::number(count));
-    });
 
     ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
     ui->actionItemsScrollArea->hide();

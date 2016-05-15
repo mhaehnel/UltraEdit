@@ -266,6 +266,7 @@ void NoteWidget::calculate() {
 }
 
 void NoteWidget::setLine(int line) {
+    line--;
     if (currentLine == line) return;
     if (keepLine) return;
     assert(_notes[line].size() > 0);

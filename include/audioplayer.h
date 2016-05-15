@@ -35,6 +35,11 @@ public slots:
 private slots:
     void updateSongData();
 
+    void on_firstLine_clicked();
+    void on_prevLine_clicked();
+    void on_nextLine_clicked();
+    void on_lastLine_clicked();
+
 private:
     std::unique_ptr<Ui::AudioPlayer> ui;
 

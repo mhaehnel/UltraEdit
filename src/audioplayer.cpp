@@ -20,6 +20,10 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
            case QMediaPlayer::State::StoppedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
                videoPlayer.stop();
+               if (ui->songRepeat->isChecked()) {
+                   player.setPosition(0);
+                   player.play();
+               }
                break;
            case QMediaPlayer::State::PausedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
@@ -57,6 +61,9 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
         ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
     });
     connect(&player,&QMediaPlayer::durationChanged,[this] (qint64 dur) { ui->songPos->setRange(0,dur); });
+    connect(ui->linePos,&QSlider::valueChanged,[this] (int pos) {
+       seek(_song->timeAtLine(pos));
+    });
     videoPlayer.setMuted(!ui->playVidAudio->isChecked());
 }
 
@@ -105,6 +112,8 @@ void AudioPlayer::setSong(Song *song) {
     if (_song != nullptr) {
         disconnect(_song,&Song::updated,this,&AudioPlayer::updateSongData);
         disconnect(&player,&QMediaPlayer::positionChanged,_song,&Song::playing);
+        disconnect(song,&Song::lineChanged,ui->linePos,&QSlider::setValue);
+        disconnect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
         player.stop();
     }
     _song = song;
@@ -116,8 +125,19 @@ void AudioPlayer::setSong(Song *song) {
     if (!song->mp3().exists()) return;
     updateSongData();
     connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
+    connect(song,&Song::lineChanged,ui->curLine,static_cast<void(QLCDNumber::*)(int)>(&QLCDNumber::display));
+    static QMetaObject::Connection lineChange;
+    QObject::disconnect(lineChange);
+    lineChange = connect(song,&Song::lineChanged,[this] (int val) {
+        ui->linePos->blockSignals(true);
+        ui->linePos->setValue(val);
+        ui->linePos->blockSignals(false);
+    });
     connect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
-
+    ui->curLine->display(1);
+    ui->numLines->display(_song->lines());
+    ui->linePos->setMaximum(_song->lines());
+    ui->linePos->setValue(0);
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
     player.setNotifyInterval(1/song->bpm()*1000); //60*bpm This should be tuneable for low powered systems
 }
@@ -145,4 +165,20 @@ void AudioPlayer::connectMidiPort(QString port) {
 
 QStringList AudioPlayer::midiPorts() {
     return midi.getPorts();
+}
+
+void AudioPlayer::on_firstLine_clicked() {
+    seek(_song->timeAtLine(0));
+}
+
+void AudioPlayer::on_prevLine_clicked() {
+    seek(_song->timeAtLine(ui->curLine->intValue()-1));
+}
+
+void AudioPlayer::on_nextLine_clicked() {
+    seek(_song->timeAtLine(ui->curLine->intValue()+1));
+}
+
+void AudioPlayer::on_lastLine_clicked() {
+    seek(_song->timeAtLine(_song->lines()));
 }
