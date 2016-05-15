@@ -300,13 +300,6 @@ void NoteWidget::mouseDoubleClickEvent(QMouseEvent *event) {
     }
 }
 
-void NoteWidget::wheelEvent(QWheelEvent *event) {
-    int steps = -event->delta()/8/15;
-
-    if (event->orientation() ==Qt::Vertical)
-        goToLine(std::min(std::max(0,currentLine+steps),_notes.size()-1));
-}
-
 void NoteWidget::mousePressEvent(QMouseEvent *event) {
     for (QRectF &r : texts.keys()) {
         if (r.contains(event->pos())) {
