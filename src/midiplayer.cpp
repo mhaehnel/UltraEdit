@@ -32,6 +32,7 @@ void MidiPlayer::stop() {
     client.stopSequencerInput();
     seq->stop();
     queue->clear();
+    events.clear();
 }
 
 void MidiPlayer::connect(QString portName) {
@@ -66,14 +67,12 @@ void MidiPlayer::seek(quint64 pos) {
     seq->setPosition(pos/60000.0*ppq*queue->getTempo().getNominalBPM());
 }
 
-void MidiPlayer::setSong(Song *song) {
-    _song = song;
 
-    setTempo(_song->bpm());
-    queue->start();
-    seq->stop();
-    events.clear();
-    for (const Sylabel* s : song->sylabels()) {
+void MidiPlayer::reschedule() {
+    bool wasRunning = seq->isRunning();
+    stop();
+
+    for (const Sylabel* s : _song->sylabels()) {
         if (s->isLineBreak()) continue;
         NoteEvent* ev = s->event();
         ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
@@ -81,6 +80,15 @@ void MidiPlayer::setSong(Song *song) {
         events.append(ev);
     }
     seq->setEvents(events);
+    setTempo(_song->bpm());
+
+    if (wasRunning) play();
+}
+
+
+void MidiPlayer::setSong(Song *song) {
+    _song = song;
+    reschedule();
 }
 
 void MidiPlayer::setVolume(int vol) {

@@ -58,7 +58,7 @@ signals:
 private:
     static int ppq;
     drumstick::NoteEvent* _event;
-    int _beat; //time (beta = quater note no)
+    int _beat; //time (beat = quater note no)
     Type _t;
     QString _text;
     int _players; //TODO

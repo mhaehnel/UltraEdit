@@ -17,7 +17,7 @@ QPixmap* Song::_coverMissing = nullptr;
 //using namespace std::rel_ops;
 
 Song::Song(const QFileInfo& source,const QString basePath) :
-    _bpm(0), _gap(0), _basePath(basePath),  _txt(source)
+    _bpm(0), _gap(0), _videoGap(0), _basePath(basePath),  _txt(source)
 {
     using Reason = SongParseException::Reason;
 
@@ -200,6 +200,14 @@ bool Song::toDouble(const QString &value, double& target) {
     return ok;
 }
 
+bool Song::toInt(const QString &value, quint64& target) {
+    bool ok;
+    target = QString(value).replace(",",".").toInt(&ok);
+    if (!ok) _errors << QString("%2 is not an integer!").arg(value);
+    return ok;
+}
+
+
 //This may fail when moving in Filesystem atm!
 bool Song::setTag(const QString &tag, const QString &value) {
     if (value.trimmed().isEmpty()) {
@@ -211,7 +219,16 @@ bool Song::setTag(const QString &tag, const QString &value) {
     if (tag == "BACKGROUND" && !setFile(_bg,value))  return false;
     if (tag == "VIDEO" && !setFile(_vid,value)) return false;
     if (tag == "BPM" && !toDouble(value,_bpm)) return false;
-    if (tag == "GAP" && !toDouble(value,_gap)) return false;
+    if (tag == "GAP" && !toInt(value,_gap)) return false;
+
+    double tmp;
+    if (tag == "VIDEOGAP") {
+        if (toDouble(value,tmp)) {
+            _videoGap = tmp*1000;
+        } else {
+            return false;
+        }
+    }
     tags[tag] = value;
 
     return true;
@@ -306,10 +323,10 @@ bool Song::missingCover() const {
     return hasCover() && !_cov.exists();
 }
 
-QString Song::title() const
-{
+QString Song::title() const {
     return tags["TITLE"];
 }
+
 QString Song::artist() const {
     return tags["ARTIST"];
 }

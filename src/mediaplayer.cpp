@@ -1,6 +1,7 @@
 #include "mediaplayer.h"
 #include "ui_mediaplayer.h"
 #include <QDebug>
+#include <actions/modifygap.h>
 
 MediaPlayer::MediaPlayer(QWidget *parent) :
     QFrame(parent), ui(std::make_unique<Ui::MediaPlayer>()),
@@ -14,7 +15,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
        switch (state) {
            case QMediaPlayer::State::PlayingState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-pause"));
-               videoPlayer.setPosition(player.position());
+               videoPlayer.setPosition(player.position()+_song->videoGap());
                videoPlayer.play();
                break;
            case QMediaPlayer::State::StoppedState:
@@ -33,7 +34,9 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
        }
     });
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
-    connect(ui->songPos,&QSlider::valueChanged,&videoPlayer,&QMediaPlayer::setPosition);
+    connect(ui->songPos,&QSlider::valueChanged,[this] (int position){
+        videoPlayer.setPosition(position+_song->videoGap());
+    });
     connect(ui->volumeMP3,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
     connect(ui->volumeMidi,&QSlider::valueChanged,&midi,&MidiPlayer::setVolume);
     connect(ui->playMP3,&QPushButton::clicked,[this](bool checked) {
@@ -69,7 +72,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
 
 void MediaPlayer::seek(quint64 pos) {
     player.setPosition(pos);
-    videoPlayer.setPosition(pos);
+    videoPlayer.setPosition(pos+_song->videoGap());
     midi.seek(pos);
 }
 
@@ -118,11 +121,20 @@ void MediaPlayer::setSong(Song *song) {
         player.stop();
     }
     _song = song;
+    this->setEnabled(true);
+
+    midi.setSong(_song);
+    ui->audioGap->setValue(_song->gap());
+    ui->videoGap->setValue(_song->videoGap());
+    ui->videoGap->setEnabled(true); //FIXME: Why do we need those 3 lines?!
+    ui->audioGap->setEnabled(true);
+    ui->tuningBox->setEnabled(true);
+
     if (_song->hasVideo())
         videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
     else
         videoPlayer.setMedia(QMediaContent());
-    midi.setSong(_song);
+
     if (!song->mp3().exists()) return;
     updateSongData();
     connect(song,&Song::updated,this,&MediaPlayer::updateSongData);
@@ -194,4 +206,14 @@ void MediaPlayer::on_lastLine_clicked() {
 
 void MediaPlayer::on_repeatLine_toggled(bool toggled) {
     repeatLine = (toggled)?ui->curLine->intValue():0;
+}
+
+void MediaPlayer::on_audioGap_valueChanged(int value) {
+    _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Audio,value));
+    midi.reschedule();
+}
+
+void MediaPlayer::on_videoGap_valueChanged(int value) {
+    _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Video,value));
+    videoPlayer.setPosition(player.position()+_song->videoGap());
 }

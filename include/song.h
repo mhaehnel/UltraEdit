@@ -13,6 +13,7 @@ private:
     bool setFile(QFileInfo& info, const QString& path);
     bool setTag(const QString& tag, const QString& value);
     bool toDouble(const QString& value, double& target);
+    bool toInt(const QString& value, quint64& target);
     void adjustRelative(Sylabel* syl);
     void updateDataCache();
 
@@ -26,7 +27,8 @@ private:
     bool _golden = false;     //has golden notes
     bool _freestyle = false;  //has freestyle notes
     int _players = 0;         //stays 0 for simple file (TODO! This is not really implemented ATM!)
-    double _bpm, _gap;
+    double _bpm;
+    quint64 _gap, _videoGap;
     QString _basePath, _rawTextCache, _rawDataCache;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
     QPixmap _covPM;
@@ -54,6 +56,7 @@ public:
     class TransposeSong;
     class ModifyTag;
     class OrderLyrics;
+    class ModifyGap;
 
     Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete; //Songs should not be copyable
@@ -91,7 +94,8 @@ public:
     bool isWellFormed() const   { return _warnings.isEmpty() && _errors.isEmpty(); }
 
     double bpm() const { return _bpm; }
-    double gap() const { return _gap; }
+    quint64 gap() const { return _gap; }
+    quint64 videoGap() const { return _videoGap; }
 
     bool missingVideo() const;
     bool missingBG() const;

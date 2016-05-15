@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     src/actions/transposesong.cpp \
     src/actions/modifytag.cpp \
     src/validators/lyricsinorder.cpp \
-    src/actions/orderlyrics.cpp
+    src/actions/orderlyrics.cpp \
+    src/actions/modifygap.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.h \
     include/actions/modifytag.h \
     include/validators/validator.h \
     include/validators/lyricsinorder.h \
-    include/actions/orderlyrics.h
+    include/actions/orderlyrics.h \
+    include/actions/modifygap.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

@@ -32,6 +32,8 @@ public slots:
     void on_playNotes_toggled(bool toggled);
     void on_playVidAudio_toggled(bool toggled);
     void on_repeatLine_toggled(bool toggled);
+    void on_audioGap_valueChanged(int value);
+    void on_videoGap_valueChanged(int value);
 
 private slots:
     void updateSongData();

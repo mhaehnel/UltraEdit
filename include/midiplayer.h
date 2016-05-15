@@ -24,6 +24,7 @@ public slots:
     void setSong(Song* song);
     void seek(quint64 pos);
     void play();
+    void reschedule();
     void stop();
     void setVolume(int vol);
 };
