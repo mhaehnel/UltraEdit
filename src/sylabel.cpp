@@ -45,9 +45,9 @@ Sylabel::Sylabel(QString source, int players, Song* song)
                 _t = Type::LineBreak; //Not simple
             default: ;
         }
-        _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
         if (!data.readAll().trimmed().isEmpty())
             throw SylabelFormatException::Reason::ExtraData;
+        _event = new drumstick::NoteEvent(0,0,100,beats*ppq/4);
         return;
     }
     for (auto d : {&beats,&pitch}) {
@@ -60,10 +60,10 @@ Sylabel::Sylabel(QString source, int players, Song* song)
             default: ;
         }
     }
-    _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
     _text = data.readAll().remove(0,1); //Pure text
     if (_text.trimmed().isEmpty())
         throw SylabelFormatException(source,Reason::NotEnoughData);
+    _event = new drumstick::NoteEvent(0,pitch,100,beats*ppq/4);
 }
 
 Sylabel::~Sylabel() {

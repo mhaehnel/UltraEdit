@@ -110,6 +110,10 @@ const std::list<std::shared_ptr<ActionItem>>& Song::actionItems() const {
     return actionItems_;
 }
 
+Song::~Song() {
+    for (auto s : musicAndLyrics) delete s;
+}
+
 bool Song::performAction(std::unique_ptr<Action> action) {
     if (!action->perform(*this)) return false;
     undoneActions_.clear(); //no redo after new action!

@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
     ui->songDetails->pausePlayback();
+    ui->musicPlayer->stop();
+    for (auto s : songList) delete s;
 }
 
 

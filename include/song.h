@@ -56,6 +56,7 @@ public:
 
     Song(const QFileInfo& source, const QString basePath);
     Song(const Song&) = delete; //Songs should not be copyable
+    virtual ~Song();
     Song& operator=(const Song&) = delete;
 //    bool operator==(const Song& rhs) const;
 
