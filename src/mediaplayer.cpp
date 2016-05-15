@@ -69,6 +69,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
 
 void MediaPlayer::seek(quint64 pos) {
     player.setPosition(pos);
+    videoPlayer.setPosition(pos);
     midi.seek(pos);
 }
 
@@ -129,6 +130,10 @@ void MediaPlayer::setSong(Song *song) {
     static QMetaObject::Connection lineChange;
     QObject::disconnect(lineChange);
     lineChange = connect(song,&Song::lineChanged,[this] (int val) {
+        if (repeatLine != val && repeatLine != 0) {
+            seek(_song->timeAtLine(repeatLine));
+            return;
+        }
         ui->linePos->blockSignals(true);
         ui->linePos->setValue(val);
         ui->linePos->blockSignals(false);
@@ -169,16 +174,24 @@ QStringList MediaPlayer::midiPorts() {
 
 void MediaPlayer::on_firstLine_clicked() {
     seek(_song->timeAtLine(0));
+    if (repeatLine) repeatLine = 0;
 }
 
 void MediaPlayer::on_prevLine_clicked() {
     seek(_song->timeAtLine(ui->curLine->intValue()-1));
+    if (repeatLine) repeatLine--;
 }
 
 void MediaPlayer::on_nextLine_clicked() {
     seek(_song->timeAtLine(ui->curLine->intValue()+1));
+    if (repeatLine) repeatLine++;
 }
 
 void MediaPlayer::on_lastLine_clicked() {
     seek(_song->timeAtLine(_song->lines()));
+    if (repeatLine) repeatLine = _song->lines();
+}
+
+void MediaPlayer::on_repeatLine_toggled(bool toggled) {
+    repeatLine = (toggled)?ui->curLine->intValue():0;
 }

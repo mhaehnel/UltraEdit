@@ -31,6 +31,7 @@ public slots:
     void pause();
     void on_playNotes_toggled(bool toggled);
     void on_playVidAudio_toggled(bool toggled);
+    void on_repeatLine_toggled(bool toggled);
 
 private slots:
     void updateSongData();
@@ -44,6 +45,8 @@ private:
     std::unique_ptr<Ui::MediaPlayer> ui;
 
     Song* _song; //TODO: Ownership?
+
+    int repeatLine = 0;
 
     //Players
     MidiPlayer midi;
