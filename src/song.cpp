@@ -96,9 +96,16 @@ Song::Song(const QFileInfo& source,const QString basePath) :
             last += s->beats();
     }
     int avg = 0;
-    for (Sylabel* s : musicAndLyrics)
-        if (!s->isLineBreak())
+    _linesIdx.push_back(0);
+    int idx = 0;
+    for (Sylabel* s : musicAndLyrics) {
+        idx++;
+        if (!s->isLineBreak()) {
             avg += static_cast<signed char>(s->key());
+        } else {
+            _linesIdx.push_back(idx);
+        }
+    }
     avg/=musicAndLyrics.size();
     if (avg < 30)
         performAction(std::make_unique<TransposeSong>(60));
@@ -338,7 +345,7 @@ QPixmap Song::cover() {
 
 void Song::playing(int ms) {
     //ms to from / to
-    int line = 0;
+    int line = 1;
     static int last_line = -1;
     int from = 0;
     ms -= _gap;
@@ -364,6 +371,17 @@ void Song::playing(int ms) {
 bool Song::isModified() const {
     return !performedActions_.empty();
 }
+
+int Song::lines() const {
+    return _linesIdx.size();
+}
+
+quint64 Song::timeAtLine(int line) const {
+    line--;
+    line = std::max(0,std::min(line,lines()));
+    return musicAndLyrics[_linesIdx[line]]->time()*1000+gap();
+}
+
 
 //bool Song::operator==(const Song& rhs) const {
 //    if (rhs.musicAndLyrics.size() != musicAndLyrics.size()) return false;

@@ -35,6 +35,7 @@ private:
     QStringList _errors, _warnings; //, _fatals;
     QMap<QString,int> agreedComponentCount;
     QList<Sylabel*> musicAndLyrics; //Todo: This is not multiplayer capable at the moment!
+    std::vector<int> _linesIdx;
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
 
@@ -99,6 +100,8 @@ public:
     bool isMultiplayer() const;
     bool relativeSource() const;
     int players() const;
+    int lines() const;
+    quint64 timeAtLine(int line) const;
 
     QString basePath() const { return _basePath; }
     static const QStringList& seenTags() { return _seenTags; }
