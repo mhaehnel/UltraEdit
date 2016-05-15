@@ -8,16 +8,16 @@
 #include <memory>
 
 namespace Ui {
-class AudioPlayer;
+class MediaPlayer;
 }
 
-class AudioPlayer : public QFrame
+class MediaPlayer : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit AudioPlayer(QWidget *parent = 0);
-    virtual ~AudioPlayer();
+    explicit MediaPlayer(QWidget *parent = 0);
+    virtual ~MediaPlayer();
     QSize sizeHint() const;
     void setVideoOutput(QVideoWidget* wv);
     void connectMidiPort(QString port);
@@ -41,7 +41,7 @@ private slots:
     void on_lastLine_clicked();
 
 private:
-    std::unique_ptr<Ui::AudioPlayer> ui;
+    std::unique_ptr<Ui::MediaPlayer> ui;
 
     Song* _song; //TODO: Ownership?
 

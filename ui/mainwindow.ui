@@ -70,7 +70,7 @@
               <x>0</x>
               <y>0</y>
               <width>282</width>
-              <height>220</height>
+              <height>252</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -320,7 +320,7 @@
               <x>0</x>
               <y>0</y>
               <width>281</width>
-              <height>262</height>
+              <height>252</height>
              </rect>
             </property>
             <attribute name="label">
@@ -451,7 +451,7 @@
           <x>0</x>
           <y>0</y>
           <width>387</width>
-          <height>394</height>
+          <height>384</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -473,7 +473,7 @@
      </widget>
     </item>
     <item>
-     <widget class="AudioPlayer" name="musicPlayer" native="true">
+     <widget class="MediaPlayer" name="musicPlayer">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
         <horstretch>0</horstretch>
@@ -567,18 +567,10 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>AudioPlayer</class>
-   <extends>QWidget</extends>
-   <header>audioplayer.h</header>
+   <class>MediaPlayer</class>
+   <extends>QFrame</extends>
+   <header>mediaplayer.h</header>
    <container>1</container>
-   <slots>
-    <signal>seeking(quint64)</signal>
-    <signal>started()</signal>
-    <signal>paused()</signal>
-    <slot>seek(quint64)</slot>
-    <slot>play()</slot>
-    <slot>pause()</slot>
-   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,9 +1,9 @@
-#include "audioplayer.h"
-#include "ui_audioplayer.h"
+#include "mediaplayer.h"
+#include "ui_mediaplayer.h"
 #include <QDebug>
 
-AudioPlayer::AudioPlayer(QWidget *parent) :
-    QFrame(parent), ui(std::make_unique<Ui::AudioPlayer>()),
+MediaPlayer::MediaPlayer(QWidget *parent) :
+    QFrame(parent), ui(std::make_unique<Ui::MediaPlayer>()),
     _song(nullptr), pl(&player)
 {
     ui->setupUi(this);
@@ -67,19 +67,19 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
     videoPlayer.setMuted(!ui->playVidAudio->isChecked());
 }
 
-void AudioPlayer::seek(quint64 pos) {
+void MediaPlayer::seek(quint64 pos) {
     player.setPosition(pos);
     midi.seek(pos);
 }
 
-AudioPlayer::~AudioPlayer() {}
+MediaPlayer::~MediaPlayer() {}
 
-void AudioPlayer::stop() {
+void MediaPlayer::stop() {
     player.stop();
     if (ui->playNotes->isChecked()) midi.stop();
 }
 
-void AudioPlayer::play() {
+void MediaPlayer::play() {
     player.play();
     if (ui->playNotes->isChecked()) {
         midi.seek(player.position());
@@ -87,30 +87,30 @@ void AudioPlayer::play() {
     }
 }
 
-void AudioPlayer::setVideoOutput(QVideoWidget* wv) {
+void MediaPlayer::setVideoOutput(QVideoWidget* wv) {
     videoPlayer.setVideoOutput(wv);
 }
 
-void AudioPlayer::pause() {
+void MediaPlayer::pause() {
     player.pause();
     if (ui->playNotes->isChecked()) midi.stop();
 }
 
-QSize AudioPlayer::sizeHint() const {
+QSize MediaPlayer::sizeHint() const {
     QSize sh = QWidget::sizeHint();
     sh.setHeight(106);
     return sh;
 }
 
-void AudioPlayer::updateSongData() {
+void MediaPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
     ui->playerTitle->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(_song->artist(),_song->title()));
     midi.setTempo(_song->bpm());
 }
 
-void AudioPlayer::setSong(Song *song) {
+void MediaPlayer::setSong(Song *song) {
     if (_song != nullptr) {
-        disconnect(_song,&Song::updated,this,&AudioPlayer::updateSongData);
+        disconnect(_song,&Song::updated,this,&MediaPlayer::updateSongData);
         disconnect(&player,&QMediaPlayer::positionChanged,_song,&Song::playing);
         disconnect(song,&Song::lineChanged,ui->linePos,&QSlider::setValue);
         disconnect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
@@ -124,7 +124,7 @@ void AudioPlayer::setSong(Song *song) {
     midi.setSong(_song);
     if (!song->mp3().exists()) return;
     updateSongData();
-    connect(song,&Song::updated,this,&AudioPlayer::updateSongData);
+    connect(song,&Song::updated,this,&MediaPlayer::updateSongData);
     connect(song,&Song::lineChanged,ui->curLine,static_cast<void(QLCDNumber::*)(int)>(&QLCDNumber::display));
     static QMetaObject::Connection lineChange;
     QObject::disconnect(lineChange);
@@ -142,7 +142,7 @@ void AudioPlayer::setSong(Song *song) {
     player.setNotifyInterval(1/song->bpm()*1000); //60*bpm This should be tuneable for low powered systems
 }
 
-void AudioPlayer::on_playNotes_toggled(bool checked)
+void MediaPlayer::on_playNotes_toggled(bool checked)
 {
     ui->volumeMidi->setEnabled(checked);
     if (checked) {
@@ -153,32 +153,32 @@ void AudioPlayer::on_playNotes_toggled(bool checked)
     }
 }
 
-void AudioPlayer::on_playVidAudio_toggled(bool checked)
+void MediaPlayer::on_playVidAudio_toggled(bool checked)
 {
     ui->volumeVideo->setEnabled(checked);
     videoPlayer.setMuted(!checked);
 }
 
-void AudioPlayer::connectMidiPort(QString port) {
+void MediaPlayer::connectMidiPort(QString port) {
     midi.connect(port);
 }
 
-QStringList AudioPlayer::midiPorts() {
+QStringList MediaPlayer::midiPorts() {
     return midi.getPorts();
 }
 
-void AudioPlayer::on_firstLine_clicked() {
+void MediaPlayer::on_firstLine_clicked() {
     seek(_song->timeAtLine(0));
 }
 
-void AudioPlayer::on_prevLine_clicked() {
+void MediaPlayer::on_prevLine_clicked() {
     seek(_song->timeAtLine(ui->curLine->intValue()-1));
 }
 
-void AudioPlayer::on_nextLine_clicked() {
+void MediaPlayer::on_nextLine_clicked() {
     seek(_song->timeAtLine(ui->curLine->intValue()+1));
 }
 
-void AudioPlayer::on_lastLine_clicked() {
+void MediaPlayer::on_lastLine_clicked() {
     seek(_song->timeAtLine(_song->lines()));
 }

@@ -28,7 +28,7 @@ SOURCES += main.cpp\
     song.cpp \
     songframe.cpp \
     songgroup.cpp \
-    audioplayer.cpp \
+    mediaplayer.cpp \
     pathinstanceselector.cpp \
     sylabel.cpp \
     notewidget.cpp \
@@ -49,7 +49,7 @@ HEADERS  += mainwindow.h \
     song.h \
     songframe.h \
     songgroup.h \
-    audioplayer.h \
+    mediaplayer.h \
     pathinstanceselector.h \
     notewidget.h \
     midiplayer.h \
@@ -71,7 +71,7 @@ FORMS    += mainwindow.ui \
     selectsongdirs.ui \
     songframe.ui \
     songgroup.ui \
-    audioplayer.ui \
+    mediaplayer.ui \
     validatorsettings.ui \
     pathinstanceselector.ui \
     noteview.ui \

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AudioPlayer</class>
- <widget class="QFrame" name="AudioPlayer">
+ <class>MediaPlayer</class>
+ <widget class="QFrame" name="MediaPlayer">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -105,7 +105,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="media-playlist-repeat"/>
+          <iconset theme="media-playlist-repeat">
+           <normaloff>.</normaloff>.</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -197,7 +198,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="go-first"/>
+          <iconset theme="go-first">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -210,7 +212,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="go-previous"/>
+          <iconset theme="go-previous">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -262,7 +265,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="go-next"/>
+          <iconset theme="go-next">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -275,7 +279,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset theme="go-last"/>
+          <iconset theme="go-last">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
