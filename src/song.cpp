@@ -321,18 +321,18 @@ QPixmap Song::cover() {
         if (_covPM.isNull()) {
             QPixmap covPM(_cov.canonicalFilePath());
             if (!covPM.isNull()) {
-                _covPM = covPM.scaled(96,96,Qt::KeepAspectRatio);
+                _covPM = covPM.scaled(128,128,Qt::KeepAspectRatio);
                 return _covPM;
             } else {
                 if (_coverMissing == nullptr)
-                    _coverMissing = new QPixmap(QPixmap(":/images/nocover_notFound.png").scaled(96,96,Qt::KeepAspectRatio));
+                    _coverMissing = new QPixmap(QPixmap(":/images/nocover_notFound.png").scaled(128,128,Qt::KeepAspectRatio));
                 return *_coverMissing;
             }
         }
         return _covPM;
     }
     if (_noCover == nullptr)
-        _noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(96,96,Qt::KeepAspectRatio));
+        _noCover = new QPixmap(QPixmap(":/images/nocover.png").scaled(128,128,Qt::KeepAspectRatio));
     return *_noCover; //TODO: Dummy image!
 }
 
