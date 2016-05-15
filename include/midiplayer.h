@@ -25,5 +25,5 @@ public slots:
     void seek(quint64 pos);
     void play();
     void stop();
-
+    void setVolume(int vol);
 };

@@ -27,6 +27,7 @@ void MidiPlayer::play() {
 }
 
 void MidiPlayer::stop() {
+    if (_song == nullptr) return;
     seq->allNotesOff();
     client.stopSequencerInput();
     seq->stop();
@@ -80,4 +81,12 @@ void MidiPlayer::setSong(Song *song) {
         events.append(ev);
     }
     seq->setEvents(events);
+}
+
+void MidiPlayer::setVolume(int vol) {
+    ControllerEvent ev(0, MIDI_CTL_MSB_MAIN_VOLUME, vol);
+    ev.setSource(port->getPortId());
+    ev.setSubscribers();
+    ev.setDirect();
+    client.outputDirect(&ev);
 }

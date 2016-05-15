@@ -14,27 +14,29 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
        switch (state) {
            case QMediaPlayer::State::PlayingState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-pause"));
-               emit seeking(player.position());
-               emit started();
+               videoPlayer.setPosition(player.position());
+               videoPlayer.play();
                break;
            case QMediaPlayer::State::StoppedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
-               emit stopped();
+               videoPlayer.stop();
                break;
            case QMediaPlayer::State::PausedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
-               emit paused();
+               videoPlayer.pause();
                break;
            default: break;
        }
     });
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
-    connect(ui->songPos,&QSlider::valueChanged,this,&AudioPlayer::seeking);
-    connect(ui->volume,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
-    connect(ui->mute,&QPushButton::clicked,&player,&QMediaPlayer::setMuted);
-    connect(ui->mute,&QPushButton::clicked,[this](bool checked) {
-        ui->mute->setIcon(QIcon::fromTheme(checked?"audio-volume-muted":"audio-volume-high"));
+    connect(ui->songPos,&QSlider::valueChanged,&videoPlayer,&QMediaPlayer::setPosition);
+    connect(ui->volumeMP3,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
+    connect(ui->volumeMidi,&QSlider::valueChanged,&midi,&MidiPlayer::setVolume);
+    connect(ui->playMP3,&QPushButton::clicked,[this](bool checked) {
+        ui->volumeMP3->setEnabled(checked);
+        player.setMuted(!checked);
     });
+    connect(ui->volumeVideo,&QSlider::valueChanged,&videoPlayer,&QMediaPlayer::setVolume);
     connect(ui->songPause,&QPushButton::clicked,[this] {
         switch (player.state()) {
             case QMediaPlayer::PausedState:
@@ -55,6 +57,7 @@ AudioPlayer::AudioPlayer(QWidget *parent) :
         ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
     });
     connect(&player,&QMediaPlayer::durationChanged,[this] (qint64 dur) { ui->songPos->setRange(0,dur); });
+    videoPlayer.setMuted(!ui->playVidAudio->isChecked());
 }
 
 void AudioPlayer::seek(quint64 pos) {
@@ -75,6 +78,10 @@ void AudioPlayer::play() {
         midi.seek(player.position());
         midi.play();
     }
+}
+
+void AudioPlayer::setVideoOutput(QVideoWidget* wv) {
+    videoPlayer.setVideoOutput(wv);
 }
 
 void AudioPlayer::pause() {
@@ -101,6 +108,10 @@ void AudioPlayer::setSong(Song *song) {
         player.stop();
     }
     _song = song;
+    if (_song->hasVideo())
+        videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
+    else
+        videoPlayer.setMedia(QMediaContent());
     midi.setSong(_song);
     if (!song->mp3().exists()) return;
     updateSongData();
@@ -113,10 +124,25 @@ void AudioPlayer::setSong(Song *song) {
 
 void AudioPlayer::on_playNotes_toggled(bool checked)
 {
+    ui->volumeMidi->setEnabled(checked);
     if (checked) {
         midi.play();
         midi.seek(player.position());
     } else {
         midi.stop();
     }
+}
+
+void AudioPlayer::on_playVidAudio_toggled(bool checked)
+{
+    ui->volumeVideo->setEnabled(checked);
+    videoPlayer.setMuted(!checked);
+}
+
+void AudioPlayer::connectMidiPort(QString port) {
+    midi.connect(port);
+}
+
+QStringList AudioPlayer::midiPorts() {
+    return midi.getPorts();
 }

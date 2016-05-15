@@ -19,13 +19,9 @@ public:
     explicit AudioPlayer(QWidget *parent = 0);
     virtual ~AudioPlayer();
     QSize sizeHint() const;
-    MidiPlayer midi;
-
-signals:
-    void started();
-    void stopped();
-    void paused();
-    void seeking(quint64 pos);
+    void setVideoOutput(QVideoWidget* wv);
+    void connectMidiPort(QString port);
+    QStringList midiPorts();
 
 public slots:
     void setSong(Song* song);
@@ -34,6 +30,7 @@ public slots:
     void play();
     void pause();
     void on_playNotes_toggled(bool toggled);
+    void on_playVidAudio_toggled(bool toggled);
 
 private slots:
     void updateSongData();
@@ -43,7 +40,9 @@ private:
 
     Song* _song; //TODO: Ownership?
 
-    //MP3 Player
+    //Players
+    MidiPlayer midi;
+    QMediaPlayer videoPlayer;
     QMediaPlayer player;
     QMediaPlaylist pl;
 };

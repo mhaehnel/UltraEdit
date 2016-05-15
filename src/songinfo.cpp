@@ -48,8 +48,6 @@ SongInfo::SongInfo(QWidget *parent) :
     });
 
     ui->videoWidget->setAspectRatioMode(Qt::KeepAspectRatio);
-    videoPlayer.setVideoOutput(ui->videoWidget);
-    videoPlayer.setMuted(ui->muteVideo);
     ui->actionItemsScrollArea->hide();
     ui->songMessages->hide();
     ui->songChanged->hide();
@@ -60,6 +58,10 @@ SongInfo::~SongInfo() {}
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
     selection = selected;
     selectionChanged();
+}
+
+QVideoWidget* SongInfo::videoWidget() {
+    return ui->videoWidget;
 }
 
 void SongInfo::selectionChanged() {
@@ -86,10 +88,6 @@ void SongInfo::selectionChanged() {
     if (selection->size() == 1) { //TODO: Support mass edit
         Song* s = selection->first()->song;
         ui->notes->setSong(s);
-        if (s->hasVideo())
-            videoPlayer.setMedia(QUrl::fromLocalFile(s->vid().canonicalFilePath()));
-        else
-            videoPlayer.setMedia(QMediaContent());
         conSylText = connect(s,static_cast<void (Song::*)(int,int)>(&Song::playingSylabel),this,&SongInfo::highlightText);
         conSyl = connect(s,static_cast<void (Song::*)(Sylabel*)>(&Song::playingSylabel),ui->notes,&NoteWidget::setCurrentNote);
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
@@ -212,21 +210,4 @@ void SongInfo::on_artist_textChanged(const QString &arg1)
         if (!sf->song->performAction(std::make_unique<Song::ModifyTag>("ARTIST",Song::ModifyTag::Op::Modify,arg1)))
             qWarning() << "Updating artist failed!";
     }
-}
-
-void SongInfo::seekTo(quint64 time) {
-    videoPlayer.setPosition(time);
-}
-
-void SongInfo::pausePlayback() {
-    videoPlayer.stop();
-}
-
-void SongInfo::startPlayback() {
-    videoPlayer.play();
-}
-
-void SongInfo::on_muteVideo_toggled(bool checked)
-{
-    videoPlayer.setMuted(checked);
 }

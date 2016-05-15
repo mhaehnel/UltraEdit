@@ -34,19 +34,16 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(&statusProgress);
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionChanged);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&AudioPlayer::seek);
-    connect(ui->musicPlayer,&AudioPlayer::seeking, ui->songDetails, &SongInfo::seekTo);
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&AudioPlayer::play);
-    connect(ui->musicPlayer,&AudioPlayer::started, ui->songDetails, &SongInfo::startPlayback);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&AudioPlayer::pause);
-    connect(ui->musicPlayer,&AudioPlayer::paused, ui->songDetails, &SongInfo::pausePlayback);
     connect(ui->songDetails,&SongInfo::popOut, [this] { popOut(2); });
     QTimer::singleShot(0,this,SLOT(rescanCollection()));
-    ui->musicPlayer->midi.connect(config.value("midiPort","").toString());
+    ui->musicPlayer->connectMidiPort(config.value("midiPort","").toString());
+    ui->musicPlayer->setVideoOutput(ui->songDetails->videoWidget());
 }
 
 
 MainWindow::~MainWindow() {
-    ui->songDetails->pausePlayback();
     ui->musicPlayer->stop();
     for (auto s : songList) delete s;
 }
@@ -272,7 +269,6 @@ void MainWindow::selectFrame(SongFrame *sf) {
         disconnect(sf->song,&Song::updated,ui->songDetails,&SongInfo::selectionUpdated);
         selectedFrames.removeAll(sf);
         ui->musicPlayer->stop();
-        ui->songDetails->pausePlayback();
     } else {
         //Enforce single selection for now!
         if (selectedFrames.size() == 1) {
@@ -317,7 +313,7 @@ void MainWindow::on_actionSources_triggered()
 
 void MainWindow::on_actionMidi_Output_triggered()
 {
-    QStringList items = ui->musicPlayer->midi.getPorts();
+    QStringList items = ui->musicPlayer->midiPorts();
     int current = items.indexOf(config.value("midiPort","").toString());
     bool ok;
     QString item = QInputDialog::getItem(this, "Player subscription",
@@ -325,6 +321,6 @@ void MainWindow::on_actionMidi_Output_triggered()
                                          current, false, &ok);
     if (ok && !item.isEmpty()) {
         config.setValue("midiPort",item);
-        ui->musicPlayer->midi.connect(item);
+        ui->musicPlayer->connectMidiPort(item);
     }
 }
