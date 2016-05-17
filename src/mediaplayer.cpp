@@ -58,6 +58,8 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
         bool o = ui->songPos->blockSignals(true); //Needed to avoid feedback
         ui->songPos->setValue(pos);
         ui->songPos->blockSignals(o);
+        if (MP3trace != nullptr && ui->waveForm->isChecked()) MP3trace->renderTrace(*(ui->MP3Trace),pos);
+        if (VidTrace != nullptr && ui->waveForm->isChecked()) VidTrace->renderTrace(*(ui->videoTrace),videoPlayer.position());
         pos /= 1000; //to seconds
         qint64 rem = player.duration()/1000 - pos;
         ui->songTimePassed->display(QString("%1:%2").arg(pos/60,2,10,QLatin1Char('0')).arg(pos%60,2,10,QLatin1Char('0')));
@@ -118,7 +120,7 @@ void MediaPlayer::setSong(Song *song) {
         disconnect(&player,&QMediaPlayer::positionChanged,_song,&Song::playing);
         disconnect(song,&Song::lineChanged,ui->linePos,&QSlider::setValue);
         disconnect(&player,&QMediaPlayer::positionChanged,song,&Song::playing);
-        player.stop();
+        stop();
     }
     _song = song;
     this->setEnabled(true);
@@ -130,10 +132,13 @@ void MediaPlayer::setSong(Song *song) {
     ui->audioGap->setEnabled(true);
     ui->tuningBox->setEnabled(true);
 
-    if (_song->hasVideo())
+    if (_song->hasVideo()) {
         videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
-    else
+        if (VidTrace != nullptr) delete VidTrace;
+        VidTrace = new AudioTrace(_song->vid().canonicalFilePath());
+    } else {
         videoPlayer.setMedia(QMediaContent());
+    }
 
     if (!song->mp3().exists()) return;
     updateSongData();
@@ -156,7 +161,12 @@ void MediaPlayer::setSong(Song *song) {
     ui->linePos->setMaximum(_song->lines());
     ui->linePos->setValue(0);
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
-    player.setNotifyInterval(1/song->bpm()*1000); //60*bpm This should be tuneable for low powered systems
+    if (MP3trace != nullptr) delete MP3trace;
+    MP3trace = new AudioTrace(song->mp3().canonicalFilePath());
+
+    //This should be tuneable for low powered systems
+    // we require 60000/bpm for notes but 100ms
+    player.setNotifyInterval(std::min(100,static_cast<int>(60000/song->bpm())));
 }
 
 void MediaPlayer::on_playNotes_toggled(bool checked)

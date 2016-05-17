@@ -6,7 +6,7 @@
 
 QT       += core gui concurrent multimedia svg multimediawidgets
 
-LIBS += -ldrumstick-alsa
+LIBS += -ldrumstick-alsa -lfftw3 -lm
 
 CONFIG += c++14
 
@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     src/actions/modifytag.cpp \
     src/validators/lyricsinorder.cpp \
     src/actions/orderlyrics.cpp \
-    src/actions/modifygap.cpp
+    src/actions/modifygap.cpp \
+    src/audiotrace.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -66,7 +67,8 @@ HEADERS  += mainwindow.h \
     include/validators/validator.h \
     include/validators/lyricsinorder.h \
     include/actions/orderlyrics.h \
-    include/actions/modifygap.h
+    include/actions/modifygap.h \
+    include/audiotrace.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

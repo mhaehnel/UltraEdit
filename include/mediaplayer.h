@@ -3,9 +3,9 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <song.h>
-#include <drumstick.h>
 #include <midiplayer.h>
 #include <memory>
+#include <audiotrace.h>
 
 namespace Ui {
 class MediaPlayer;
@@ -49,6 +49,9 @@ private:
     Song* _song; //TODO: Ownership?
 
     int repeatLine = 0;
+
+    AudioTrace* MP3trace = nullptr;
+    AudioTrace* VidTrace = nullptr;
 
     //Players
     MidiPlayer midi;

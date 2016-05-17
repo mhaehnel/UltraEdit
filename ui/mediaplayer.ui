@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>901</width>
-    <height>207</height>
+    <width>969</width>
+    <height>151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
   <property name="frameShadow">
    <enum>QFrame::Raised</enum>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,0,0,0,1">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
@@ -506,7 +506,7 @@
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Tuning</string>
+      <string>Tuning (Gap)</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="labelAlignment">
@@ -515,7 +515,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Gap</string>
+         <string>Audio</string>
         </property>
        </widget>
       </item>
@@ -540,14 +540,14 @@
          <number>999999</number>
         </property>
         <property name="singleStep">
-         <number>100</number>
+         <number>1</number>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Video Gap</string>
+         <string>Video</string>
         </property>
        </widget>
       </item>
@@ -572,7 +572,74 @@
          <number>999999</number>
         </property>
         <property name="singleStep">
-         <number>100</number>
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="waveForm">
+     <property name="title">
+      <string>Waveform</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>MP3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="MP3Trace">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="videoTrace">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Video</string>
         </property>
        </widget>
       </item>
