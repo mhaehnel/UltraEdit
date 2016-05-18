@@ -135,8 +135,14 @@ void MediaPlayer::setSong(Song *song) {
     if (_song->hasVideo()) {
         videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
         if (VidTrace != nullptr) delete VidTrace;
+        ui->videoTrace->clear();
         VidTrace = new AudioTrace(_song->vid().canonicalFilePath());
+        connect(VidTrace,&AudioTrace::finished,[this] {
+            VidTrace->renderTrace(*(ui->videoTrace),0);
+        });
     } else {
+        if (VidTrace != nullptr) delete VidTrace;
+        ui->videoTrace->clear();
         videoPlayer.setMedia(QMediaContent());
     }
 
@@ -162,8 +168,11 @@ void MediaPlayer::setSong(Song *song) {
     ui->linePos->setValue(0);
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
     if (MP3trace != nullptr) delete MP3trace;
+    ui->MP3Trace->clear();
     MP3trace = new AudioTrace(song->mp3().canonicalFilePath());
-
+    connect(MP3trace,&AudioTrace::finished,[this] {
+        MP3trace->renderTrace(*(ui->MP3Trace),0);
+    });
     //This should be tuneable for low powered systems
     // we require 60000/bpm for notes but 100ms
     player.setNotifyInterval(std::min(100,static_cast<int>(60000/song->bpm())));
