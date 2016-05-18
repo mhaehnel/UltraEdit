@@ -40,7 +40,7 @@ void AudioTrace::bufferAvailable() {
     }
     Q_ASSERT(fmt.channelCount() == buf.sampleCount()/buf.frameCount());
     Q_ASSERT(fmt.sampleSize() == 32);
-    const int32_t* sampleBuf = reinterpret_cast<const int32_t*>(buf.constData());
+    auto sampleBuf = buf.constData();
     for (int i = 0; i < buf.frameCount(); i++) {
         if (curSampleCount == 0) {
             curSample = ChannelSample(fmt.channelCount(),
@@ -57,13 +57,13 @@ void AudioTrace::bufferAvailable() {
                     break;
                 case QAudioFormat::SignedInt:
                 {
-                    int32_t val = sampleBuf[i*fmt.channelCount()+c];
+                    int32_t val = reinterpret_cast<const int32_t*>(sampleBuf)[i*fmt.channelCount()+c];
                     fval = (1.0*val)/((val < 0)?std::numeric_limits<int32_t>::max():std::numeric_limits<int32_t>::max());
                     break;
                 }
                 case QAudioFormat::UnSignedInt:
                 {
-                    uint32_t val = sampleBuf[i*fmt.channelCount()+c];
+                    uint32_t val = reinterpret_cast<const uint32_t*>(sampleBuf)[i*fmt.channelCount()+c];
                     fval = 2.0*(val/std::numeric_limits<uint32_t>::max())+1.0;
                     break;
                 }
