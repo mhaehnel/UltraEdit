@@ -53,7 +53,6 @@ void AudioTrace::bufferAvailable() {
             switch (fmt.sampleType()) {
                 case QAudioFormat::Float:
                     fval = reinterpret_cast<const float*>(sampleBuf)[i*fmt.channelCount()+c];
-                    //qDebug() << fval;
                     break;
                 case QAudioFormat::SignedInt:
                 {
