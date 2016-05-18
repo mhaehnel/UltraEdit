@@ -10,9 +10,9 @@ class AudioTrace : public QObject
 Q_OBJECT
 
     struct SingleSample {
-        double min;
-        double max;
-        double rms;
+        float min;
+        float max;
+        float rms;
     };
 
     bool complete;
@@ -37,4 +37,5 @@ signals:
 public:
     AudioTrace(QString filename);
     void renderTrace(QLabel& lbl, quint64 pos);
+    void renderSection(QPixmap& target, quint64 start, quint64 end);
 };

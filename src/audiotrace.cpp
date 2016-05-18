@@ -44,12 +44,12 @@ void AudioTrace::bufferAvailable() {
     for (int i = 0; i < buf.frameCount(); i++) {
         if (curSampleCount == 0) {
             curSample = ChannelSample(fmt.channelCount(),
-                                      {std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::min(),
+                                      {std::numeric_limits<float>::max(),
+                                       std::numeric_limits<float>::min(),
                                       0});
         }
         for (int c = 0; c < fmt.channelCount(); c++) {
-            double fval = 0;
+            float fval = 0;
             switch (fmt.sampleType()) {
                 case QAudioFormat::Float:
                     fval = reinterpret_cast<const float*>(sampleBuf)[i*fmt.channelCount()+c];
