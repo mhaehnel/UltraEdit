@@ -15,6 +15,8 @@ Q_OBJECT
         double rms;
     };
 
+    bool complete;
+
     using ChannelSample = std::vector<SingleSample>;
 
     int curSampleCount;
@@ -28,7 +30,6 @@ Q_OBJECT
     const int samplesPerLine = 512;
 private slots:
     void bufferAvailable();
-    void foundFormat(const QAudioFormat& fmt);
 signals:
     void finished();
     void progress(float percent);
