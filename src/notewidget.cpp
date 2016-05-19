@@ -202,28 +202,37 @@ void NoteWidget::paintEvent(QPaintEvent *) {
         renderer.render(&painter,QRectF(pos+2.25*lineHeight,ycenter-2.5*lineHeight+yfix,lineHeight,2.5*lineHeight));
     if (sharpies.contains(Sylabel::Note::A))
         renderer.render(&painter,QRectF(pos+3*lineHeight,ycenter-1*lineHeight+yfix,lineHeight,2.5*lineHeight));
-    double lengthSoFar = 4*lineHeight+widthM;
 
-    painter.save(); //Todo: This needs a major makeover! We might want to write them under the tones (?)
     QFont textFont(painter.font());
     textFont.setPointSize(21);
     painter.setFont(textFont);
 
-    for (Sylabel* s : _notes[currentLine]) {
-        double w = painter.fontMetrics().width(s->text());
-        painter.save();
-        if (s == currentNote) {
-            QPen colPen(painter.pen());
-            colPen.setColor(Qt::green);
-            painter.setPen(colPen);
+    for (auto ln = currentLine; ln < currentLine+2; ln++) {
+        double lengthSoFar = 4*lineHeight+widthM;
+        QString str;
+        for (Sylabel* s : _notes[ln])  str += s->text();
+
+        while (painter.fontMetrics().width(str) > this->width()-6.5*lineHeight-widthM) {
+            textFont.setPointSize(textFont.pointSize()-1);
+            painter.setFont(textFont);
         }
-        QRectF r(lengthSoFar,ycenter+lineHeight*10,w,painter.fontMetrics().height());
-        painter.drawText(r,s->text());
-        texts.insert(r,s);
-        lengthSoFar+=w;
-        painter.restore();
+        lengthSoFar += (this->width()-6.5*lineHeight-widthM-painter.fontMetrics().width(str))/2;
+        for (Sylabel* s : _notes[ln]) {
+            double w = painter.fontMetrics().width(s->text());
+            painter.save();
+            if (ln == currentLine && s == currentNote) {
+                QPen colPen(painter.pen());
+                colPen.setColor(Qt::green);
+                painter.setPen(colPen);
+            }
+            QRectF r(lengthSoFar,ycenter+lineHeight*4,w,painter.fontMetrics().height());
+            painter.drawText(r,s->text());
+            texts.insert(r,s);
+            lengthSoFar+=w;
+            painter.restore();
+        }
+        ycenter += painter.fontMetrics().height()*1.5;
     }
-    painter.restore();
 }
 
 void NoteWidget::refreshData() {
