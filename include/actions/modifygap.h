@@ -9,7 +9,7 @@ public:
         Audio, Video
     };
 
-    ModifyGap(Type t, quint64 value);
+    ModifyGap(Type t, qint64 value);
     bool perform(Song &song) override;
     bool undo(Song &song) override;
     QString shortName() const override;
@@ -17,6 +17,6 @@ public:
     bool merge(const Action &other) override;
 
 private:
-    quint64 oldVal, newVal;
+    qint64 oldVal, newVal;
     Type t_;
 };

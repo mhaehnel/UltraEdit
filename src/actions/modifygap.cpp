@@ -1,7 +1,7 @@
 #include "actions/modifygap.h"
 #include <actions/action.h>
 
-Song::ModifyGap::ModifyGap(Type t, quint64 value)
+Song::ModifyGap::ModifyGap(Type t, qint64 value)
     : newVal(value), t_(t)
 {}
 

@@ -200,9 +200,9 @@ bool Song::toDouble(const QString &value, double& target) {
     return ok;
 }
 
-bool Song::toInt(const QString &value, quint64& target) {
+bool Song::toInt(const QString &value, qint64& target) {
     bool ok;
-    target = QString(value).replace(",",".").toInt(&ok);
+    target = QString(value).replace(",",".").toLongLong(&ok);
     if (!ok) _errors << QString("%2 is not an integer!").arg(value);
     return ok;
 }
