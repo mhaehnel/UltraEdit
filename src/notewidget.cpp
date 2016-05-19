@@ -233,6 +233,9 @@ void NoteWidget::refreshData() {
 
 void NoteWidget::setSong(Song* song) {
     static QMetaObject::Connection c;
+    if (!c) connect(MediaPlayer::instance,&MediaPlayer::haveWaveform,
+                    this,static_cast<void(NoteWidget::*)()>(&NoteWidget::repaint));
+
     disconnect(c);
     c = connect(song,SIGNAL(updated()),this,SLOT(refreshData()));
     int line = 0;
@@ -249,6 +252,7 @@ void NoteWidget::setSong(Song* song) {
     currentNote = _notes.first().first();
     emit lineCount(line);
     emit lineChanged(0);
+    calculate();
 }
 
 void NoteWidget::calculate() {

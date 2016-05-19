@@ -165,6 +165,7 @@ void MediaPlayer::setSong(Song *song) {
     ui->MP3Trace->clear();
     MP3trace = new AudioTrace(song->mp3().canonicalFilePath());
     connect(MP3trace,&AudioTrace::finished,[this] {
+        emit haveWaveform();
         MP3trace->renderTrace(*(ui->MP3Trace),0);
     });
     //This should be tuneable for low powered systems

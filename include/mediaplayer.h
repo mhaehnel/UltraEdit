@@ -25,6 +25,9 @@ public:
     QStringList midiPorts();
     void renderWaveForm(QPixmap& target, quint64 start, quint64 end) const;
 
+signals:
+    void haveWaveform();
+
 public slots:
     void setSong(Song* song);
     void seek(quint64 pos);
