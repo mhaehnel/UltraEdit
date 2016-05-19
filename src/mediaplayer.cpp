@@ -136,6 +136,7 @@ void MediaPlayer::setSong(Song *song) {
         });
     } else {
         if (VidTrace != nullptr) delete VidTrace;
+        VidTrace = nullptr;
         ui->videoTrace->clear();
         videoPlayer.setMedia(QMediaContent());
     }
