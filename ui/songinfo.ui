@@ -129,8 +129,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>247</width>
-              <height>538</height>
+              <width>635</width>
+              <height>574</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -427,8 +427,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>96</width>
-              <height>52</height>
+              <width>635</width>
+              <height>294</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -586,6 +586,9 @@
         </layout>
        </widget>
        <widget class="QWidget" name="tonesTab">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
         <attribute name="title">
          <string>Tones</string>
         </attribute>

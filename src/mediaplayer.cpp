@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <actions/modifygap.h>
 
+const MediaPlayer* MediaPlayer::instance = nullptr;
+
 MediaPlayer::MediaPlayer(QWidget *parent) :
     QFrame(parent), ui(std::make_unique<Ui::MediaPlayer>()),
     _song(nullptr), pl(&player)
@@ -10,6 +12,9 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
     ui->setupUi(this);
     ui->songTimePassed->display("00:00");
     ui->songTimeRemaining->display("00:00");
+
+    Q_ASSERT(instance == nullptr);
+    instance = this;
 
     connect(&player,&QMediaPlayer::stateChanged, [this] (QMediaPlayer::State state) {
        switch (state) {
@@ -235,4 +240,8 @@ void MediaPlayer::on_audioGap_valueChanged(int value) {
 void MediaPlayer::on_videoGap_valueChanged(int value) {
     _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Video,value));
     videoPlayer.setPosition(player.position()+_song->videoGap());
+}
+
+void MediaPlayer::renderWaveForm(QPixmap &target, quint64 start, quint64 end) const {
+    MP3trace->renderSection(target,start,end);
 }

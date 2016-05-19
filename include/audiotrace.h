@@ -23,6 +23,7 @@ Q_OBJECT
     ChannelSample curSample;
 
     std::vector<ChannelSample> samples;
+    std::vector<float> rawFrames;
 
     QAudioFormat fmt;
     QAudioDecoder dec;
@@ -36,6 +37,6 @@ signals:
 
 public:
     AudioTrace(QString filename);
-    void renderTrace(QLabel& lbl, quint64 pos);
-    void renderSection(QPixmap& target, quint64 start, quint64 end);
+    void renderTrace(QLabel& lbl, quint64 pos) const;
+    void renderSection(QPixmap& target, quint64 start, quint64 end) const;
 };

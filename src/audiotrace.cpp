@@ -69,7 +69,7 @@ void AudioTrace::bufferAvailable() {
                 case QAudioFormat::Unknown:
                     qDebug() << "Unknown Format! Can't decode.";
             }
-
+            if (c == 0) rawFrames.push_back(fval);
             if (fval < curSample[c].min) curSample[c].min = fval;
             if (fval > curSample[c].max) curSample[c].max = fval;
             curSample[c].rms += fval*fval;
@@ -87,7 +87,7 @@ void AudioTrace::bufferAvailable() {
 }
 
 //TODO: this only works for single channel!
-void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) {
+void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) const {
         if (!complete || !fmt.isValid()) return;
         pos *= fmt.sampleRate()/1000.0;
         pos /= samplesPerLine; //Adjust
@@ -118,4 +118,40 @@ void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) {
         ptr.drawLine(QLineF(pos-offsetStart,0,pos-offsetStart,pix.height()));
         ptr.end();
         lbl.setPixmap(pix);
+}
+
+void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) const {
+    target.fill(Qt::transparent);
+    if (!complete || !fmt.isValid()) return;
+    quint64 fromFrame = fmt.framesForDuration(start*1000);
+    quint64 toFrame = fmt.framesForDuration(end*1000);
+    int sample = (toFrame-fromFrame)/target.width();
+
+    std::vector<SingleSample> samples;
+    for (auto i = fromFrame; i <= toFrame; i+= sample) {
+        SingleSample s = {std::numeric_limits<float>::max(),
+                          std::numeric_limits<float>::min(),
+                         0};
+        for (auto j = 0; j < sample; j++) {
+            float fval = rawFrames[i+j];
+            if (fval < s.min) s.min = fval;
+            if (fval > s.max) s.max = fval;
+            s.rms += fval*fval;
+        }
+        s.rms = sqrt(s.rms/sample);
+        samples.push_back(s);
+    }
+
+    QPainter ptr(&target);
+    double middle = target.height()/2;
+
+    ptr.setPen(Qt::lightGray);
+    for (unsigned i = 0; i < samples.size(); i++)
+        ptr.drawLine(QLineF(i,middle-samples[i].max*middle,i,middle-samples[i].min*middle));
+
+    ptr.setPen(Qt::darkGreen);
+    for (unsigned i = 0; i < samples.size(); i++)
+        ptr.drawLine(QLineF(i,middle-samples[i].rms*middle,i,middle+samples[i].rms*middle));
+
+    ptr.end();
 }

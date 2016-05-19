@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QMutex>
 #include <QInputDialog>
+#include <mediaplayer.h>
 
 QByteArray NoteWidget::gclef, NoteWidget::fclef, NoteWidget::sharp, NoteWidget::natural;
 
@@ -104,11 +105,6 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     int lineHeight = fontMetrics().height();
     int ycenter = height()/2;
 
-    //Draw note lines
-    for (int i : {-1,0,1})
-        painter.drawLine(0,ycenter-lineHeight*i,width(),ycenter-lineHeight*i);
-    painter.drawRect(0,ycenter-lineHeight*2,width(),lineHeight*4);
-
     QSvgRenderer renderer(this); //Render clef
     double height, top;
     Sylabel::Clef currentClef = Sylabel::Clef::G;
@@ -122,11 +118,29 @@ void NoteWidget::paintEvent(QPaintEvent *) {
         height=7.5*lineHeight;
         top = ycenter-4*lineHeight;
     }
-    double width = height*renderer.defaultSize().width()/renderer.defaultSize().height();
-    renderer.render(&painter,QRectF(lineHeight,top,width,height));
+    double widthM = height*renderer.defaultSize().width()/renderer.defaultSize().height();
+    double lengthPerBeat = (this->width()-6.5*lineHeight-widthM)/totalBeats;
+    double pos = 5*lineHeight+widthM;
 
-    double lengthPerBeat = (this->width()-6.5*lineHeight-width)/totalBeats;
-    double pos = 5*lineHeight+width;
+    //Draw waveform
+    if (MediaPlayer::instance != nullptr && _notes[currentLine].size() > 0) {
+        quint64 start = _notes[currentLine].first()->time()*1000+currentNote->song->gap();
+        quint64 end = (_notes[currentLine].last()->time()+_notes[currentLine].last()->duration())*1000+currentNote->song->gap();
+        QPixmap pmp(this->width()-6.5*lineHeight-widthM,lineHeight*4);
+        MediaPlayer::instance->renderWaveForm(pmp,start,end);
+        painter.drawPixmap(QPointF(pos+(_notes[currentLine].first()->beat()-startBeat)*lengthPerBeat,
+                                   ycenter-lineHeight*2),
+                           pmp);
+    }
+
+    //Draw note lines
+    for (int i : {-1,0,1})
+        painter.drawLine(0,ycenter-lineHeight*i,width(),ycenter-lineHeight*i);
+    painter.drawRect(0,ycenter-lineHeight*2,width(),lineHeight*4);
+
+
+    renderer.render(&painter,QRectF(lineHeight,top,widthM,height));
+
     QSet<Sylabel::Note> sharpified;
     renderer.load(sharp);
     QSvgRenderer rnatural(natural,this);
@@ -176,7 +190,7 @@ void NoteWidget::paintEvent(QPaintEvent *) {
     }
 
     //Draw sharps
-    pos = 1.5*lineHeight+width;
+    pos = 1.5*lineHeight+widthM;
     double yfix = (currentClef == Sylabel::Clef::F)?lineHeight:0;
     if (sharpies.contains(Sylabel::Note::F))
         renderer.render(&painter,QRectF(pos,ycenter-3.5*lineHeight+yfix,lineHeight,2.5*lineHeight));
@@ -188,7 +202,7 @@ void NoteWidget::paintEvent(QPaintEvent *) {
         renderer.render(&painter,QRectF(pos+2.25*lineHeight,ycenter-2.5*lineHeight+yfix,lineHeight,2.5*lineHeight));
     if (sharpies.contains(Sylabel::Note::A))
         renderer.render(&painter,QRectF(pos+3*lineHeight,ycenter-1*lineHeight+yfix,lineHeight,2.5*lineHeight));
-    double lengthSoFar = 4*lineHeight+width;
+    double lengthSoFar = 4*lineHeight+widthM;
 
     painter.save(); //Todo: This needs a major makeover! We might want to write them under the tones (?)
     QFont textFont(painter.font());

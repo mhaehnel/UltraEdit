@@ -16,12 +16,14 @@ class MediaPlayer : public QFrame
     Q_OBJECT
 
 public:
+    static const MediaPlayer *instance;
     explicit MediaPlayer(QWidget *parent = 0);
     virtual ~MediaPlayer();
     QSize sizeHint() const;
     void setVideoOutput(QVideoWidget* wv);
     void connectMidiPort(QString port);
     QStringList midiPorts();
+    void renderWaveForm(QPixmap& target, quint64 start, quint64 end) const;
 
 public slots:
     void setSong(Song* song);
