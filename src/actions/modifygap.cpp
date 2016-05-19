@@ -26,7 +26,7 @@ bool Song::ModifyGap::undo(Song &song) {
         case Type::Audio:
             song._gap = oldVal;
     }
-    __builtin_unreachable();
+    return true;
 }
 
 QString Song::ModifyGap::shortName() const {
