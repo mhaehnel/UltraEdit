@@ -39,6 +39,7 @@ public slots:
 
 private slots:
     void updateSongData();
+    void updateInfos(qint64 pos) const;
 
     void on_firstLine_clicked();
     void on_prevLine_clicked();

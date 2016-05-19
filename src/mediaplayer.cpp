@@ -20,20 +20,12 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
        switch (state) {
            case QMediaPlayer::State::PlayingState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-pause"));
-               videoPlayer.setPosition(player.position()+_song->videoGap());
-               videoPlayer.play();
                break;
            case QMediaPlayer::State::StoppedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
-               videoPlayer.stop();
-               if (ui->songRepeat->isChecked()) {
-                   player.setPosition(0);
-                   player.play();
-               }
                break;
            case QMediaPlayer::State::PausedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
-               videoPlayer.pause();
                break;
            default: break;
        }
@@ -41,6 +33,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
     connect(ui->songPos,&QSlider::valueChanged,[this] (int position){
         videoPlayer.setPosition(position+_song->videoGap());
+        //TODO: midiPlayer?
     });
     connect(ui->volumeMP3,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
     connect(ui->volumeMidi,&QSlider::valueChanged,&midi,&MidiPlayer::setVolume);
@@ -59,17 +52,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
                 pause();
                 break;
         }});
-    connect(&player,&QMediaPlayer::positionChanged,[this] (qint64 pos) {
-        bool o = ui->songPos->blockSignals(true); //Needed to avoid feedback
-        ui->songPos->setValue(pos);
-        ui->songPos->blockSignals(o);
-        if (MP3trace != nullptr && ui->waveForm->isChecked()) MP3trace->renderTrace(*(ui->MP3Trace),pos);
-        if (VidTrace != nullptr && ui->waveForm->isChecked()) VidTrace->renderTrace(*(ui->videoTrace),videoPlayer.position());
-        pos /= 1000; //to seconds
-        qint64 rem = player.duration()/1000 - pos;
-        ui->songTimePassed->display(QString("%1:%2").arg(pos/60,2,10,QLatin1Char('0')).arg(pos%60,2,10,QLatin1Char('0')));
-        ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
-    });
+    connect(&player,&QMediaPlayer::positionChanged,this,&MediaPlayer::updateInfos);
     connect(&player,&QMediaPlayer::durationChanged,[this] (qint64 dur) { ui->songPos->setRange(0,dur); });
     connect(ui->linePos,&QSlider::valueChanged,[this] (int pos) {
        seek(_song->timeAtLine(pos));
@@ -87,6 +70,7 @@ MediaPlayer::~MediaPlayer() {}
 
 void MediaPlayer::stop() {
     player.stop();
+    videoPlayer.stop();
     if (ui->playNotes->isChecked()) midi.stop();
 }
 
@@ -96,6 +80,10 @@ void MediaPlayer::play() {
         midi.seek(player.position());
         midi.play();
     }
+    if (videoPlayer.isVideoAvailable()) {
+        videoPlayer.setPosition(player.position()+_song->videoGap());
+        videoPlayer.play();
+    }
 }
 
 void MediaPlayer::setVideoOutput(QVideoWidget* wv) {
@@ -104,6 +92,7 @@ void MediaPlayer::setVideoOutput(QVideoWidget* wv) {
 
 void MediaPlayer::pause() {
     player.pause();
+    videoPlayer.pause();
     if (ui->playNotes->isChecked()) midi.stop();
 }
 
@@ -233,15 +222,33 @@ void MediaPlayer::on_repeatLine_toggled(bool toggled) {
 }
 
 void MediaPlayer::on_audioGap_valueChanged(int value) {
-    _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Audio,value));
-    midi.reschedule();
+    if (_song->gap() != value) {
+        _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Audio,value));
+        midi.reschedule();
+    }
+    updateInfos(player.position());
 }
 
 void MediaPlayer::on_videoGap_valueChanged(int value) {
-    _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Video,value));
-    videoPlayer.setPosition(player.position()+_song->videoGap());
+    if (_song->videoGap() != value) {
+        _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Video,value));
+        videoPlayer.setPosition(player.position()+_song->videoGap());
+    }
+    updateInfos(player.position());
 }
 
 void MediaPlayer::renderWaveForm(QPixmap &target, quint64 start, quint64 end) const {
     MP3trace->renderSection(target,start,end);
+}
+
+void MediaPlayer::updateInfos(qint64 pos) const {
+    bool o = ui->songPos->blockSignals(true); //Needed to avoid feedback
+    ui->songPos->setValue(pos);
+    ui->songPos->blockSignals(o);
+    if (MP3trace != nullptr && ui->waveForm->isChecked()) MP3trace->renderTrace(*(ui->MP3Trace),pos);
+    if (VidTrace != nullptr && ui->waveForm->isChecked()) VidTrace->renderTrace(*(ui->videoTrace),videoPlayer.position());
+    pos /= 1000; //to seconds
+    qint64 rem = player.duration()/1000 - pos;
+    ui->songTimePassed->display(QString("%1:%2").arg(pos/60,2,10,QLatin1Char('0')).arg(pos%60,2,10,QLatin1Char('0')));
+    ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
 }
