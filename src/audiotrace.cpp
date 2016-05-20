@@ -77,52 +77,47 @@ void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) const {
         double middle = pix.height()/2;
         unsigned offsetStart = (static_cast<unsigned>(pix.width()/2) > pos)?0:pos-pix.width()/2;
         unsigned offsetEnd = std::min(samples.size(),static_cast<size_t>(offsetStart+pix.width()));
-        ptr.setPen(Qt::blue);
-        for (auto i = std::max(0ull,pos-10); i < pos+10; i++) {
-            ptr.drawLine(QLineF(i-offsetStart,0,i-offsetStart,pix.height()));
-        };
-        ptr.setPen(Qt::lightGray);
+
         for (auto i = offsetStart; i < offsetEnd; i++) {
-            if (i == std::max(0ull,pos-10)) ptr.setPen(Qt::yellow);
-            if (i == pos+10) ptr.setPen(Qt::lightGray);
+            if  (i >= std::max(0ull,pos-10) && i <= pos+10) {
+                ptr.setPen(Qt::blue);
+                ptr.drawLine(QLineF(i-offsetStart,0,i-offsetStart,pix.height()));
+                ptr.setPen(Qt::yellow);
+            } else {
+                ptr.setPen(Qt::lightGray);
+            }
             ptr.drawLine(QLineF(i-offsetStart,middle-samples[i].max()*middle,i-offsetStart,middle-samples[i].min()*middle));
-        };
-        ptr.setPen(Qt::darkGreen);
-        for (auto i = offsetStart; i < offsetEnd; i++) {
-            if (i == std::max(0ull,pos-10)) ptr.setPen(Qt::darkYellow);
-            if (i == pos+10) ptr.setPen(Qt::darkGreen);
+            if  (i >= std::max(0ull,pos-10) && i <= pos+10) {
+                ptr.setPen(Qt::darkYellow);
+            } else {
+                ptr.setPen(Qt::darkGreen);
+            }
             ptr.drawLine(QLineF(i-offsetStart,middle-samples[i].rms()*middle,i-offsetStart,middle+samples[i].rms()*middle));
-        };
+        }
         ptr.setPen(Qt::red);
         ptr.drawLine(QLineF(pos-offsetStart,0,pos-offsetStart,pix.height()));
         ptr.end();
+
         lbl.setPixmap(pix);
 }
 
 void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) const {
     target.fill(Qt::transparent);
     if (!complete || !fmt.isValid()) return;
+
     quint64 fromFrame = fmt.framesForDuration(start*1000);
-    quint64 toFrame = fmt.framesForDuration(end*1000);
-    int sample = (toFrame-fromFrame)/target.width();
-
-    std::vector<AggregateSample> as;
-    for (auto i = fromFrame; i <= toFrame; i+= sample) {
-        AggregateSample s;
-        for (auto j = 0; j < sample; j++) s.addSample(rawFrames[i+j]);
-        as.push_back(s);
-    }
-
-    QPainter ptr(&target);
+    int sample = (fmt.framesForDuration(end*1000)-fromFrame)/target.width();
     double middle = target.height()/2;
 
-    ptr.setPen(Qt::lightGray);
-    for (unsigned i = 0; i < samples.size(); i++)
-        ptr.drawLine(QLineF(i,middle-as[i].max()*middle,i,middle-as[i].min()*middle));
-
-    ptr.setPen(Qt::darkGreen);
-    for (unsigned i = 0; i < samples.size(); i++)
-        ptr.drawLine(QLineF(i,middle-as[i].rms()*middle,i,middle+as[i].rms()*middle));
-
+    QPainter ptr(&target);
+    for (auto i = 0; i < target.width(); i++) {
+        AggregateSample as;
+        for (auto j = 0; j < sample; j++)
+            as.addSample(rawFrames[fromFrame+i*sample+j]);
+        ptr.setPen(Qt::lightGray);
+        ptr.drawLine(QLineF(i,middle-as.max()*middle,i,middle-as.min()*middle));
+        ptr.setPen(Qt::darkGreen);
+        ptr.drawLine(QLineF(i,middle-as.rms()*middle,i,middle+as.rms()*middle));
+    }
     ptr.end();
 }
