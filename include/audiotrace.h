@@ -9,20 +9,22 @@ class AudioTrace : public QObject
 {
 Q_OBJECT
 
-    struct SingleSample {
-        float min;
-        float max;
-        float rms;
+    class AggregateSample {
+        float min_,max_, rms_;
+        double rmsCache;
+        int samples_;
+    public:
+        AggregateSample();
+        void addSample(float sample);
+        float min() const { return min_; }
+        float max() const { return max_; }
+        float rms() const;
+        int samples() const { return samples_; }
     };
 
     bool complete;
 
-    using ChannelSample = std::vector<SingleSample>;
-
-    int curSampleCount;
-    ChannelSample curSample;
-
-    std::vector<ChannelSample> samples;
+    std::vector<AggregateSample> samples;
     std::vector<float> rawFrames;
 
     QAudioFormat fmt;

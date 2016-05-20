@@ -20,68 +20,47 @@ AudioTrace::AudioTrace(QString filename) : QObject(), complete(false) {
     connect(&dec,&QAudioDecoder::positionChanged,[this]  (qint64 position) {
         emit progress(position*100/dec.duration());
     });
-    curSampleCount = 0;
     dec.setSourceFilename(filename);
-    qDebug() << "Tracing" << filename;
+    fmt.setByteOrder(QAudioFormat::LittleEndian);
+    fmt.setSampleRate(44100);
+    fmt.setSampleSize(32);
+    fmt.setChannelCount(1); //Is this enough? I think yes for analysis
+    fmt.setCodec("audio/pcm");
+    fmt.setSampleType(QAudioFormat::Float);
+    dec.setAudioFormat(fmt);    qDebug() << "Tracing" << filename;
     dec.start();
 }
 
+AudioTrace::AggregateSample::AggregateSample()
+    : min_(std::numeric_limits<float>::max()),
+      max_(std::numeric_limits<float>::min()),
+      rms_(INFINITY), rmsCache(0), samples_(0)
+{}
+
+void AudioTrace::AggregateSample::addSample(float sample) {
+    samples_++;
+    if (sample < min_) min_ = sample;
+    if (sample > max_) max_ = sample;
+    rmsCache += static_cast<double>(sample)*sample;
+}
+
+float AudioTrace::AggregateSample::rms() const {
+    return (samples_ == 0)?NAN:sqrt(rmsCache/samples_);
+}
+
 void AudioTrace::bufferAvailable() {
+    static AggregateSample curSample;
+
     QAudioBuffer buf = dec.read();
     if (!buf.isValid()) return;
-    if (!fmt.isValid()) {
-        fmt = buf.format();
-        qDebug() << "Sample size: " << fmt.sampleSize();
-        qDebug() << "Bytes/frame: " << fmt.bytesPerFrame();
-        qDebug() << "Rate: " << fmt.sampleRate();
-        qDebug() << "Format:" << fmt.sampleType();
-    } else {
-        Q_ASSERT(fmt == buf.format());
-    }
-    Q_ASSERT(fmt.channelCount() == buf.sampleCount()/buf.frameCount());
-    Q_ASSERT(fmt.sampleSize() == 32);
-    auto sampleBuf = buf.constData();
+    auto sampleBuf = reinterpret_cast<const float*>(buf.constData());
     for (int i = 0; i < buf.frameCount(); i++) {
-        if (curSampleCount == 0) {
-            curSample = ChannelSample(fmt.channelCount(),
-                                      {std::numeric_limits<float>::max(),
-                                       std::numeric_limits<float>::min(),
-                                      0});
-        }
-        for (int c = 0; c < fmt.channelCount(); c++) {
-            float fval = 0;
-            switch (fmt.sampleType()) {
-                case QAudioFormat::Float:
-                    fval = reinterpret_cast<const float*>(sampleBuf)[i*fmt.channelCount()+c];
-                    break;
-                case QAudioFormat::SignedInt:
-                {
-                    int32_t val = reinterpret_cast<const int32_t*>(sampleBuf)[i*fmt.channelCount()+c];
-                    fval = (1.0*val)/((val < 0)?std::numeric_limits<int32_t>::max():std::numeric_limits<int32_t>::max());
-                    break;
-                }
-                case QAudioFormat::UnSignedInt:
-                {
-                    uint32_t val = reinterpret_cast<const uint32_t*>(sampleBuf)[i*fmt.channelCount()+c];
-                    fval = 2.0*(val/std::numeric_limits<uint32_t>::max())+1.0;
-                    break;
-                }
-                case QAudioFormat::Unknown:
-                    qDebug() << "Unknown Format! Can't decode.";
-            }
-            if (c == 0) rawFrames.push_back(fval);
-            if (fval < curSample[c].min) curSample[c].min = fval;
-            if (fval > curSample[c].max) curSample[c].max = fval;
-            curSample[c].rms += fval*fval;
-        }
-        curSampleCount++;
-        if (curSampleCount == samplesPerLine) {
-            for (SingleSample& s : curSample) {
-                s.rms = sqrt(s.rms/samplesPerLine);
-            }
-
+        auto sample = sampleBuf[i];
+        curSample.addSample(sample);
+        rawFrames.push_back(sample);
+        if (curSample.samples() == samplesPerLine) {
             samples.push_back(curSample);
-            curSampleCount = 0;
+            curSample = AggregateSample();
         }
     }
 }
@@ -106,13 +85,13 @@ void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) const {
         for (auto i = offsetStart; i < offsetEnd; i++) {
             if (i == std::max(0ull,pos-10)) ptr.setPen(Qt::yellow);
             if (i == pos+10) ptr.setPen(Qt::lightGray);
-            ptr.drawLine(QLineF(i-offsetStart,middle-samples[i][1].max*middle,i-offsetStart,middle-samples[i][1].min*middle));
+            ptr.drawLine(QLineF(i-offsetStart,middle-samples[i].max()*middle,i-offsetStart,middle-samples[i].min()*middle));
         };
         ptr.setPen(Qt::darkGreen);
         for (auto i = offsetStart; i < offsetEnd; i++) {
             if (i == std::max(0ull,pos-10)) ptr.setPen(Qt::darkYellow);
             if (i == pos+10) ptr.setPen(Qt::darkGreen);
-            ptr.drawLine(QLineF(i-offsetStart,middle-samples[i][1].rms*middle,i-offsetStart,middle+samples[i][1].rms*middle));
+            ptr.drawLine(QLineF(i-offsetStart,middle-samples[i].rms()*middle,i-offsetStart,middle+samples[i].rms()*middle));
         };
         ptr.setPen(Qt::red);
         ptr.drawLine(QLineF(pos-offsetStart,0,pos-offsetStart,pix.height()));
@@ -127,19 +106,11 @@ void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) cons
     quint64 toFrame = fmt.framesForDuration(end*1000);
     int sample = (toFrame-fromFrame)/target.width();
 
-    std::vector<SingleSample> samples;
+    std::vector<AggregateSample> as;
     for (auto i = fromFrame; i <= toFrame; i+= sample) {
-        SingleSample s = {std::numeric_limits<float>::max(),
-                          std::numeric_limits<float>::min(),
-                         0};
-        for (auto j = 0; j < sample; j++) {
-            float fval = rawFrames[i+j];
-            if (fval < s.min) s.min = fval;
-            if (fval > s.max) s.max = fval;
-            s.rms += fval*fval;
-        }
-        s.rms = sqrt(s.rms/sample);
-        samples.push_back(s);
+        AggregateSample s;
+        for (auto j = 0; j < sample; j++) s.addSample(rawFrames[i+j]);
+        as.push_back(s);
     }
 
     QPainter ptr(&target);
@@ -147,11 +118,11 @@ void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) cons
 
     ptr.setPen(Qt::lightGray);
     for (unsigned i = 0; i < samples.size(); i++)
-        ptr.drawLine(QLineF(i,middle-samples[i].max*middle,i,middle-samples[i].min*middle));
+        ptr.drawLine(QLineF(i,middle-as[i].max()*middle,i,middle-as[i].min()*middle));
 
     ptr.setPen(Qt::darkGreen);
     for (unsigned i = 0; i < samples.size(); i++)
-        ptr.drawLine(QLineF(i,middle-samples[i].rms*middle,i,middle+samples[i].rms*middle));
+        ptr.drawLine(QLineF(i,middle-as[i].rms()*middle,i,middle+as[i].rms()*middle));
 
     ptr.end();
 }
