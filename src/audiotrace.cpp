@@ -8,7 +8,6 @@ AudioTrace::AudioTrace(QString filename) : QObject(), complete(false) {
         if (dec.bufferAvailable()) bufferAvailable();
         complete = true;
         emit finished();
-        qDebug() << "Done Tracing" << samples.size() << "Lines -> " << 1.0*samples.size()*samplesPerLine/fmt.sampleRate() << "seconds";
     });
     connect(&dec,static_cast<void(QAudioDecoder::*)(QAudioDecoder::Error)>(&QAudioDecoder::error),[] (QAudioDecoder::Error err) {
         if (err == QAudioDecoder::ResourceError) {
@@ -27,7 +26,7 @@ AudioTrace::AudioTrace(QString filename) : QObject(), complete(false) {
     fmt.setChannelCount(1); //Is this enough? I think yes for analysis
     fmt.setCodec("audio/pcm");
     fmt.setSampleType(QAudioFormat::Float);
-    dec.setAudioFormat(fmt);    qDebug() << "Tracing" << filename;
+    dec.setAudioFormat(fmt);
     dec.start();
 }
 
