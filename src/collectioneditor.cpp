@@ -55,8 +55,13 @@ void CollectionEditor::on_toolButton_clicked()
 void CollectionEditor::checkButton(const QString &)
 {
     ui->create->setEnabled(!ui->name->text().contains('|') &&
-                                 !ui->basePath->text().contains('|') &&
-                                 !ui->pathRule->text().contains('|'));
+                           !ui->name->text().isEmpty() &&
+                           !std::any_of(cols_.cbegin(),cols_.cend(),[this] (const Collection& c) -> bool{
+                                return (ui->name->text() == c.name()
+                                        ||ui->basePath->text() == c.basePath());
+                           }) &&
+                           !ui->basePath->text().contains('|') &&
+                           !ui->pathRule->text().contains('|'));
 }
 
 void CollectionEditor::on_remove_clicked()
