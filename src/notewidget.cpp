@@ -212,7 +212,8 @@ void NoteWidget::paintEvent(QPaintEvent *) {
         QString str;
         for (Sylabel* s : _notes[ln])  str += s->text();
 
-        while (painter.fontMetrics().width(str) > this->width()-6.5*lineHeight-widthM) {
+        while (painter.fontMetrics().width(str) > this->width()-6.5*lineHeight-widthM
+               && textFont.pointSize() > 6) {
             textFont.setPointSize(textFont.pointSize()-1);
             painter.setFont(textFont);
         }
