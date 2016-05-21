@@ -28,7 +28,7 @@ private:
     bool _freestyle = false;  //has freestyle notes
     int _players = 0;         //stays 0 for simple file (TODO! This is not really implemented ATM!)
     double _bpm;
-    qint64 _gap, _videoGap;
+    qint64 _gap, _videoGap, _bpmFactor;
     QString _basePath, _rawTextCache, _rawDataCache;
     QFileInfo _txt,_mp3,_vid,_cov,_bg;
     QPixmap _covPM;
@@ -94,6 +94,7 @@ public:
     bool isWellFormed() const   { return _warnings.isEmpty() && _errors.isEmpty(); }
 
     double bpm() const { return _bpm; }
+    qint64 bpmFactor() const { return _bpmFactor; }
     qint64 gap() const { return _gap; }
     qint64 videoGap() const { return _videoGap; }
 

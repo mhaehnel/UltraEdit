@@ -29,16 +29,21 @@ Q_OBJECT
 
     QAudioFormat fmt;
     QAudioDecoder dec;
+    quint64 bpm_;
+    qint64 offset_;
 
     const int samplesPerLine = 512;
 private slots:
     void bufferAvailable();
+public slots:
+    void updateBpm(float bpm);
+    void updateGap(qint64 gap);
 signals:
     void finished();
     void progress(float percent);
 
 public:
-    AudioTrace(QString filename);
-    void renderTrace(QLabel& lbl, quint64 pos) const;
+    AudioTrace(QString filename, float bpm = 0, qint64 offset = 0);
+    void renderTrace(QLabel& lbl, quint64 pos, bool withBeats = false) const;
     void renderSection(QPixmap& target, quint64 start, quint64 end) const;
 };

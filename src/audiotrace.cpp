@@ -2,7 +2,11 @@
 #include <QPainter>
 #include <cmath>
 
-AudioTrace::AudioTrace(QString filename) : QObject(), complete(false) {
+AudioTrace::AudioTrace(QString filename, float bpm, qint64 offset)
+    : QObject(), complete(false)
+{
+    updateBpm(bpm);
+    updateGap(offset);
     connect(&dec,&QAudioDecoder::bufferReady,this,&AudioTrace::bufferAvailable);
     connect(&dec,&QAudioDecoder::finished,[this] {
         if (dec.bufferAvailable()) bufferAvailable();
@@ -65,8 +69,9 @@ void AudioTrace::bufferAvailable() {
 }
 
 //TODO: this only works for single channel!
-void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) const {
+void AudioTrace::renderTrace(QLabel& lbl, quint64 pos, bool withBeats ) const {
         if (!complete || !fmt.isValid()) return;
+
         pos *= fmt.sampleRate()/1000.0;
         pos /= samplesPerLine; //Adjust
 
@@ -92,7 +97,18 @@ void AudioTrace::renderTrace(QLabel& lbl, quint64 pos) const {
                 ptr.setPen(Qt::darkGreen);
             }
             ptr.drawLine(QLineF(i-offsetStart,middle-samples[i].rms()*middle,i-offsetStart,middle+samples[i].rms()*middle));
+
+            if (withBeats && i >= offset_&& (i == offset_|| (i-offset_)%bpm_ == 0)) {
+                ptr.save();
+                ptr.setPen(Qt::red);
+                ptr.setBrush(Qt::red);
+                ptr.drawEllipse(QPointF(i-offsetStart,3),3,3);
+                //ptr.drawLine(QLineF(i-offsetStart,0,i-offsetStart,pix.height()));
+                ptr.restore();
+            }
+
         }
+
         ptr.setPen(Qt::red);
         ptr.drawLine(QLineF(pos-offsetStart,0,pos-offsetStart,pix.height()));
         ptr.end();
@@ -119,4 +135,16 @@ void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) cons
         ptr.drawLine(QLineF(i,middle-as.rms()*middle,i,middle+as.rms()*middle));
     }
     ptr.end();
+}
+
+void AudioTrace::updateBpm(float bpm) {
+    bpm_ = 60000.0/bpm;
+    bpm_ *= fmt.sampleRate()/1000.0;
+    bpm_ /= samplesPerLine;
+    qDebug() << "Set bpm to" << bpm << "interval =" << bpm_ << "lines" << 60000.0/bpm << "ms";
+}
+
+void AudioTrace::updateGap(qint64 gap) {
+    // in lines!
+    offset_ = (gap*fmt.sampleRate()/1000.0)/samplesPerLine;
 }

@@ -112,7 +112,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="generalTab">
         <attribute name="title">
@@ -322,71 +322,6 @@
                 </item>
                 <item row="3" column="1">
                  <widget class="QLineEdit" name="genre"/>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="settingsGroup">
-               <property name="title">
-                <string>Settings</string>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_14">
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_11">
-                  <item>
-                   <widget class="QLabel" name="label_5">
-                    <property name="text">
-                     <string>BPM</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="lineEdit_5">
-                    <property name="inputMask">
-                     <string>9999.9999</string>
-                    </property>
-                    <property name="text">
-                     <string>0000.0000</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
-                  <item>
-                   <widget class="QLabel" name="label_4">
-                    <property name="text">
-                     <string>GAP</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="lineEdit_6">
-                    <property name="inputMask">
-                     <string>#D000.900</string>
-                    </property>
-                    <property name="text">
-                     <string>+000.0</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_13">
-                  <item>
-                   <widget class="QCheckBox" name="checkBox">
-                    <property name="text">
-                     <string>Relative</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                </layout>
               </widget>

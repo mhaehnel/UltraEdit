@@ -34,11 +34,6 @@ public slots:
     void stop();
     void play();
     void pause();
-    void on_playNotes_toggled(bool toggled);
-    void on_playVidAudio_toggled(bool toggled);
-    void on_repeatLine_toggled(bool toggled);
-    void on_audioGap_valueChanged(int value);
-    void on_videoGap_valueChanged(int value);
 
 private slots:
     void updateSongData();
@@ -48,6 +43,12 @@ private slots:
     void on_prevLine_clicked();
     void on_nextLine_clicked();
     void on_lastLine_clicked();
+    void on_playNotes_toggled(bool toggled);
+    void on_playVidAudio_toggled(bool toggled);
+    void on_repeatLine_toggled(bool toggled);
+    void on_audioGap_valueChanged(int value);
+    void on_videoGap_valueChanged(int value);
+    void on_bpm_valueChanged(double bpm);
 
 private:
     std::unique_ptr<Ui::MediaPlayer> ui;
