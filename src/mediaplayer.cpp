@@ -119,13 +119,6 @@ void MediaPlayer::setSong(Song *song) {
     _song = song;
     this->setEnabled(true);
 
-    midi.setSong(_song);
-    ui->audioGap->setValue(_song->gap());
-    ui->videoGap->setValue(_song->videoGap());
-    ui->videoGap->setEnabled(true); //FIXME: Why do we need those 3 lines?!
-    ui->audioGap->setEnabled(true);
-    ui->tuningBox->setEnabled(true);
-
     if (_song->hasVideo()) {
         videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
         if (VidTrace != nullptr) delete VidTrace;
@@ -142,7 +135,6 @@ void MediaPlayer::setSong(Song *song) {
     }
 
     if (!song->mp3().exists()) return;
-    updateSongData();
     connect(song,&Song::updated,this,&MediaPlayer::updateSongData);
     connect(song,&Song::lineChanged,ui->curLine,static_cast<void(QLCDNumber::*)(int)>(&QLCDNumber::display));
     static QMetaObject::Connection lineChange;
@@ -164,11 +156,21 @@ void MediaPlayer::setSong(Song *song) {
     player.setMedia(QUrl::fromLocalFile(song->mp3().canonicalFilePath()));
     if (MP3trace != nullptr) delete MP3trace;
     ui->MP3Trace->clear();
-    MP3trace = new AudioTrace(song->mp3().canonicalFilePath());
+    MP3trace = new AudioTrace(song->mp3().canonicalFilePath(),song->bpm()/song->bpmFactor(),song->gap());
     connect(MP3trace,&AudioTrace::finished,[this] {
         emit haveWaveform();
-        MP3trace->renderTrace(*(ui->MP3Trace),0);
+        MP3trace->renderTrace(*(ui->MP3Trace),0,true);
     });
+
+    midi.setSong(_song);
+    ui->audioGap->setValue(_song->gap());
+    ui->videoGap->setValue(_song->videoGap());
+    ui->bpm->setValue(_song->bpm());
+    ui->videoGap->setEnabled(true); //FIXME: Why do we need those 3 lines?!
+    ui->audioGap->setEnabled(true);
+    ui->tuningBox->setEnabled(true);
+
+    updateSongData();
     //This should be tuneable for low powered systems
     // we require 60000/bpm for notes but 100ms
     player.setNotifyInterval(std::min(100,static_cast<int>(60000/song->bpm())));
@@ -228,6 +230,7 @@ void MediaPlayer::on_audioGap_valueChanged(int value) {
         _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Audio,value));
         midi.reschedule();
     }
+    if (MP3trace != nullptr) MP3trace->updateGap(value);
     updateInfos(player.position());
 }
 
@@ -247,10 +250,15 @@ void MediaPlayer::updateInfos(qint64 pos) const {
     bool o = ui->songPos->blockSignals(true); //Needed to avoid feedback
     ui->songPos->setValue(pos);
     ui->songPos->blockSignals(o);
-    if (MP3trace != nullptr && ui->waveForm->isChecked()) MP3trace->renderTrace(*(ui->MP3Trace),pos);
+    if (MP3trace != nullptr && ui->waveForm->isChecked()) MP3trace->renderTrace(*(ui->MP3Trace),pos,true);
     if (VidTrace != nullptr && ui->waveForm->isChecked()) VidTrace->renderTrace(*(ui->videoTrace),videoPlayer.position());
     pos /= 1000; //to seconds
     qint64 rem = player.duration()/1000 - pos;
     ui->songTimePassed->display(QString("%1:%2").arg(pos/60,2,10,QLatin1Char('0')).arg(pos%60,2,10,QLatin1Char('0')));
     ui->songTimeRemaining->display(QString("%1:%2").arg(rem/60,2,10,QLatin1Char('0')).arg(rem%60,2,10,QLatin1Char('0')));
+}
+
+void MediaPlayer::on_bpm_valueChanged(double bpm) {
+    if (MP3trace != nullptr) MP3trace->updateBpm(bpm);
+    updateInfos(player.position());
 }
