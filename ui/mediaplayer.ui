@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>969</width>
-    <height>151</height>
+    <width>997</width>
+    <height>166</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -500,13 +500,13 @@
      </layout>
     </widget>
    </item>
-   <item alignment="Qt::AlignLeft">
+   <item>
     <widget class="QGroupBox" name="tuningBox">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Tuning (Gap)</string>
+      <string>Tuning</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="labelAlignment">
@@ -515,7 +515,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Audio</string>
+         <string>Audio Gap</string>
         </property>
        </widget>
       </item>
@@ -547,7 +547,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Video</string>
+         <string>Video Gap</string>
         </property>
        </widget>
       </item>
@@ -573,6 +573,26 @@
         </property>
         <property name="singleStep">
          <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>BPM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="bpm">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximum">
+         <double>999.990000000000009</double>
         </property>
        </widget>
       </item>

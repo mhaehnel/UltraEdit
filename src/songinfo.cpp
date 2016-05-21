@@ -41,7 +41,6 @@ void SongInfo::selectionChanged() {
     bool singleSelect = (selection->size() == 1);
 
     ui->filesGroup->setEnabled(singleSelect);
-    ui->settingsGroup->setEnabled(singleSelect);
     ui->title->setEnabled(singleSelect);
     ui->titleLabel->setEnabled(singleSelect);
     ui->lyricsTab->setDisabled(!singleSelect);
