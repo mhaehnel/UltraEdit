@@ -6,7 +6,7 @@
 const MediaPlayer* MediaPlayer::instance = nullptr;
 
 MediaPlayer::MediaPlayer(QWidget *parent) :
-    QFrame(parent), ui(std::make_unique<Ui::MediaPlayer>()),
+    QFrame(parent), ui(new Ui::MediaPlayer()),
     _song(nullptr), pl(&player)
 {
     ui->setupUi(this);
@@ -66,7 +66,9 @@ void MediaPlayer::seek(quint64 pos) {
     midi.seek(pos);
 }
 
-MediaPlayer::~MediaPlayer() {}
+MediaPlayer::~MediaPlayer() {
+    delete ui;
+}
 
 void MediaPlayer::stop() {
     player.stop();

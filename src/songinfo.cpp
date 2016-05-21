@@ -7,7 +7,7 @@
 #include <actions/modifytag.h>
 
 SongInfo::SongInfo(QWidget *parent) :
-    QWidget(parent), ui(std::make_unique<Ui::SongInfo>())
+    QWidget(parent), ui(new Ui::SongInfo())
 {
     ui->setupUi(this);
     connect(ui->notes,&NoteWidget::play,this,&SongInfo::play);
@@ -26,7 +26,9 @@ SongInfo::SongInfo(QWidget *parent) :
     ui->songChanged->hide();
 }
 
-SongInfo::~SongInfo() {}
+SongInfo::~SongInfo() {
+    delete ui;
+}
 
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
     selection = selected;

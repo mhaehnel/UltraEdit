@@ -1,6 +1,5 @@
 #pragma once
 #include <QDialog>
-#include <memory>
 
 namespace Ui {
 class SelectSongDirs;
@@ -23,6 +22,6 @@ private slots:
     void on_pushButton_2_clicked();
 
 private:
-    std::unique_ptr<Ui::SelectSongDirs> ui;
+    Ui::SelectSongDirs* ui;
     bool _changed;
 };

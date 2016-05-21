@@ -24,7 +24,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
-    ui(std::make_unique<Ui::MainWindow>()),
+    ui(new Ui::MainWindow()),
     config("MH-Development","UltraEdit")
 {
     ui->setupUi(this);
@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow() {
     ui->musicPlayer->stop();
     for (auto s : songList) delete s;
+    delete ui;
 }
 
 

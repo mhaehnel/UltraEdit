@@ -1,6 +1,5 @@
 #pragma once
 #include <QDialog>
-#include <memory>
 
 namespace Ui {
 class PathInstanceSelector;
@@ -20,5 +19,5 @@ private slots:
 
 private:
     QString selectedText;
-    std::unique_ptr<Ui::PathInstanceSelector> ui;
+    Ui::PathInstanceSelector* ui;
 };

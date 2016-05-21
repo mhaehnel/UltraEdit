@@ -4,7 +4,6 @@
 #include <QMediaPlaylist>
 #include <song.h>
 #include <midiplayer.h>
-#include <memory>
 #include <audiotrace.h>
 
 namespace Ui {
@@ -51,7 +50,7 @@ private slots:
     void on_bpm_valueChanged(double bpm);
 
 private:
-    std::unique_ptr<Ui::MediaPlayer> ui;
+    Ui::MediaPlayer* ui;
 
     Song* _song; //TODO: Ownership?
 

@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <QFrame>
 
 namespace Ui {
@@ -15,5 +14,5 @@ public:
     ~SongGroup();
     QLayout& layout();
 private:
-    std::unique_ptr<Ui::SongGroup> ui;
+   Ui::SongGroup* ui;
 };

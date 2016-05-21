@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "song.h"
 #include <QFrame>
 #include <QMouseEvent>
@@ -33,7 +32,7 @@ private slots:
     void on_playMedia_clicked();
 
 private:
-    std::unique_ptr<Ui::songframe> ui;
+    Ui::songframe* ui;
     void markMissing(QPixmap &pm);
     void markNo(QPixmap &pm);
 };

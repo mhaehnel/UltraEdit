@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <QWidget>
 #include "sylabel.h"
 #include <QList>
@@ -48,7 +47,7 @@ private:
     void transpose(int steps);
     bool keepLine = false;
     bool keepSylabel = false;
-    std::unique_ptr<Ui::NoteWidget> ui;
+    Ui::NoteWidget* ui;
     unsigned char maxKey, minKey;
     int startBeat, totalBeats;
     Sylabel* currentNote;

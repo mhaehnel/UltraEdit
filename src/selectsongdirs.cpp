@@ -5,7 +5,7 @@
 
 SelectSongDirs::SelectSongDirs(QWidget *parent) :
     QDialog(parent),
-    ui(std::make_unique<Ui::SelectSongDirs>()), _changed(false)
+    ui(new Ui::SelectSongDirs()), _changed(false)
 {
     ui->setupUi(this);
     QFileSystemModel* fm = new QFileSystemModel();
@@ -19,7 +19,9 @@ SelectSongDirs::SelectSongDirs(QWidget *parent) :
     ui->dirTree->setRootIndex(fm->index(QDir::rootPath()));
 }
 
-SelectSongDirs::~SelectSongDirs() {}
+SelectSongDirs::~SelectSongDirs() {
+    delete ui;
+}
 
 void SelectSongDirs::on_pushButton_clicked()
 {

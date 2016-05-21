@@ -15,7 +15,7 @@
 
 SongFrame::SongFrame(Song *song, QWidget *parent) :
     QFrame(parent), song(song),
-    ui(std::make_unique<Ui::songframe>())
+    ui(new Ui::songframe())
 {
     ui->setupUi(this);
     connect(song,&Song::updated,this,&SongFrame::updateData);
@@ -57,7 +57,9 @@ void SongFrame::deselect() {
     setStyleSheet("");
 }
 
-SongFrame::~SongFrame() {}
+SongFrame::~SongFrame() {
+    delete ui;
+}
 
 void SongFrame::on_playMedia_clicked()
 {

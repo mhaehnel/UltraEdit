@@ -6,7 +6,6 @@
 #include "songgroup.h"
 #include <QThread>
 #include <QProgressBar>
-#include <memory>
 
 namespace Ui {
 class MainWindow;
@@ -49,7 +48,7 @@ private:
     QList<SongFrame*> selectedFrames, songFrames;
     QMap<QString,QList<SongFrame*>> groupedFrames;
     QMap<QString,SongGroup*> songGroups;
-    std::unique_ptr<Ui::MainWindow> ui;
+    Ui::MainWindow* ui;
     QSettings config;
     QProgressBar statusProgress;
     QByteArray splitterState;

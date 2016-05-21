@@ -2,7 +2,6 @@
 #include "songframe.h"
 #include <QWidget>
 #include <QMediaPlayer>
-#include <memory>
 
 namespace Ui {
 class SongInfo;
@@ -34,7 +33,7 @@ signals:
     void popOut();
 
 private:
-    std::unique_ptr<Ui::SongInfo> ui;
+    Ui::SongInfo* ui;
     QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;
     QList<SongFrame*> *selection;
 };
