@@ -24,7 +24,7 @@ INCLUDEPATH=include/
 SOURCES += main.cpp\
         mainwindow.cpp \
     songinfo.cpp \
-    selectsongdirs.cpp \
+    collectioneditor.cpp \
     song.cpp \
     songframe.cpp \
     songgroup.cpp \
@@ -44,11 +44,12 @@ SOURCES += main.cpp\
     src/actions/orderlyrics.cpp \
     src/actions/modifygap.cpp \
     src/audiotrace.cpp \
-    src/songimportdialog.cpp
+    src/songimportdialog.cpp \
+    src/collection.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
-    selectsongdirs.h \
+    collectioneditor.h \
     song.h \
     songframe.h \
     songgroup.h \
@@ -70,11 +71,12 @@ HEADERS  += mainwindow.h \
     include/actions/orderlyrics.h \
     include/actions/modifygap.h \
     include/audiotrace.h \
-    include/songimportdialog.h
+    include/songimportdialog.h \
+    include/collection.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
-    selectsongdirs.ui \
+    collectioneditor.ui \
     songframe.ui \
     songgroup.ui \
     mediaplayer.ui \

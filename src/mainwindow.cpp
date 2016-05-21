@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <QSemaphore>
 #include "mainwindow.h"
-#include "selectsongdirs.h"
+#include "collectioneditor.h"
 #include "ui_mainwindow.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFuture>
@@ -20,12 +20,32 @@
 #include <exceptions/songparseexception.h>
 #include <exceptions/sylabelformatexception.h>
 
- using namespace std::chrono_literals;
+using namespace std::chrono_literals;
+
+static QList<Collection> deserializeCollectionList(const QStringList& sl) {
+    QList<Collection> cols;
+    for (const QString&  s : sl) {
+        QStringList parts = s.split('|');
+        if (parts.size() != 3) {
+            qDebug() << "Invalid collection" << s;
+            continue;
+        }
+        cols.append(Collection(parts[0],parts[1],parts[2]));
+    }
+    return cols;
+}
+
+static QStringList serializeCollectionList(const QList<Collection>& cl) {
+    QStringList colStrings;
+    for (const Collection& c : cl) {
+        colStrings.push_back(c.name()+"|"+c.basePath()+"|"+c.pathRule());
+    }
+    return colStrings;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), notWellFormedCount(0), invalidCount(0),
-    ui(new Ui::MainWindow()),
-    config("MH-Development","UltraEdit")
+    ui(new Ui::MainWindow())
 {
     ui->setupUi(this);
     qRegisterMetaType<Song*>();
@@ -59,13 +79,17 @@ auto seconds_since(T base) {
 }
 
 void MainWindow::rescanCollection() {
-    QStringList paths = config.value("songdirs").toStringList();
+    QList<Collection> cols = deserializeCollectionList(config.value("collections").toStringList());
+    for (Song* s : songList) delete s;
+    songList.clear();
+    for (SongFrame* s : songFrames) delete s;
+    songFrames.clear();
+
     auto start = std::chrono::steady_clock::now();
     auto begin = start;
-    for (QString d : paths) {
-        //TODO: This is leaking on rescan!
-        qDebug() << "Scannning:"  << d;
-        QDirIterator di(d,QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+    for (const Collection& d : cols) {
+        qDebug() << "Scannning:"  << d.name();
+        QDirIterator di(d.basePath(),QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
@@ -307,10 +331,10 @@ void MainWindow::addSong(Song *song) {
 
 void MainWindow::on_actionSources_triggered()
 {
-    SelectSongDirs ssd;
-    ssd.setPaths(config.value("songdirs").toStringList());
+    auto cols = deserializeCollectionList(config.value("collections").toStringList());
+    CollectionEditor ssd(cols);
     ssd.exec();
-    config.setValue("songdirs",ssd.getPaths());
+    config.setValue("collections",serializeCollectionList(ssd.getPaths()));
     if (ssd.changed())
         rescanCollection();
 }
