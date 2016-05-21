@@ -58,7 +58,7 @@ public:
     class OrderLyrics;
     class ModifyGap;
 
-    Song(const QFileInfo& source, const QString basePath);
+    Song(const QFileInfo& source);
     Song(const Song&) = delete; //Songs should not be copyable
     virtual ~Song();
     Song& operator=(const Song&) = delete;
@@ -108,7 +108,6 @@ public:
     int lines() const;
     quint64 timeAtLine(int line) const;
 
-    QString basePath() const { return _basePath; }
     static const QStringList& seenTags() { return _seenTags; }
     const QList<Sylabel*>& sylabels() const { return musicAndLyrics; }
 

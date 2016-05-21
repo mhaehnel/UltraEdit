@@ -9,7 +9,6 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
-#include <QProgressDialog>
 #include <QInputDialog>
 
 #include <chrono>
@@ -66,7 +65,7 @@ void MainWindow::rescanCollection() {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
             try {
-                addSong(new Song(fi,d));
+                addSong(new Song(fi));
             } catch (SongParseException& e) {
                 qDebug() << "Error: " << e.what();
             } catch (SylabelFormatException& e) {
