@@ -43,7 +43,8 @@ SOURCES += main.cpp\
     src/validators/lyricsinorder.cpp \
     src/actions/orderlyrics.cpp \
     src/actions/modifygap.cpp \
-    src/audiotrace.cpp
+    src/audiotrace.cpp \
+    src/songimportdialog.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -68,7 +69,8 @@ HEADERS  += mainwindow.h \
     include/validators/lyricsinorder.h \
     include/actions/orderlyrics.h \
     include/actions/modifygap.h \
-    include/audiotrace.h
+    include/audiotrace.h \
+    include/songimportdialog.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \
@@ -80,6 +82,7 @@ FORMS    += mainwindow.ui \
     pathinstanceselector.ui \
     noteview.ui \
     notewidget.ui \
-    ui/actionitem.ui
+    ui/actionitem.ui \
+    ui/songimportdialog.ui
 
 RESOURCES +=  ultraedit.qrc

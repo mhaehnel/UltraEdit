@@ -442,6 +442,9 @@
        <property name="styleSheet">
         <string notr="true">background-color: palette(light)</string>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -498,6 +501,9 @@
      <string>Fi&amp;le</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionImport_Directory"/>
+    <addaction name="actionImport_Song"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
@@ -546,6 +552,33 @@
   <action name="actionMidi_Output">
    <property name="text">
     <string>&amp;Midi Output ...</string>
+   </property>
+  </action>
+  <action name="actionImport_Song">
+   <property name="icon">
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Import &amp;Song ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionImport_Directory">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="folder-open">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Import Directory ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+I</string>
    </property>
   </action>
  </widget>

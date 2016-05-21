@@ -10,7 +10,11 @@
 #include <cassert>
 #include <functional>
 #include <QInputDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 
+
+#include <songimportdialog.h>
 #include <chrono>
 
 #include <exceptions/songparseexception.h>
@@ -321,5 +325,29 @@ void MainWindow::on_actionMidi_Output_triggered()
     if (ok && !item.isEmpty()) {
         config.setValue("midiPort",item);
         ui->musicPlayer->connectMidiPort(item);
+    }
+}
+
+void MainWindow::on_actionImport_Directory_triggered() {
+    qDebug() << "Import directory not implemented";
+}
+
+void MainWindow::on_actionImport_Song_triggered() {
+    QString fileName = QFileDialog::getOpenFileName(this,"Open US Song",config.value("openSongPath").toString(),"USDX Songs (*.txt)");
+    if (fileName.isEmpty()) return;
+    QFileInfo fi(fileName);
+    config.setValue("openSongPath",fi.absolutePath());
+    try {
+        Song* s = new Song(fi);
+        SongImportDialog sid(s,this);
+        if (sid.exec() == QDialog::Rejected) {
+            delete s;
+            return;
+        }
+        songList.append(s);
+    } catch (std::exception& e) {
+        QString msg("Importing the file '%1' failed with error:\n%2");
+        QMessageBox::critical(this,"Import failed",msg.arg(fileName,QString(e.what())));
+        return;
     }
 }

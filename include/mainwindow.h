@@ -34,8 +34,9 @@ private slots:
     void popOut(int idx);
 
     void on_actionSources_triggered();
-
     void on_actionMidi_Output_triggered();
+    void on_actionImport_Directory_triggered();
+    void on_actionImport_Song_triggered();
 
 private:
     bool filter(const Song* song);
