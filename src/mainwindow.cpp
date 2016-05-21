@@ -334,7 +334,7 @@ void MainWindow::on_actionSources_triggered()
     auto cols = deserializeCollectionList(config.value("collections").toStringList());
     CollectionEditor ssd(cols);
     ssd.exec();
-    config.setValue("collections",serializeCollectionList(ssd.getPaths()));
+    config.setValue("collections",serializeCollectionList(ssd.collections()));
     if (ssd.changed())
         rescanCollection();
 }

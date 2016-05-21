@@ -36,7 +36,7 @@ void CollectionEditor::on_create_clicked()
     updateCollections();
 }
 
-QList<Collection> CollectionEditor::getPaths() const {
+QList<Collection> CollectionEditor::collections() const {
     return cols_;
 }
 

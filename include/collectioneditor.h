@@ -15,7 +15,7 @@ public:
     explicit CollectionEditor(QList<Collection> cols, QWidget *parent = 0);
     virtual ~CollectionEditor();
 
-    QList<Collection> getPaths() const;
+    QList<Collection> collections() const;
     bool changed() const;
 
 private slots:
