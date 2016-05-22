@@ -16,7 +16,7 @@ QPixmap* Song::_coverMissing = nullptr;
 
 //using namespace std::rel_ops;
 
-Song::Song(const QFileInfo& source, const Collection* collection) :
+Song::Song(const QFileInfo& source, Collection* collection) :
     _bpm(0), _gap(0), _videoGap(0), _bpmFactor(1), _txt(source),
     collection_(collection)
 {
@@ -79,12 +79,14 @@ Song::Song(const QFileInfo& source, const Collection* collection) :
     actionItems_.splice(actionItems_.end(),LyricsInOrder().validate(*this));
     //if (actionItems.size() > 0) _warnings << actionItems.front()->description();
 
-    if (collection_)
+    if (collection_) {
+        collection_->addSong(this); //add ourself to the collection
         if (_mp3.absoluteFilePath().compare(collection_->path(this,"MP3").absoluteFilePath(),Qt::CaseInsensitive) != 0) {
             qDebug() << "Wrong MP3 path!";
             qDebug() << "  Got:     " << _mp3.absoluteFilePath();
             qDebug() << "  Expected:" << collection_->path(this,"mp3").absoluteFilePath();
         }
+    }
 /*
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
         if (s1->beat() == s2->beat()) {

@@ -22,23 +22,23 @@
 
 using namespace std::chrono_literals;
 
-static QList<Collection> deserializeCollectionList(const QStringList& sl) {
-    QList<Collection> cols;
+static QList<Collection*> deserializeCollectionList(const QStringList& sl) {
+    QList<Collection*> cols;
     for (const QString&  s : sl) {
         QStringList parts = s.split('|');
         if (parts.size() != 3) {
             qDebug() << "Invalid collection" << s;
             continue;
         }
-        cols.append(Collection(parts[0],parts[1],parts[2]));
+        cols.append(new Collection(parts[0],parts[1],parts[2]));
     }
     return cols;
 }
 
-static QStringList serializeCollectionList(const QList<Collection>& cl) {
+static QStringList serializeCollectionList(const QList<Collection*>& cl) {
     QStringList colStrings;
-    for (const Collection& c : cl) {
-        colStrings.push_back(c.name()+"|"+c.basePath()+"|"+c.pathRule());
+    for (const Collection* c : cl) {
+        colStrings.push_back(c->name()+"|"+c->basePath()+"|"+c->pathRule());
     }
     return colStrings;
 }
@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&MediaPlayer::play);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&MediaPlayer::pause);
     connect(ui->songDetails,&SongInfo::popOut, [this] { popOut(2); });
-    QTimer::singleShot(0,this,SLOT(rescanCollection()));
+    QTimer::singleShot(0,this,SLOT(rescanCollections()));
     ui->musicPlayer->connectMidiPort(config.value("midiPort","").toString());
     ui->musicPlayer->setVideoOutput(ui->songDetails->videoWidget());
 }
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
     ui->musicPlayer->stop();
-    for (auto s : songList) delete s;
+    for (Collection* c : collections) delete c;
     delete ui;
 }
 
@@ -94,23 +94,22 @@ void MainWindow::collectionUpdated() {
     emit selectionChanged();
 }
 
-void MainWindow::rescanCollection() {
+void MainWindow::rescanCollections() {
+    for (Collection* c : collections) delete c; //remove old collections (and songs)
     collections = deserializeCollectionList(config.value("collections").toStringList());
-    for (Song* s : songList) delete s;
-    songList.clear();
     for (SongFrame* s : songFrames) delete s;
     songFrames.clear();
 
     auto start = std::chrono::steady_clock::now();
     auto begin = start;
-    for (const Collection& d : collections) {
-        qDebug() << "Scannning:"  << d.name();
-        QDirIterator di(d.basePath(),QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+    for (Collection* d : collections) {
+        qDebug() << "Scannning:"  << d->name();
+        QDirIterator di(d->basePath(),QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
             try {
-                addSong(new Song(fi,&d));
+                addSong(new Song(fi,d));
             } catch (SongParseException& e) {
                 qDebug() << "Error: " << e.what();
             } catch (SylabelFormatException& e) {
@@ -319,7 +318,6 @@ void MainWindow::selectFrame(SongFrame *sf) {
 }
 
 void MainWindow::addSong(Song *song) {
-    songList.append(song);
     SongFrame* sf = new SongFrame(song,this);
     sf->hide();
     songFrames.append(sf);
@@ -327,7 +325,12 @@ void MainWindow::addSong(Song *song) {
     sf->connect(sf,&SongFrame::playSong,[this,sf] (Song* ) { if (!selectedFrames.contains(sf)) selectFrame(sf); ui->musicPlayer->play(); });
     //TODO: if (!song->isValid()) invalidCount++;
     if (!song->isWellFormed()) notWellFormedCount++;
-    statusBar()->showMessage(QString("Scanning ... %1 Found, %2 invalid, %3 not well formed").arg(songList.size()).arg(invalidCount).arg(notWellFormedCount));
+    size_t total = std::accumulate(collections.begin(),collections.end(), size_t{},
+                                [] (const int& s, const Collection* c) {
+        return s + c->size();
+    });
+
+    statusBar()->showMessage(QString("Scanning ... %1 Songs found in %2 collections, %3 invalid, %4 not well formed").arg(total).arg(collections.size()).arg(invalidCount).arg(notWellFormedCount));
 }
 
 void MainWindow::on_actionSources_triggered()
@@ -337,7 +340,7 @@ void MainWindow::on_actionSources_triggered()
     ssd.exec();
     config.setValue("collections",serializeCollectionList(ssd.collections()));
     if (ssd.changed())
-        rescanCollection();
+        rescanCollections();
 }
 
 void MainWindow::on_actionMidi_Output_triggered()

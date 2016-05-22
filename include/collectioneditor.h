@@ -12,10 +12,10 @@ class CollectionEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit CollectionEditor(QList<Collection> cols, QWidget *parent = 0);
+    explicit CollectionEditor(QList<Collection*> cols, QWidget *parent = 0);
     virtual ~CollectionEditor();
 
-    QList<Collection> collections() const;
+    QList<Collection*> collections() const;
     bool changed() const;
 
 private slots:
@@ -30,7 +30,7 @@ private slots:
 
 private:
     void updateCollections();
-    QList<Collection> cols_;
+    QList<Collection*> cols_;
     Ui::CollectionEditor* ui;
     bool _changed;
 };

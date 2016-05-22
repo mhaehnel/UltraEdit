@@ -42,7 +42,7 @@ private:
     std::vector<int> _linesIdx;
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
-    const Collection* collection_;
+    Collection* collection_;
 /*    bool removeTag(const QString &tag);
     bool updateTag(const QString& tag, const QString& value);
 */
@@ -61,7 +61,7 @@ public:
     class ModifyGap;
     class TransferToCollection;
 
-    Song(const QFileInfo& source, const Collection* col = nullptr);
+    Song(const QFileInfo& source, Collection* col = nullptr);
     virtual ~Song();
 
     QStringList performedActions() const;

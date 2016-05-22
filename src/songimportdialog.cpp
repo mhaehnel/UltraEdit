@@ -16,7 +16,7 @@ static QStringList alternatives(const QFileInfo &orig) {
     return res;
 }
 
-SongImportDialog::SongImportDialog(const QList<Collection>& cols, Song* song, MainWindow *parent) :
+SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, MainWindow *parent) :
     QDialog(parent), song_(song), cols_(cols),
     ui(new Ui::SongImportDialog)
 {
@@ -39,8 +39,8 @@ SongImportDialog::SongImportDialog(const QList<Collection>& cols, Song* song, Ma
 
     ui->cover->setPixmap(song->cover());
     ui->title->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(song_->artist(),song_->title()));
-    for (const Collection& c : cols_) {
-        ui->collection->addItem(c.name());
+    for (const Collection* c : cols_) {
+        ui->collection->addItem(c->name());
     }
     ui->collection->setCurrentIndex(cols_.size()-1);
 }
@@ -73,7 +73,7 @@ void SongImportDialog::createAlt(QFileInfo &fi,QPushButton* tb,QString filter) {
 
 void SongImportDialog::import() {
     if (!song_->performAction(std::make_unique<Song::TransferToCollection>(
-                             &cols_.at(ui->collection->currentIndex()),
+                             cols_.at(ui->collection->currentIndex()),
                              (ui->moveImport->isChecked())?
                                  Song::TransferToCollection::Type::Move:
                                  Song::TransferToCollection::Type::Copy

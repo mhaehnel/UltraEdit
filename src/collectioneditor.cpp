@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 //TODO: Names, rules or paths may not contain the pipe character!
-CollectionEditor::CollectionEditor(QList<Collection> cols, QWidget *parent) :
+CollectionEditor::CollectionEditor(QList<Collection*> cols, QWidget *parent) :
     QDialog(parent), cols_(cols),
     ui(new Ui::CollectionEditor()), _changed(false)
 {
@@ -22,21 +22,21 @@ CollectionEditor::~CollectionEditor() {
 
 void CollectionEditor::updateCollections() {
     ui->collectionList->clear();
-    for (const Collection& c : cols_) {
+    for (const Collection* c : cols_) {
         ui->collectionList->addItem(QString("%1: [%2] %3").
-                                    arg(c.name(),c.basePath(),c.pathRule()));
+                                    arg(c->name(),c->basePath(),c->pathRule()));
     }
 }
 
 void CollectionEditor::on_create_clicked()
 {
     _changed = true;
-    cols_.push_back(Collection(ui->name->text(),ui->basePath->text(),
+    cols_.push_back(new Collection(ui->name->text(),ui->basePath->text(),
                                ui->pathRule->text()));
     updateCollections();
 }
 
-QList<Collection> CollectionEditor::collections() const {
+QList<Collection*> CollectionEditor::collections() const {
     return cols_;
 }
 
@@ -56,9 +56,9 @@ void CollectionEditor::checkButton(const QString &)
 {
     ui->create->setEnabled(!ui->name->text().contains('|') &&
                            !ui->name->text().isEmpty() &&
-                           !std::any_of(cols_.cbegin(),cols_.cend(),[this] (const Collection& c) -> bool{
-                                return (ui->name->text() == c.name()
-                                        ||ui->basePath->text() == c.basePath());
+                           !std::any_of(cols_.cbegin(),cols_.cend(),[this] (const Collection* c) -> bool{
+                                return (ui->name->text() == c->name()
+                                        ||ui->basePath->text() == c->basePath());
                            }) &&
                            !ui->basePath->text().contains('|') &&
                            !ui->pathRule->text().contains('|'));
@@ -68,7 +68,7 @@ void CollectionEditor::on_remove_clicked()
 {
     _changed = true;
     QListWidgetItem* i = ui->collectionList->selectedItems().first();
-    cols_.removeAt(ui->collectionList->row(i));
+    delete cols_.takeAt(ui->collectionList->row(i));
     updateCollections();
 }
 

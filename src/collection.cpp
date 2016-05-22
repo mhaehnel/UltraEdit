@@ -15,6 +15,10 @@ Collection::Collection(QString name, QString basePath, QString pathRule)
     qDebug() << "Tags for pathRule" << pathRule_ << ":" << replacementTags;
 }
 
+Collection::~Collection() {
+    for (Song* s : songs_) delete s;
+}
+
 QFileInfo Collection::path(const Song *s, QString extension) const {
     QString res = pathRule_;
     for (const QString& tag : replacementTags) {
@@ -22,4 +26,15 @@ QFileInfo Collection::path(const Song *s, QString extension) const {
     }
     res.replace("@{EXT}",extension);
     return basePath_+'/'+res;
+}
+
+void Collection::addSong(Song *s) {
+    songs_.push_back(s);
+}
+
+void Collection::removeSong(const Song *s) {
+    songs_.erase(std::remove_if(songs_.begin(),songs_.end(),[s]
+                                (const Song* e) -> bool {
+        return s == e;
+    }));
 }

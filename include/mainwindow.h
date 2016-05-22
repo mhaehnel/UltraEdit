@@ -27,7 +27,7 @@ private slots:
 
     void filterList();
     void regroupList();
-    void rescanCollection();
+    void rescanCollections();
     void resortList();
     void selectFrame(SongFrame* sf);
     void popOut(int idx);
@@ -46,9 +46,8 @@ private:
     void sortFrames(QList<SongFrame*> &sf);
 
     int notWellFormedCount, invalidCount;
-    QList<Song*> songList;
     QList<SongFrame*> selectedFrames, songFrames;
-    QList<Collection> collections;
+    QList<Collection*> collections;
     QMap<QString,QList<SongFrame*>> groupedFrames;
     QMap<QString,SongGroup*> songGroups;
     Ui::MainWindow* ui;

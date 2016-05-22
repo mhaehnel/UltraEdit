@@ -1,9 +1,11 @@
 #include "actions/transfertocollection.h"
 #include <actions/action.h>
 
-Song::TransferToCollection::TransferToCollection(const Collection *target, Type t)
+Song::TransferToCollection::TransferToCollection(Collection *target, Type t)
     : newCollection(target), t_(t)
-{}
+{
+    Q_ASSERT(newCollection != nullptr);
+}
 
 //TODO: The error handling of this whole function is very shaky
 
@@ -85,7 +87,9 @@ bool Song::TransferToCollection::perform(Song &song) {
     }
     //TODO: remove parent dir on move?. Save it? What if multiple parent dirs?
     oldCollection = song.collection_;
+    if (oldCollection != nullptr) oldCollection->removeSong(&song);
     song.collection_ = newCollection;
+    newCollection->addSong(&song);
     return true;
 }
 
