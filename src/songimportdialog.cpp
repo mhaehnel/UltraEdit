@@ -49,19 +49,16 @@ void SongImportDialog::createAlt(QFileInfo &fi,QPushButton* tb,QString filter) {
     QStringList alt = alternatives(fi);
     auto selectFile = [this,&fi,tb,filter] {
         QString file = QFileDialog::getOpenFileName(this,"Select File",fi.dir().absolutePath(),filter);
-        qDebug() << "File is now: " << fi.absoluteFilePath();
         if (!file.isEmpty()) {
             fi.setFile(fi.dir(),file);
             tb->hide();
         }
     };
-    qDebug() << "Alt: " << alt;
     if (!alt.empty()) {
         QMenu *menu = new QMenu(tb);
         for (const QString& s : alt) {
             menu->addAction(s,[this,&fi,tb,s] {
                 fi.setFile(fi.dir(),s);
-                qDebug() << "File is now: " << fi.absoluteFilePath();
                 tb->hide();
             });
         }

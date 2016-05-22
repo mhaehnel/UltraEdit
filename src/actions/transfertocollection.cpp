@@ -29,6 +29,7 @@ bool Song::TransferToCollection::perform(Song &song) {
             || (song.hasBG() && !song.bg().exists())) return false;
 
     QDir d(newTXT.absolutePath());
+    QString origTxt = song.txt().absoluteFilePath();
     song._txt = newTXT;
     auto transfer = (t_ == Type::Copy)?
                         static_cast<bool(*)(const QString&, const QString&)>(&QFile::copy):
@@ -75,8 +76,11 @@ bool Song::TransferToCollection::perform(Song &song) {
     txtFile.write(song.rawData().toUtf8()); //TODO: handle errors
     txtFile.close();
     if (t_ ==Type::Move) {
-        if (!QFile(song.txt().absoluteFilePath()).remove()) {
+        if (!QFile(origTxt).remove()) {
             qDebug() << "Removing source txt file failed. Non fatal!";
+        } else {
+            QFileInfo fi(QFileInfo(origTxt).dir().absolutePath());
+            fi.dir().rmdir(fi.fileName());
         }
     }
     //TODO: remove parent dir on move?. Save it? What if multiple parent dirs?
