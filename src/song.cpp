@@ -83,7 +83,7 @@ Song::Song(const QFileInfo& source, const Collection* collection) :
         if (_mp3.absoluteFilePath().compare(collection_->path(this,"MP3").absoluteFilePath(),Qt::CaseInsensitive) != 0) {
             qDebug() << "Wrong MP3 path!";
             qDebug() << "  Got:     " << _mp3.absoluteFilePath();
-            qDebug() << "  Expected:" << collection_->path(this,"mp3").absolutePath();
+            qDebug() << "  Expected:" << collection_->path(this,"mp3").absoluteFilePath();
         }
 /*
     std::sort(musicAndLyrics.begin(),musicAndLyrics.end(),[this] (const Sylabel* s1, const Sylabel* s2) {
