@@ -221,23 +221,24 @@ bool Song::setTag(const QString &tag, const QString &value) {
         _warnings << QString("Tag (\"%1\") without value! Skipping.").arg(tag);
         return false;
     }
-    if (tag == "MP3" && !setFile(_mp3,value)) return false;
-    if (tag == "COVER" && !setFile(_cov,value)) return false;
-    if (tag == "BACKGROUND" && !setFile(_bg,value))  return false;
-    if (tag == "VIDEO" && !setFile(_vid,value)) return false;
-    if (tag == "BPM" && !toDouble(value,_bpm)) return false;
-    if (tag == "BPMFACTOR" && !toInt(value,_bpmFactor)) return false;
-    if (tag == "GAP" && !toInt(value,_gap)) return false;
+    QString val = value.trimmed();
+    if (tag == "MP3" && !setFile(_mp3,val)) return false;
+    if (tag == "COVER" && !setFile(_cov,val)) return false;
+    if (tag == "BACKGROUND" && !setFile(_bg,val))  return false;
+    if (tag == "VIDEO" && !setFile(_vid,val)) return false;
+    if (tag == "BPM" && !toDouble(val,_bpm)) return false;
+    if (tag == "BPMFACTOR" && !toInt(val,_bpmFactor)) return false;
+    if (tag == "GAP" && !toInt(val,_gap)) return false;
 
     double tmp;
     if (tag == "VIDEOGAP") {
-        if (toDouble(value,tmp)) {
+        if (toDouble(val,tmp)) {
             _videoGap = tmp*1000;
         } else {
             return false;
         }
     }
-    tags[tag] = value;
+    tags[tag] = val;
 
     return true;
 }
