@@ -5,6 +5,8 @@ Song::TransferToCollection::TransferToCollection(const Collection *target, Type 
     : newCollection(target), t_(t)
 {}
 
+//TODO: The error handling of this whole function is very shaky
+
 bool Song::TransferToCollection::perform(Song &song) {
     QFileInfo newTXT = newCollection->path(&song,"txt");
     QFileInfo newMP3 = newCollection->path(&song,"mp3");
@@ -26,41 +28,61 @@ bool Song::TransferToCollection::perform(Song &song) {
             || (song.hasCover() && !song.cov().exists())
             || (song.hasBG() && !song.bg().exists())) return false;
 
-    bool ret = true;
-    QDir d("/");
+    QDir d(newTXT.absolutePath());
+    song._txt = newTXT;
     auto transfer = (t_ == Type::Copy)?
                         static_cast<bool(*)(const QString&, const QString&)>(&QFile::copy):
                         static_cast<bool(*)(const QString&, const QString&)>(&QFile::rename);
     d.mkpath(newMP3.absolutePath());
-    qDebug() << song.mp3().absoluteFilePath() << "=>" << newMP3.absoluteFilePath();
-    ret &= transfer(song.mp3().absoluteFilePath(),newMP3.absoluteFilePath());
-    d.mkpath(newTXT.absolutePath());
-    qDebug() << song.txt().absoluteFilePath() << "=>" << newTXT.absoluteFilePath();
-    ret &= transfer(song.txt().absoluteFilePath(),newTXT.absoluteFilePath());
+    if (!transfer(song.mp3().absoluteFilePath(),newMP3.absoluteFilePath())) {
+        qDebug() << song.mp3().absoluteFilePath() << "=>" << newMP3.absoluteFilePath() << "failed";
+    } else {
+        song.setTag("MP3",d.relativeFilePath(newMP3.absoluteFilePath()));
+    }
     if (song.hasVideo()) {
         d.mkpath(newVID.absolutePath());
-        qDebug() << song.vid().absoluteFilePath() << "=>" << newVID.absoluteFilePath();
-        ret &= transfer(song.vid().absoluteFilePath(),newVID.absoluteFilePath());
+        if (!transfer(song.vid().absoluteFilePath(),newVID.absoluteFilePath())) {
+            qDebug() << song.vid().absoluteFilePath() << "=>" << newVID.absoluteFilePath() << "failed";
+        } else {
+            song.setTag("VIDEO",d.relativeFilePath(newVID.absoluteFilePath()));
+        }
     }
     if (song.hasCover()) {
         d.mkpath(newCOV.absolutePath());
         qDebug() << song.cov().absoluteFilePath() << "=>" << newCOV.absoluteFilePath();
-        ret &= transfer(song.cov().absoluteFilePath(),newCOV.absoluteFilePath());
+        if (!transfer(song.cov().absoluteFilePath(),newCOV.absoluteFilePath())) {
+            qDebug() << song.cov().absoluteFilePath() << "=>" << newCOV.absoluteFilePath() << "failed";
+        } else {
+            qDebug() << "Setting Tag" << d.relativeFilePath(newCOV.absoluteFilePath());
+            song.setTag("COVER",d.relativeFilePath(newCOV.absoluteFilePath()));
+        }
     }
     if (song.hasBG()) {
         d.mkpath(newBGR.absolutePath());
-        qDebug() << song.bg().absoluteFilePath() << "=>" << newBGR.absoluteFilePath();
-        ret &= transfer(song.bg().absoluteFilePath(),newBGR.absoluteFilePath());
+        if (!transfer(song.bg().absoluteFilePath(),newBGR.absoluteFilePath())) {;
+            qDebug() << song.bg().absoluteFilePath() << "=>" << newBGR.absoluteFilePath() << "failed";
+        } else {
+            song.setTag("BACKGROUND",d.relativeFilePath(newBGR.absoluteFilePath()));
+        }
+    }
+    //Write out txzt ...
+    d.mkpath(newTXT.absolutePath());
+    QFile txtFile(newTXT.absoluteFilePath());
+    if (!txtFile.open(QFile::WriteOnly)) {
+        qDebug() << song.txt().absoluteFilePath() << "=>" << newTXT.absoluteFilePath() << "failed";
+        return false;
+    }
+    txtFile.write(song.rawData().toUtf8()); //TODO: handle errors
+    txtFile.close();
+    if (t_ ==Type::Move) {
+        if (!QFile(song.txt().absoluteFilePath()).remove()) {
+            qDebug() << "Removing source txt file failed. Non fatal!";
+        }
     }
     //TODO: remove parent dir on move?. Save it? What if multiple parent dirs?
-    //Can we handle this properly?
-    if (!ret) {
-        qDebug() << "This should not have happened! Import failed!";
-    } else {
-        oldCollection = song.collection_;
-        song.collection_ = newCollection;
-    }
-    return ret;
+    oldCollection = song.collection_;
+    song.collection_ = newCollection;
+    return true;
 }
 
 bool Song::TransferToCollection::undo(Song &) {
