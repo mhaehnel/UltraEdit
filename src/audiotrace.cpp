@@ -139,7 +139,7 @@ void AudioTrace::renderSection(QPixmap &target, quint64 start, quint64 end) cons
 
 void AudioTrace::updateBpm(float bpm) {
     bpm_ = 60000.0/bpm;
-    bpm_ *= fmt.sampleRate()/1000.0;
+    bpm_ *= 44.1; //this is for our sampl. freq. fmt.sampleRate()/1000.0;
     bpm_ /= samplesPerLine;
     qDebug() << "Set bpm to" << bpm << "interval =" << bpm_ << "lines" << 60000.0/bpm << "ms";
 }
