@@ -5,6 +5,7 @@
 #include <QPixmap>
 #include <sylabel.h>
 #include <actions/action.h>
+#include <collection.h>
 
 class Song : public QObject
 {
@@ -40,7 +41,7 @@ private:
     std::vector<int> _linesIdx;
     static QStringList _seenTags; //Static overview of all tags seen in all files
     static QPixmap *_noCover, *_coverMissing; //the dummy covers
-
+    const Collection* collection_;
 /*    bool removeTag(const QString &tag);
     bool updateTag(const QString& tag, const QString& value);
 */
@@ -58,11 +59,8 @@ public:
     class OrderLyrics;
     class ModifyGap;
 
-    Song(const QFileInfo& source);
-    Song(const Song&) = delete; //Songs should not be copyable
+    Song(const QFileInfo& source, const Collection* col = nullptr);
     virtual ~Song();
-    Song& operator=(const Song&) = delete;
-//    bool operator==(const Song& rhs) const;
 
     QStringList performedActions() const;
     QStringList undoneActions() const;

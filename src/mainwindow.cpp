@@ -79,7 +79,7 @@ auto seconds_since(T base) {
 }
 
 void MainWindow::rescanCollection() {
-    QList<Collection> cols = deserializeCollectionList(config.value("collections").toStringList());
+    collections = deserializeCollectionList(config.value("collections").toStringList());
     for (Song* s : songList) delete s;
     songList.clear();
     for (SongFrame* s : songFrames) delete s;
@@ -87,14 +87,14 @@ void MainWindow::rescanCollection() {
 
     auto start = std::chrono::steady_clock::now();
     auto begin = start;
-    for (const Collection& d : cols) {
+    for (const Collection& d : collections) {
         qDebug() << "Scannning:"  << d.name();
         QDirIterator di(d.basePath(),QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
             try {
-                addSong(new Song(fi));
+                addSong(new Song(fi,&d));
             } catch (SongParseException& e) {
                 qDebug() << "Error: " << e.what();
             } catch (SylabelFormatException& e) {

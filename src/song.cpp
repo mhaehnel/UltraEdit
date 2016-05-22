@@ -16,8 +16,9 @@ QPixmap* Song::_coverMissing = nullptr;
 
 //using namespace std::rel_ops;
 
-Song::Song(const QFileInfo& source) :
-    _bpm(0), _gap(0), _videoGap(0), _bpmFactor(1), _txt(source)
+Song::Song(const QFileInfo& source, const Collection* collection) :
+    _bpm(0), _gap(0), _videoGap(0), _bpmFactor(1), _txt(source),
+    collection_(collection)
 {
     using Reason = SongParseException::Reason;
 
