@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     src/actions/modifygap.cpp \
     src/audiotrace.cpp \
     src/songimportdialog.cpp \
-    src/collection.cpp
+    src/collection.cpp \
+    src/actions/transfertocollection.cpp
 
 HEADERS  += mainwindow.h \
     songinfo.h \
@@ -72,7 +73,8 @@ HEADERS  += mainwindow.h \
     include/actions/modifygap.h \
     include/audiotrace.h \
     include/songimportdialog.h \
-    include/collection.h
+    include/collection.h \
+    include/actions/transfertocollection.h
 
 FORMS    += mainwindow.ui \
     songinfo.ui \

@@ -32,6 +32,8 @@ private slots:
     void selectFrame(SongFrame* sf);
     void popOut(int idx);
 
+    void collectionUpdated();
+
     void on_actionSources_triggered();
     void on_actionMidi_Output_triggered();
     void on_actionImport_Directory_triggered();
@@ -46,6 +48,7 @@ private:
     int notWellFormedCount, invalidCount;
     QList<Song*> songList;
     QList<SongFrame*> selectedFrames, songFrames;
+    QList<Collection> collections;
     QMap<QString,QList<SongFrame*>> groupedFrames;
     QMap<QString,SongGroup*> songGroups;
     Ui::MainWindow* ui;

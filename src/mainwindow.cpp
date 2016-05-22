@@ -78,6 +78,22 @@ auto seconds_since(T base) {
     return std::chrono::duration<double>(T::clock::now() - base).count();
 }
 
+void MainWindow::collectionUpdated() {
+    ui->groupBy->clear();
+    ui->groupBy->addItems(Song::seenTags());
+    auto begin = std::chrono::steady_clock::now();
+    if (Song::seenTags().contains("ARTIST"))  {
+        ui->groupBy->setCurrentIndex(Song::seenTags().indexOf("ARTIST"));
+    } else {
+        ui->groupBy->setCurrentIndex(0);
+    }
+    qDebug() << "Grouped in " << seconds_since(begin) << "s";
+    begin = std::chrono::steady_clock::now();
+    selectedFrames.clear();
+
+    emit selectionChanged();
+}
+
 void MainWindow::rescanCollection() {
     collections = deserializeCollectionList(config.value("collections").toStringList());
     for (Song* s : songList) delete s;
@@ -109,22 +125,7 @@ void MainWindow::rescanCollection() {
     }
     ((QBoxLayout*)ui->songList->layout())->addStretch(1);
     qDebug() << "Scanned in " << seconds_since(begin) << "s";
-    begin = std::chrono::steady_clock::now();
-    ui->groupBy->clear();
-    ui->groupBy->addItems(Song::seenTags());
-    qDebug() << "Added in " << seconds_since(begin) << "s";
-    begin = std::chrono::steady_clock::now();
-    if (Song::seenTags().contains("ARTIST"))  {
-        ui->groupBy->setCurrentIndex(Song::seenTags().indexOf("ARTIST"));
-    } else {
-        ui->groupBy->setCurrentIndex(0);
-    }
-    qDebug() << "Grouped in " << seconds_since(begin) << "s";
-    begin = std::chrono::steady_clock::now();
-    //regroupList();
-    selectedFrames.clear();
-
-    emit selectionChanged();
+    collectionUpdated();
 }
 
 bool filterState(const QCheckBox* cb, std::function<bool(void)> func) {
@@ -364,12 +365,13 @@ void MainWindow::on_actionImport_Song_triggered() {
     config.setValue("openSongPath",fi.absolutePath());
     try {
         Song* s = new Song(fi);
-        SongImportDialog sid(s,this);
+        SongImportDialog sid(collections,s,this);
         if (sid.exec() == QDialog::Rejected) {
             delete s;
             return;
         }
-        songList.append(s);
+        addSong(s);
+        collectionUpdated();
     } catch (std::exception& e) {
         QString msg("Importing the file '%1' failed with error:\n%2");
         QMessageBox::critical(this,"Import failed",msg.arg(fileName,QString(e.what())));

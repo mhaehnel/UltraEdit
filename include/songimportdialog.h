@@ -15,12 +15,16 @@ class SongImportDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SongImportDialog(Song* song, MainWindow *parent);
+    explicit SongImportDialog(const QList<Collection>& cols, Song* song, MainWindow *parent);
     ~SongImportDialog();
+
+private slots:
+    void import();
 
 private:
     Song* song_;
     QPushButton* importBtn;
+    const QList<Collection>& cols_;
     Ui::SongImportDialog *ui;
 };
 

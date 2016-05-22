@@ -70,7 +70,7 @@
        <item row="1" column="1">
         <widget class="QLineEdit" name="pathRule">
          <property name="text">
-          <string>${ARTIST}/${TITLE}/${ARTIST} - ${TITLE}.${EXT}</string>
+          <string>${ARTIST}/${TITLE}/${ARTIST} - ${TITLE}.@{EXT}</string>
          </property>
         </widget>
        </item>
