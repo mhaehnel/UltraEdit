@@ -155,9 +155,9 @@ bool Song::undo(unsigned int num) {
             performedActions_.pop_back();
             undoneActions_.push_back(std::move(a));
         } else {
+            performedActions_.pop_back(); //We still need to remove, due to move
             performedActions_.push_back(std::move(a));
-            qDebug() << "UNDO Failed!";
-            emit updated();
+            qDebug() << "UNDO Failed!"; //This should not cause update, right?
             return false;
         }
     }
