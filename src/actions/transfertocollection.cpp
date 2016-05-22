@@ -39,7 +39,7 @@ bool Song::TransferToCollection::perform(Song &song) {
     } else {
         song.setTag("MP3",d.relativeFilePath(newMP3.absoluteFilePath()));
     }
-    if (song.hasVideo()) {
+    if (song.vid().exists()) {
         d.mkpath(newVID.absolutePath());
         if (!transfer(song.vid().absoluteFilePath(),newVID.absoluteFilePath())) {
             qDebug() << song.vid().absoluteFilePath() << "=>" << newVID.absoluteFilePath() << "failed";
@@ -47,7 +47,7 @@ bool Song::TransferToCollection::perform(Song &song) {
             song.setTag("VIDEO",d.relativeFilePath(newVID.absoluteFilePath()));
         }
     }
-    if (song.hasCover()) {
+    if (song.cov().exists()) {
         d.mkpath(newCOV.absolutePath());
         qDebug() << song.cov().absoluteFilePath() << "=>" << newCOV.absoluteFilePath();
         if (!transfer(song.cov().absoluteFilePath(),newCOV.absoluteFilePath())) {
@@ -57,7 +57,7 @@ bool Song::TransferToCollection::perform(Song &song) {
             song.setTag("COVER",d.relativeFilePath(newCOV.absoluteFilePath()));
         }
     }
-    if (song.hasBG()) {
+    if (song.bg().exists()) {
         d.mkpath(newBGR.absolutePath());
         if (!transfer(song.bg().absoluteFilePath(),newBGR.absoluteFilePath())) {;
             qDebug() << song.bg().absoluteFilePath() << "=>" << newBGR.absoluteFilePath() << "failed";

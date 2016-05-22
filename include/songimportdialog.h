@@ -26,6 +26,8 @@ private:
     QPushButton* importBtn;
     const QList<Collection>& cols_;
     Ui::SongImportDialog *ui;
+
+    void createAlt(QFileInfo& fi, QPushButton* button, QString filter);
 };
 
 #endif // SONGIMPORTDIALOG_H

@@ -10,6 +10,7 @@
 class Song : public QObject
 {
 Q_OBJECT
+    friend class SongImportDialog; //Hacky ...
 private:
     bool setFile(QFileInfo& info, const QString& path);
     bool setTag(const QString& tag, const QString& value);
