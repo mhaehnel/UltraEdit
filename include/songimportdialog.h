@@ -20,6 +20,7 @@ public:
 
 private slots:
     void import();
+    void checkDupes();
 
 private:
     Song* song_;
@@ -27,6 +28,7 @@ private:
     const QList<Collection*>& cols_;
     Ui::SongImportDialog *ui;
 
+    bool isDupe();
     void createAlt(QFileInfo& fi, QPushButton* button, QString filter);
 };
 

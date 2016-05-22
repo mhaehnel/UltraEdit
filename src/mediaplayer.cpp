@@ -120,7 +120,7 @@ void MediaPlayer::setSong(Song *song) {
     }
     _song = song;
     this->setEnabled(true);
-
+    player.stop();
     if (_song->hasVideo()) {
         videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
         if (VidTrace != nullptr) delete VidTrace;

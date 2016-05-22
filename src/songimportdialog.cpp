@@ -42,7 +42,30 @@ SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, M
     for (const Collection* c : cols_) {
         ui->collection->addItem(c->name());
     }
+    connect(ui->collection,&QComboBox::currentTextChanged,[this] { checkDupes(); });
+    checkDupes();
     ui->collection->setCurrentIndex(cols_.size()-1);
+}
+
+//If the pattern tags of the collection are the same we bail, because
+//then it suggests this is the same song
+void SongImportDialog::checkDupes() {
+    bool dupe = isDupe();
+    importBtn->setDisabled(isDupe());
+    ui->dupe->setVisible(dupe);
+}
+
+bool SongImportDialog::isDupe() {
+    Collection* c = cols_.at(ui->collection->currentIndex());
+    for (const Song* s : c->songs()) {
+        qDebug() << "Checking" << s->title() << "by" << s->artist();
+        const QStringList& tags = c->significantTags();
+        if (std::accumulate(tags.begin(),tags.end(),true,
+                            [this,s] (const bool& r, const QString& t) -> bool {
+                                return r && (s->tag(t) == song_->tag(t));
+                            }) == true) return true;
+    }
+    return false;
 }
 
 void SongImportDialog::createAlt(QFileInfo &fi,QPushButton* tb,QString filter) {

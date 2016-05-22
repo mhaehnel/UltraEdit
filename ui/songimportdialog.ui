@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>431</width>
-    <height>304</height>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,6 +103,20 @@
            </property>
            <property name="icon">
             <iconset theme="dialog-warning">
+             <normaloff>.</normaloff>.</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="dupe">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Song Already exists in collection ...</string>
+           </property>
+           <property name="icon">
+            <iconset theme="dialog-error">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>

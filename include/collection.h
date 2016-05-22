@@ -23,5 +23,6 @@ public:
     void removeSong(const Song* s);
     void addSong(Song* s);
     int size() const { return songs_.size(); }
+    const QStringList& significantTags() { return replacementTags; }
     const std::vector<Song*>& songs() const { return songs_; }
 };

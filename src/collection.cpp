@@ -10,7 +10,6 @@ Collection::Collection(QString name, QString basePath, QString pathRule)
         if (!replacementTags.contains(rex.cap(1)))
             replacementTags << rex.cap(1);
         pos += rex.matchedLength();
-        qDebug() << rex.cap(1);
     }
     qDebug() << "Tags for pathRule" << pathRule_ << ":" << replacementTags;
 }
