@@ -26,6 +26,7 @@ public:
 
 signals:
     void haveWaveform();
+    void haveVideoInfo(QSize resolution, QString codec);
 
 public slots:
     void setSong(Song* song);

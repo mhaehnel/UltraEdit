@@ -20,6 +20,7 @@ public slots:
     void setSelection(QList<SongFrame*> *selected);
     void selectionUpdated();
     void selectionChanged();
+    void updateVideoInfo(QSize resolution, QString codec);
 
 private slots:
     void on_title_textChanged(const QString &arg1);

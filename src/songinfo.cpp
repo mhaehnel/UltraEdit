@@ -3,6 +3,7 @@
 #include "ui_actionitem.h"
 #include <cassert>
 #include <QDebug>
+#include <mediaplayer.h>
 
 #include <actions/modifytag.h>
 
@@ -30,7 +31,16 @@ SongInfo::~SongInfo() {
     delete ui;
 }
 
+void SongInfo::updateVideoInfo(QSize resolution, QString codec) {
+    ui->videoResolution->setText(QString("%1x%2").arg(resolution.width()).arg(resolution.height()));
+    ui->videoCodec->setText(codec);
+}
+
+
 void SongInfo::setSelection(QList<SongFrame*>* selected) {
+    if (MediaPlayer::instance != nullptr && selection == nullptr) {
+        connect(MediaPlayer::instance,&MediaPlayer::haveVideoInfo,this,&SongInfo::updateVideoInfo);
+    }
     selection = selected;
     selectionChanged();
 }
@@ -41,7 +51,6 @@ QVideoWidget* SongInfo::videoWidget() {
 
 void SongInfo::selectionChanged() {
     bool singleSelect = (selection->size() == 1);
-
     ui->filesGroup->setEnabled(singleSelect);
     ui->title->setEnabled(singleSelect);
     ui->titleLabel->setEnabled(singleSelect);

@@ -30,6 +30,13 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
            default: break;
        }
     });
+    connect(&videoPlayer,&QMediaPlayer::mediaStatusChanged, [this] (QMediaPlayer::MediaStatus s) {
+        if (s == QMediaPlayer::LoadedMedia) {
+            emit haveVideoInfo(videoPlayer.metaData("Resolution").toSize(),
+                               videoPlayer.metaData("VideoCodec").toString());
+        }
+    });
+
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
     connect(ui->songPos,&QSlider::valueChanged,[this] (int position){
         videoPlayer.setPosition(position+_song->videoGap());
