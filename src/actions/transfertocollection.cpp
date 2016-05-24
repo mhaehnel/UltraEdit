@@ -82,7 +82,7 @@ bool Song::TransferToCollection::perform(Song &song) {
             qDebug() << "Removing source txt file failed. Non fatal!";
         } else {
             QFileInfo fi(QFileInfo(origTxt).dir().absolutePath());
-            fi.dir().rmdir(fi.fileName());
+            fi.dir().rmpath(fi.fileName());
         }
     }
     //TODO: remove parent dir on move?. Save it? What if multiple parent dirs?

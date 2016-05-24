@@ -81,10 +81,22 @@ Song::Song(const QFileInfo& source, Collection* collection) :
 
     if (collection_) {
         collection_->addSong(this); //add ourself to the collection
-        if (_mp3.absoluteFilePath().compare(collection_->path(this,"MP3").absoluteFilePath(),Qt::CaseInsensitive) != 0) {
-            qDebug() << "Wrong MP3 path!";
-            qDebug() << "  Got:     " << _mp3.absoluteFilePath();
-            qDebug() << "  Expected:" << collection_->path(this,"mp3").absoluteFilePath();
+        bool changes = false; //Rewrite txt on changes
+        QDir txtDir = collection_->path(this,"txt").dir();
+        changes |= checkAndRename(_mp3,txtDir,collection_,"mp3","MP3");
+        if (hasBG())    changes |= checkAndRename(_bg,txtDir,collection_,QString("[BG].")+_bg.suffix(),"BACKGROUND");
+        if (hasCover()) changes |= checkAndRename(_cov,txtDir,collection_,QString("[CO].")+_cov.suffix(),"COVER");
+        if (hasVideo()) changes |= checkAndRename(_vid,txtDir,collection_,_vid.suffix(),"VIDEO");
+        changes |= checkAndRename(_txt,txtDir,collection,"txt","");
+        if (changes) {
+            //Write out txt ...
+            QFile txtFile(collection_->path(this,"txt").absoluteFilePath());
+            if (!txtFile.open(QFile::WriteOnly)) {
+                qDebug() << "Moving txt failed!";
+                return; //TODO: throw!
+            }
+            txtFile.write(rawData().toUtf8()); //TODO: handle errors
+            txtFile.close();
         }
     }
 /*
@@ -120,6 +132,19 @@ Song::Song(const QFileInfo& source, Collection* collection) :
         performAction(std::make_unique<TransposeSong>(60));
 
     emit updated(); //Trigger all actions after creation
+}
+
+bool Song::checkAndRename(QFileInfo& file, QDir txtDir, const Collection* col, QString suffix, QString tag) {
+    QFileInfo newFile = col->path(this,suffix);
+    if (file.absoluteFilePath().compare(newFile.absoluteFilePath()) == 0) return false;
+    qDebug() << "Adjusting path from" << file.absoluteFilePath()
+             << "to" << newFile.absoluteFilePath();
+    txtDir.mkpath(newFile.absolutePath());
+    QFileInfo oldFile = file;
+    QFile::rename(file.absoluteFilePath(),newFile.absoluteFilePath());
+    txtDir.rmpath(oldFile.absolutePath());
+    if (!tag.isEmpty()) setTag(tag,txtDir.relativeFilePath(file.absoluteFilePath()));
+    return true;
 }
 
 const std::list<std::shared_ptr<ActionItem>>& Song::actionItems() const {

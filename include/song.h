@@ -17,6 +17,7 @@ private:
     bool toDouble(const QString& value, double& target);
     bool toInt(const QString& value, qint64& target);
     void adjustRelative(Sylabel* syl);
+    bool checkAndRename(QFileInfo& file, QDir txtDir, const Collection* col, QString suffix, QString tag);
     void updateDataCache();
 
     std::list<std::unique_ptr<Action>> performedActions_;
