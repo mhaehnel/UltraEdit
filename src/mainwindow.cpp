@@ -53,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
         cb->setCheckState(Qt::PartiallyChecked);
     ui->songDetails->setSelection(&selectedFrames);
     ui->songList->setLayout(new QBoxLayout(QBoxLayout::Down));
-    ui->artistFilter->setText("Lily");
     statusBar()->addPermanentWidget(&statusProgress);
     connect(this,&MainWindow::selectionChanged,ui->songDetails,&SongInfo::selectionChanged);
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&MediaPlayer::seek);
