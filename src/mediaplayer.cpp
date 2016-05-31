@@ -23,6 +23,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
                break;
            case QMediaPlayer::State::StoppedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
+               videoPlayer.stop();
                break;
            case QMediaPlayer::State::PausedState:
                ui->songPause->setIcon(QIcon::fromTheme("media-playback-start"));
