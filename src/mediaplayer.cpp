@@ -191,6 +191,7 @@ void MediaPlayer::on_playNotes_toggled(bool checked)
 {
     ui->volumeMidi->setEnabled(checked);
     if (checked) {
+        midi.reschedule();
         midi.play();
         midi.seek(player.position());
     } else {
