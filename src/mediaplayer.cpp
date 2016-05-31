@@ -40,7 +40,7 @@ MediaPlayer::MediaPlayer(QWidget *parent) :
     connect(ui->songPos,&QSlider::valueChanged,&player,&QMediaPlayer::setPosition);
     connect(ui->songPos,&QSlider::valueChanged,[this] (int position){
         videoPlayer.setPosition(position+_song->videoGap());
-        //TODO: midiPlayer?
+        midi.seek(position);
     });
     connect(ui->volumeMP3,&QSlider::valueChanged,&player,&QMediaPlayer::setVolume);
     connect(ui->volumeMidi,&QSlider::valueChanged,&midi,&MidiPlayer::setVolume);
@@ -115,6 +115,11 @@ void MediaPlayer::updateSongData() {
     ui->cover->setPixmap(_song->cover());
     ui->playerTitle->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(_song->artist(),_song->title()));
     midi.setTempo(_song->bpm());
+    ui->audioGap->setValue(_song->gap());
+    ui->videoGap->setValue(_song->videoGap());
+    ui->bpm->setValue(_song->bpm());
+    midi.reschedule();
+    midi.seek(player.position());
 }
 
 void MediaPlayer::setSong(Song *song) {
@@ -172,9 +177,6 @@ void MediaPlayer::setSong(Song *song) {
     });
 
     midi.setSong(_song);
-    ui->audioGap->setValue(_song->gap());
-    ui->videoGap->setValue(_song->videoGap());
-    ui->bpm->setValue(_song->bpm());
     ui->videoGap->setEnabled(true); //FIXME: Why do we need those 3 lines?!
     ui->audioGap->setEnabled(true);
     ui->tuningBox->setEnabled(true);
@@ -238,6 +240,7 @@ void MediaPlayer::on_audioGap_valueChanged(int value) {
     if (_song->gap() != value) {
         _song->performAction(std::make_unique<Song::ModifyGap>(Song::ModifyGap::Type::Audio,value));
         midi.reschedule();
+        midi.seek(player.position());
     }
     if (MP3trace != nullptr) MP3trace->updateGap(value);
     updateInfos(player.position());

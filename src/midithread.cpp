@@ -9,6 +9,7 @@ MidiThread::MidiThread(MidiClient* seq, int portid) :
 {}
 
 MidiThread::~MidiThread() {
+    QMutexLocker lock(&iteratorLock);
     if (isRunning()) stop();
     if (iterator != nullptr) delete iterator;
     if (last_event != nullptr) delete last_event;
@@ -23,6 +24,7 @@ void MidiThread::setEvents(QList<SequencerEvent*>& events) {
 }
 
 void MidiThread::resetPosition() {
+    QMutexLocker lock(&iteratorLock);
     if (iterator != nullptr) {
         iterator->toFront();
         _position = 0;
@@ -30,11 +32,11 @@ void MidiThread::resetPosition() {
 }
 
 void MidiThread::setPosition(unsigned int pos) {
-    QMutexLocker lock(&iteratorLock);
     bool wasRunning = isRunning();
     if (wasRunning) stop();
     allNotesOff();
     _position = pos;
+    QMutexLocker lock(&iteratorLock);
     iterator->toFront();
     while (iterator->hasNext() && iterator->next()->getTick() < pos) {};
     if (iterator->hasPrevious()) iterator->previous();

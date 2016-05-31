@@ -22,8 +22,8 @@ void MidiPlayer::play() {
     ev.setDirect();
     client.outputDirect(&ev);
     client.startSequencerInput();
-    seq->start();
     queue->clear();
+    seq->start();
 }
 
 void MidiPlayer::stop() {
@@ -70,7 +70,7 @@ void MidiPlayer::seek(quint64 pos) {
 
 void MidiPlayer::reschedule() {
     bool wasRunning = seq->isRunning();
-    stop();
+    if (wasRunning) stop();
 
     for (const Sylabel* s : _song->sylabels()) {
         if (s->isLineBreak()) continue;
