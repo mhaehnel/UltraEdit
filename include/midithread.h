@@ -12,7 +12,7 @@ public:
     virtual drumstick::SequencerEvent* nextEvent();
     virtual unsigned int getInitialPosition() { return _position; }
     virtual unsigned int getEchoResolution() { return _echoRes; }
-    void setEvents(QList<drumstick::SequencerEvent*>& events);
+    void setEvents(QList<drumstick::SequencerEvent>& events);
     void resetPosition();
     void setPosition(unsigned int pos);
     void sendController(int chan, int control, int value);
@@ -20,9 +20,9 @@ public:
 
 private:
     QMutex iteratorLock;
-    QList<drumstick::SequencerEvent*> events;
-    QMutableListIterator<drumstick::SequencerEvent*>* iterator;
-    drumstick::SequencerEvent* last_event;
+    QList<drumstick::SequencerEvent> events;
+    QMutableListIterator<drumstick::SequencerEvent>* iterator;
+    drumstick::SequencerEvent last_event;
     unsigned int _position;
     unsigned int _echoRes;
 

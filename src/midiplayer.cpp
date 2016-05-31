@@ -71,12 +71,12 @@ void MidiPlayer::seek(quint64 pos) {
 void MidiPlayer::reschedule() {
     bool wasRunning = seq->isRunning();
     if (wasRunning) stop();
-
+    events.clear();
     for (const Sylabel* s : _song->sylabels()) {
         if (s->isLineBreak()) continue;
-        NoteEvent* ev = s->event();
-        ev->scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
-        ev->setSubscribers();
+        NoteEvent ev(*s->event()); //Copy event
+        ev.scheduleTick(queue->getId(),s->beat()*ppq/4+s->song->gap()/60000.0*ppq*queue->getTempo().getNominalBPM(),false);
+        ev.setSubscribers();
         events.append(ev);
     }
     seq->setEvents(events);

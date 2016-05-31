@@ -13,7 +13,7 @@ class MidiPlayer : public QObject
     Song* _song;
     MidiThread* seq;
     int ppq = 96;
-    QList<drumstick::SequencerEvent*> events;
+    QList<drumstick::SequencerEvent> events;
 public:
     explicit MidiPlayer(QObject *parent = 0);
     QStringList getPorts();

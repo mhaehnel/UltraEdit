@@ -3,8 +3,7 @@
 using namespace drumstick;
 
 MidiThread::MidiThread(MidiClient* seq, int portid) :
-    SequencerOutputThread(seq,portid),
-    iterator(nullptr), last_event(nullptr), _position(0),
+    SequencerOutputThread(seq,portid), iterator(nullptr),
     _echoRes(96/12) //This is based on ppq = 96!
 {}
 
@@ -12,14 +11,13 @@ MidiThread::~MidiThread() {
     QMutexLocker lock(&iteratorLock);
     if (isRunning()) stop();
     if (iterator != nullptr) delete iterator;
-    if (last_event != nullptr) delete last_event;
 }
 
-void MidiThread::setEvents(QList<SequencerEvent*>& events) {
+void MidiThread::setEvents(QList<SequencerEvent>& events) {
     QMutexLocker lock(&iteratorLock);
     this->events = events;
     if (iterator != nullptr) delete iterator;
-    iterator = new QMutableListIterator<SequencerEvent*>(events);
+    iterator = new QMutableListIterator<SequencerEvent>(events);
     _position = 0;
 }
 
@@ -31,14 +29,16 @@ void MidiThread::resetPosition() {
     }
 }
 
+
+
 void MidiThread::setPosition(unsigned int pos) {
+    QMutexLocker lock(&iteratorLock);
     bool wasRunning = isRunning();
     if (wasRunning) stop();
     allNotesOff();
     _position = pos;
-    QMutexLocker lock(&iteratorLock);
     iterator->toFront();
-    while (iterator->hasNext() && iterator->next()->getTick() < pos) {};
+    while (iterator->hasNext() && iterator->next().getTick() < pos) {};
     if (iterator->hasPrevious()) iterator->previous();
     if (wasRunning) start();
 }
@@ -62,11 +62,9 @@ void MidiThread::allNotesOff() {
 }
 
 SequencerEvent* MidiThread::nextEvent() {
-    if (last_event != nullptr)
-        delete last_event; //TODO: Really?
     QMutexLocker lock(&iteratorLock);
-    last_event = iterator->next()->clone();
-    return last_event;
+    last_event = iterator->next();
+    return &last_event;
 
 //    switch (last_event->getSequencerType()) {
 //         case SND_SEQ_EVENT_NOTE:
