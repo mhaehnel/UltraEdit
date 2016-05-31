@@ -9,11 +9,11 @@ bool Song::ModifyGap::perform(Song &song) {
     switch (t_) {
         case Type::Video:
             oldVal = song._videoGap;
-            song._videoGap = newVal;
+            song.setTag("VIDEOGAP",QString::number(newVal/1000.0));
             break;
         case Type::Audio:
             oldVal = song._gap;
-            song._gap = newVal;
+            song.setTag("GAP",QString::number(newVal));
     }
     return true;
 }
@@ -21,10 +21,10 @@ bool Song::ModifyGap::perform(Song &song) {
 bool Song::ModifyGap::undo(Song &song) {
     switch (t_) {
         case Type::Video:
-            song._videoGap = oldVal;
+            song.setTag("VIDEOGAP",QString::number(oldVal/1000.0));
             break;
         case Type::Audio:
-            song._gap = oldVal;
+            song.setTag("GAP",QString::number(oldVal));
     }
     return true;
 }

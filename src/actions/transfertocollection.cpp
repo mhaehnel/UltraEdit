@@ -70,13 +70,7 @@ bool Song::TransferToCollection::perform(Song &song) {
     }
     //Write out txzt ...
     d.mkpath(newTXT.absolutePath());
-    QFile txtFile(newTXT.absoluteFilePath());
-    if (!txtFile.open(QFile::WriteOnly)) {
-        qDebug() << song.txt().absoluteFilePath() << "=>" << newTXT.absoluteFilePath() << "failed";
-        return false;
-    }
-    txtFile.write(song.rawData().toUtf8()); //TODO: handle errors
-    txtFile.close();
+    if (!song.saveSong()) return false;
     if (t_ ==Type::Move) {
         if (!QFile(origTxt).remove()) {
             qDebug() << "Removing source txt file failed. Non fatal!";

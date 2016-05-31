@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <experimental/optional>
 #include <QFileInfo>
 #include <QMap>
 #include <QPixmap>
@@ -29,6 +30,7 @@ private:
     //bool valid = true;        //has no major errors that prevent playback (only ignorable ones)
     bool _golden = false;     //has golden notes
     bool _freestyle = false;  //has freestyle notes
+    std::experimental::optional<size_t> actionLevelSaved = 0;
     int _players = 0;         //stays 0 for simple file (TODO! This is not really implemented ATM!)
     double _bpm;
     qint64 _gap, _videoGap, _bpmFactor;
@@ -128,4 +130,5 @@ signals:
 
 public slots:
     void playing(int ms);
+    bool saveSong();
 };

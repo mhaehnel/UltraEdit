@@ -159,15 +159,17 @@ void SongInfo::selectionUpdated() {
         ui->redoButton->setDisabled(ui->redoList->count() == 0);
         ui->redoButton_2->setDisabled(ui->redoList->count() == 0);
 
-        static QMetaObject::Connection undoCon, redoCon, resetCon;
+        static QMetaObject::Connection undoCon, redoCon, resetCon, saveCon;
         QObject::disconnect(undoCon);
         QObject::disconnect(redoCon);
         QObject::disconnect(resetCon);
+        QObject::disconnect(saveCon);
         undoCon = connect(ui->undoButton,&QPushButton::clicked,[this] { selection->first()->song->undo(1); } );
         redoCon = connect(ui->redoButton,&QPushButton::clicked,[this] { selection->first()->song->redo(1); } );
         resetCon = connect(ui->revertSong,&QPushButton::clicked, [this] () {
                selection->first()->song->undo(ui->undoList->count());
         });
+        saveCon = connect(ui->saveSong,&QPushButton::clicked,selection->first()->song,&Song::saveSong);
     }
     //TODO: Support mass edit!
 }

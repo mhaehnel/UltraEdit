@@ -157,6 +157,7 @@ Song::~Song() {
 
 bool Song::performAction(std::unique_ptr<Action> action) {
     if (!action->perform(*this)) return false;
+    actionLevelSaved = std::experimental::nullopt;
     undoneActions_.clear(); //no redo after new action!
     if (performedActions_.empty() || !performedActions_.back()->merge(*action)) {
         performedActions_.push_back(std::move(action));
@@ -422,7 +423,7 @@ void Song::playing(int ms) {
 }
 
 bool Song::isModified() const {
-    return !performedActions_.empty();
+    return performedActions_.size() != actionLevelSaved;
 }
 
 int Song::lines() const {
@@ -433,6 +434,21 @@ quint64 Song::timeAtLine(int line) const {
     line--;
     line = std::max(0,std::min(line,lines()));
     return musicAndLyrics[_linesIdx[line]]->time()*1000+gap();
+}
+
+bool Song::saveSong() {
+    qDebug() << "Saving";
+    QFile txtFile(_txt.absoluteFilePath());
+    if (!txtFile.open(QFile::WriteOnly)) {
+        qDebug() << "Saving failed!";
+        return false;
+    }
+    QByteArray raw = rawData().toUtf8();
+    auto res = txtFile.write(raw) == raw.length();
+    if (!res) qDebug() << "Writing failed!";
+    actionLevelSaved = performedActions_.size();
+    emit updated();
+    return res;
 }
 
 
