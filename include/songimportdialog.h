@@ -28,8 +28,7 @@ private:
     Ui::SongImportDialog *ui;
 
     bool isDupe();
-    void checkDupes();
-    void checkTags();
+    void checkFile(bool replaceTagInputs = true);
     void createAlt(QFileInfo& fi, QString what, QString filter);
 };
 

@@ -40,33 +40,32 @@ SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, M
         ui->collection->addItem(c->name());
     }
     connect(ui->collection,&QComboBox::currentTextChanged,[this] {
-        checkDupes();
-        checkTags();
+        checkFile();
     });
-    checkDupes();
-    checkTags();
+    checkFile();
     ui->collection->setCurrentIndex(cols_.size()-1);
 }
 
-//If the pattern tags of the collection are the same we bail, because
-//then it suggests this is the same song
-void SongImportDialog::checkDupes() {
-    bool dupe = isDupe();
-    importBtn->setDisabled(dupe);
-    ui->dupe->setVisible(dupe);
-}
-
-void SongImportDialog::checkTags() {
+void SongImportDialog::checkFile(bool replaceTagInputs) {
     const Collection* c = cols_.at(ui->collection->currentIndex());
+    bool cantImport = isDupe();
+    ui->dupe->setVisible(cantImport);
     for (const QString& tag : c->significantTags()) {
         if (song_->tag(tag).isEmpty()) {
             qDebug() << "Song is missing tag: "+tag;
+            cantImport = true;
+            if (!replaceTagInputs) continue;
             QBoxLayout* bl = new QBoxLayout(QBoxLayout::LeftToRight);
             bl->addWidget(new QLabel("Set empty required tag '"+tag+"' to",this));
             QLineEdit* le = new QLineEdit(this);
             bl->addWidget(le);
-            connect(le,&QLineEdit::textChanged,[this,tag] (const QString& text) {
-                song_->setTag(tag,text);
+            connect(le,&QLineEdit::textChanged,[this,tag,le] (const QString& text) {
+                if (text.isEmpty()) {
+                    song_->removeTag(tag);
+                } else {
+                    song_->setTag(tag,text);
+                }
+                checkFile(false);
             });
             QMetaObject::Connection* conn = new QMetaObject::Connection();
             conn->operator =(connect(ui->collection,&QComboBox::currentTextChanged,[bl,this,conn] (const QString&){
@@ -84,8 +83,11 @@ void SongImportDialog::checkTags() {
             ui->infos->addLayout(bl);
         }
     }
+    importBtn->setDisabled(cantImport);
 }
 
+//If the pattern tags of the collection are the same we bail, because
+//then it suggests this is the same song
 bool SongImportDialog::isDupe() {
     Collection* c = cols_.at(ui->collection->currentIndex());
     for (const Song* s : c->songs()) {
