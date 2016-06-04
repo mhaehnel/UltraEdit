@@ -92,3 +92,6 @@ FORMS    += mainwindow.ui \
     ui/songimportdialog.ui
 
 RESOURCES +=  ultraedit.qrc
+
+DISTFILES += \
+    README.md
