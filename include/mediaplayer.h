@@ -34,6 +34,7 @@ public slots:
     void stop();
     void play();
     void pause();
+    void reloadMedia();
 
 private slots:
     void updateSongData();

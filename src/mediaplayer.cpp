@@ -276,3 +276,33 @@ void MediaPlayer::on_bpm_valueChanged(double bpm) {
     if (MP3trace != nullptr) MP3trace->updateBpm(bpm);
     updateInfos(player.position());
 }
+
+void MediaPlayer::reloadMedia() {
+    auto pos = player.position();
+    bool wasPlaying = ui->songPause->isChecked();
+    if (wasPlaying) stop();
+    if (_song->hasVideo()) {
+        videoPlayer.setMedia(QUrl::fromLocalFile(_song->vid().canonicalFilePath()));
+        if (VidTrace != nullptr) delete VidTrace;
+        ui->videoTrace->clear();
+        VidTrace = new AudioTrace(_song->vid().canonicalFilePath());
+        connect(VidTrace,&AudioTrace::finished,[this] {
+            VidTrace->renderTrace(*(ui->videoTrace),0);
+        });
+        if (wasPlaying) videoPlayer.play();
+    } else {
+        videoPlayer.setMedia(QMediaContent());
+    }
+    player.setMedia(QUrl::fromLocalFile(_song->mp3().canonicalFilePath()));
+    if (MP3trace != nullptr) delete MP3trace;
+    ui->MP3Trace->clear();
+    MP3trace = new AudioTrace(_song->mp3().canonicalFilePath(),_song->bpm()/_song->bpmFactor(),_song->gap());
+    connect(MP3trace,&AudioTrace::finished,[this] {
+        emit haveWaveform();
+        MP3trace->renderTrace(*(ui->MP3Trace),0,true);
+    });
+    if (wasPlaying) {
+        play();
+        seek(pos);
+    }
+}

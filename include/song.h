@@ -64,6 +64,7 @@ public:
     class OrderLyrics;
     class ModifyGap;
     class TransferToCollection;
+    class ChangeFile;
 
     Song(const QFileInfo& source, Collection* col = nullptr);
     virtual ~Song();

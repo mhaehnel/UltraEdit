@@ -2,6 +2,7 @@
 #include "songframe.h"
 #include <QWidget>
 #include <QMediaPlayer>
+#include <actions/changefile.h>
 
 namespace Ui {
 class SongInfo;
@@ -25,6 +26,7 @@ public slots:
 private slots:
     void on_title_textChanged(const QString &arg1);
     void on_artist_textChanged(const QString &arg1);
+    void updateFile();
     void highlightText(int from, int to);
 
 signals:
@@ -32,9 +34,11 @@ signals:
     void play();
     void pause();
     void popOut();
-
+    void reloadMedia();
 private:
     Ui::SongInfo* ui;
+    Song* song_;
     QMetaObject::Connection conSylText,conSylLine,conSyl,conUpdate;
     QList<SongFrame*> *selection;
+    void handleUpdate(QString title, QString filter, const QFileInfo& currentFile, Song::ChangeFile::FileType type);
 };

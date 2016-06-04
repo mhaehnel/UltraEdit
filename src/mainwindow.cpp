@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->songDetails,&SongInfo::seek,ui->musicPlayer,&MediaPlayer::seek);
     connect(ui->songDetails,&SongInfo::play,ui->musicPlayer,&MediaPlayer::play);
     connect(ui->songDetails,&SongInfo::pause,ui->musicPlayer,&MediaPlayer::pause);
+    connect(ui->songDetails,&SongInfo::reloadMedia,ui->musicPlayer,&MediaPlayer::reloadMedia);
     connect(ui->songDetails,&SongInfo::popOut, [this] { popOut(2); });
     QTimer::singleShot(0,this,SLOT(rescanCollections()));
     ui->musicPlayer->connectMidiPort(config.value("midiPort","").toString());
