@@ -50,6 +50,7 @@ private:
     bool updateTag(const QString& tag, const QString& value);
 */
     bool addTag(const QString &tag, const QString& value);
+    bool removeTag(const QString &tag);
 private slots:
     //Cache updates
     void updateRawLyrics();

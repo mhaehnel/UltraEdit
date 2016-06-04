@@ -345,7 +345,7 @@ bool Song::updateTag(const QString &tag, const QString &value) {
     }
     return setTag(_tag,value);
 }
-
+*/
 bool Song::removeTag(const QString &tag) {
     auto _tag = tag.toUpper();
     if (!tags.contains(_tag)) {
@@ -354,7 +354,7 @@ bool Song::removeTag(const QString &tag) {
     }
     tags.remove(_tag);
     return true;
-}*/
+}
 
 bool Song::missingBG() const {
     return hasBG() && !_bg.exists();
