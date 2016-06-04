@@ -104,7 +104,7 @@ void MainWindow::rescanCollections() {
     auto begin = start;
     for (Collection* d : collections) {
         qDebug() << "Scannning:"  << d->name();
-        QDirIterator di(d->basePath(),QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+        QDirIterator di(d->basePath(),QDir::AllEntries | QDir::Hidden,QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (di.hasNext()) {
             QFileInfo fi(di.next());
             if (fi.suffix().compare("txt",Qt::CaseInsensitive)) continue;
