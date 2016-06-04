@@ -21,7 +21,7 @@ Collection::~Collection() {
 QFileInfo Collection::path(const Song *s, QString extension) const {
     QString res = pathRule_;
     for (const QString& tag : replacementTags) {
-        res.replace(QString("${%1}").arg(tag),s->tag(tag));
+        res.replace(QString("${%1}").arg(tag),s->tag(tag).replace('/','_'));
     }
     res.replace("@{EXT}",extension);
     return basePath_+'/'+res;
