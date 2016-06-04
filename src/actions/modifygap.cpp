@@ -29,6 +29,10 @@ bool Song::ModifyGap::undo(Song &song) {
     return true;
 }
 
+bool Song::ModifyGap::isIdentity() const {
+    return oldVal == newVal;
+}
+
 QString Song::ModifyGap::shortName() const {
     switch (t_) {
         case Type::Video: return "Modify VIDEOGAP";

@@ -29,6 +29,15 @@ public:
     //as parameter. See ModifyTag action for an example
     virtual bool merge(const Action&) { return false; }
 
+    //This should return true if undo is possible at all. Else undo will be
+    //grayed out
+    virtual bool canUndo() const = 0;
+
+    //This returns if the action is the identity (e.g. if it did nothing)
+    //If this is the case then the action is automatically deleted
+    //Usually an action becomes identity through merging
+    virtual bool isIdentity() const = 0;
+
 };
 
 class ActionItem {

@@ -157,11 +157,15 @@ Song::~Song() {
 
 bool Song::performAction(std::unique_ptr<Action> action) {
     if (!action->perform(*this)) return false;
-    actionLevelSaved = std::experimental::nullopt;
     undoneActions_.clear(); //no redo after new action!
     if (performedActions_.empty() || !performedActions_.back()->merge(*action)) {
         performedActions_.push_back(std::move(action));
+    } else { //We merged
+        if (performedActions_.size() == actionLevelSaved) {
+            actionLevelSaved = std::experimental::nullopt;
+        }
     }
+    if (performedActions_.back()->isIdentity()) performedActions_.pop_back();
     emit updated();
     return true;
 }
@@ -198,6 +202,10 @@ bool Song::undo(unsigned int num) {
     }
     emit updated();
     return true;
+}
+
+bool Song::canUndo() const {
+    return !performedActions_.empty() && performedActions_.back()->canUndo();
 }
 
 bool Song::redo(unsigned int num) {

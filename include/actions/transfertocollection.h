@@ -12,6 +12,8 @@ public:
     TransferToCollection(Collection* target, Type t);
     bool perform(Song &song) override;
     bool undo(Song &song) override;
+    bool canUndo() const override;
+    bool isIdentity() const override;
     QString shortName() const override;
     QString description() const override;
 private:

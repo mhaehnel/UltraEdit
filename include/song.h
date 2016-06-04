@@ -77,6 +77,7 @@ public:
     bool redo(unsigned num);
     bool performAction(std::unique_ptr<Action> action);
 
+    bool canUndo() const;
 
     bool hasTag(const QString &tag) const;
     QString tag(const QString &tag) const;

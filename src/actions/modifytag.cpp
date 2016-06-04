@@ -36,6 +36,10 @@ bool Song::ModifyTag::undo(Song& song) {
     return false; //Stupid GCC
 }
 
+bool Song::ModifyTag::isIdentity() const {
+    return newVal_ == oldVal_;
+}
+
 QString Song::ModifyTag::shortName() const {
     switch (operation_) {
         case Op::Create: return "Create tag";

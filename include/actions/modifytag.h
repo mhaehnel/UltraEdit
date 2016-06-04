@@ -14,6 +14,8 @@ public:
     QString shortName() const override;
     QString description() const override;
     bool merge(const Action &other) override;
+    bool canUndo() const override { return true; }
+    bool isIdentity() const override;
 private:
     QString tag_, oldVal_, newVal_;
     Op operation_;

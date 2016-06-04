@@ -95,6 +95,14 @@ bool Song::TransferToCollection::undo(Song &) {
     return false;
 }
 
+bool Song::TransferToCollection::canUndo() const {
+    return oldCollection != nullptr;
+}
+
+bool Song::TransferToCollection::isIdentity() const {
+    return oldCollection == newCollection;
+}
+
 QString Song::TransferToCollection::shortName() const {
     return QString((t_ == Type::Copy)?"Copy":"Move")+" to collection";
 }

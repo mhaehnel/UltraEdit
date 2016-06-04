@@ -76,6 +76,7 @@ void SongInfo::selectionChanged() {
         conSylLine = connect(s,&Song::lineChanged,ui->notes, &NoteWidget::setLine);
         conUpdate = connect(s,&Song::updated,[this,s] {
             ui->songChanged->setVisible(s->isModified());
+            selectionUpdated();
         });
         ui->songChanged->setVisible(s->isModified());
     }
@@ -154,8 +155,8 @@ void SongInfo::selectionUpdated() {
         for (QString m : s->undoneActions()) {
             ui->redoList->addItem(new QListWidgetItem(QIcon::fromTheme("edit-redo"),m));
         }
-        ui->undoButton->setDisabled(ui->undoList->count() == 0);
-        ui->undoButton_2->setDisabled(ui->undoList->count() == 0);
+        ui->undoButton->setEnabled(s->canUndo());
+        ui->undoButton_2->setEnabled(s->canUndo());
         ui->redoButton->setDisabled(ui->redoList->count() == 0);
         ui->redoButton_2->setDisabled(ui->redoList->count() == 0);
 
