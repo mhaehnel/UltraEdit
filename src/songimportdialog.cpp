@@ -4,6 +4,7 @@
 #include <mainwindow.h>
 #include <QFileDialog>
 #include <QMenu>
+#include <QLineEdit>
 
 //This suggests alternatives for not-found files. Can be extended to be
 //more intelligent
@@ -38,8 +39,12 @@ SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, M
     for (const Collection* c : cols_) {
         ui->collection->addItem(c->name());
     }
-    connect(ui->collection,&QComboBox::currentTextChanged,[this] { checkDupes(); });
+    connect(ui->collection,&QComboBox::currentTextChanged,[this] {
+        checkDupes();
+        checkTags();
+    });
     checkDupes();
+    checkTags();
     ui->collection->setCurrentIndex(cols_.size()-1);
 }
 
@@ -49,6 +54,36 @@ void SongImportDialog::checkDupes() {
     bool dupe = isDupe();
     importBtn->setDisabled(dupe);
     ui->dupe->setVisible(dupe);
+}
+
+void SongImportDialog::checkTags() {
+    const Collection* c = cols_.at(ui->collection->currentIndex());
+    for (const QString& tag : c->significantTags()) {
+        if (song_->tag(tag).isEmpty()) {
+            qDebug() << "Song is missing tag: "+tag;
+            QBoxLayout* bl = new QBoxLayout(QBoxLayout::LeftToRight);
+            bl->addWidget(new QLabel("Set empty required tag '"+tag+"' to",this));
+            QLineEdit* le = new QLineEdit(this);
+            bl->addWidget(le);
+            connect(le,&QLineEdit::textChanged,[this,tag] (const QString& text) {
+                song_->setTag(tag,text);
+            });
+            QMetaObject::Connection* conn = new QMetaObject::Connection();
+            conn->operator =(connect(ui->collection,&QComboBox::currentTextChanged,[bl,this,conn] (const QString&){
+                QObject::disconnect(*conn);
+                delete conn;
+                ui->infos->removeItem(bl);
+                while (bl->count() != 0) {
+                    auto item = bl->takeAt(0);
+                    if (item->layout() != 0) bl->removeItem(item);
+                    if (item->widget() != 0) delete item->widget();
+                    delete item;
+                }
+                delete bl;
+            }));
+            ui->infos->addLayout(bl);
+        }
+    }
 }
 
 bool SongImportDialog::isDupe() {

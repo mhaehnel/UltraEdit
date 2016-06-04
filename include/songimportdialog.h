@@ -20,7 +20,6 @@ public:
 
 private slots:
     void import();
-    void checkDupes();
 
 private:
     Song* song_;
@@ -29,6 +28,8 @@ private:
     Ui::SongImportDialog *ui;
 
     bool isDupe();
+    void checkDupes();
+    void checkTags();
     void createAlt(QFileInfo& fi, QString what, QString filter);
 };
 
