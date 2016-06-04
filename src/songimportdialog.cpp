@@ -23,19 +23,15 @@ SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, M
     ui->setupUi(this);
     importBtn = ui->buttonBox->addButton("Import",QDialogButtonBox::AcceptRole);
     connect(importBtn,&QPushButton::clicked,this,&SongImportDialog::import);
-    ui->noMP3->setVisible(!song_->mp3().exists());
-    ui->noVideo->setVisible(!song_->vid().fileName().isEmpty() && !song_->vid().exists());
-    ui->noCover->setVisible(!song_->cov().fileName().isEmpty() && !song_->cov().exists());
-    ui->noBackground->setVisible(!song_->bg().fileName().isEmpty() && !song_->bg().exists());
 
     if (!song_->mp3().exists())
-        createAlt(song_->_mp3,ui->noMP3,"MP3 files (*.mp3)");
-    if (!song->vid().fileName().isEmpty() && !song_->vid().exists())
-        createAlt(song_->_vid,ui->noVideo,QString());
-    if (!song->cov().fileName().isEmpty() && !song_->cov().exists())
-        createAlt(song_->_cov,ui->noCover,QString());
-    if (!song->bg().fileName().isEmpty() && !song_->bg().exists())
-        createAlt(song_->_bg,ui->noBackground,QString());
+        createAlt(song_->_mp3,"MP3","MP3 files (*.mp3)");
+    if (!song_->vid().fileName().isEmpty() && !song_->vid().exists())
+        createAlt(song_->_vid,"Video",QString());
+    if (!song_->cov().fileName().isEmpty() && !song_->cov().exists())
+        createAlt(song_->_cov,"Cover",QString());
+    if (!song_->bg().fileName().isEmpty() && !song_->bg().exists())
+        createAlt(song_->_bg,"Background",QString());
 
     ui->cover->setPixmap(song->cover());
     ui->title->setText(QString("<HTML><H1><CENTER>%1 - %2 </CENTER></H1></HTML>").arg(song_->artist(),song_->title()));
@@ -51,7 +47,7 @@ SongImportDialog::SongImportDialog(const QList<Collection*>& cols, Song* song, M
 //then it suggests this is the same song
 void SongImportDialog::checkDupes() {
     bool dupe = isDupe();
-    importBtn->setDisabled(isDupe());
+    importBtn->setDisabled(dupe);
     ui->dupe->setVisible(dupe);
 }
 
@@ -68,13 +64,14 @@ bool SongImportDialog::isDupe() {
     return false;
 }
 
-void SongImportDialog::createAlt(QFileInfo &fi,QPushButton* tb,QString filter) {
+void SongImportDialog::createAlt(QFileInfo &fi,QString what,QString filter) {
+    QPushButton *tb = new QPushButton(QIcon::fromTheme("dialog-warning"),what+" not found ...",this);
     QStringList alt = alternatives(fi);
     auto selectFile = [this,&fi,tb,filter] {
         QString file = QFileDialog::getOpenFileName(this,"Select File",fi.dir().absolutePath(),filter);
         if (!file.isEmpty()) {
             fi.setFile(fi.dir(),file);
-            tb->hide();
+            delete tb;
         }
     };
     if (!alt.empty()) {
@@ -91,6 +88,7 @@ void SongImportDialog::createAlt(QFileInfo &fi,QPushButton* tb,QString filter) {
     } else {
         connect(tb,&QPushButton::clicked,selectFile);
     }
+    ui->infos->addWidget(tb);
 }
 
 

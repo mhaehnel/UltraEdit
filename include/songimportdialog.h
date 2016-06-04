@@ -29,7 +29,7 @@ private:
     Ui::SongImportDialog *ui;
 
     bool isDupe();
-    void createAlt(QFileInfo& fi, QPushButton* button, QString filter);
+    void createAlt(QFileInfo& fi, QString what, QString filter);
 };
 
 #endif // SONGIMPORTDIALOG_H

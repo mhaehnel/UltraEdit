@@ -41,7 +41,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
        <item>
         <widget class="QLabel" name="cover">
          <property name="minimumSize">
@@ -62,51 +62,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QPushButton" name="noMP3">
-           <property name="text">
-            <string>MP3 not found! Click to locate ...</string>
-           </property>
-           <property name="icon">
-            <iconset theme="dialog-error">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="noCover">
-           <property name="text">
-            <string>Cover not found! Click to locate ...</string>
-           </property>
-           <property name="icon">
-            <iconset theme="dialog-warning">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="noVideo">
-           <property name="text">
-            <string>Video not found! Click to locate ...</string>
-           </property>
-           <property name="icon">
-            <iconset theme="dialog-warning">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="noBackground">
-           <property name="text">
-            <string>Background not found! Click to locate ...</string>
-           </property>
-           <property name="icon">
-            <iconset theme="dialog-warning">
-             <normaloff>.</normaloff>.</iconset>
-           </property>
-          </widget>
-         </item>
+        <layout class="QVBoxLayout" name="infos">
          <item>
           <widget class="QPushButton" name="dupe">
            <property name="enabled">
@@ -155,8 +111,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -171,8 +127,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
